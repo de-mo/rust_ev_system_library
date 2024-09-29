@@ -21,13 +21,13 @@ use std::collections::HashSet;
 const BLANK: &str = "BLANK";
 const WRITE_IN: &str = "WRITE_IN";
 
-struct PTable_Element {
+pub struct PTableElement {
     actual_voting_option: String,
     encoded_voting_option: Integer,
     semantic_infomation: String,
     correctness_information: String,
 }
-pub struct PTable(pub Vec<PTable_Element>);
+pub struct PTable(pub Vec<PTableElement>);
 
 impl PTable {
     /// Algorithm 3.3

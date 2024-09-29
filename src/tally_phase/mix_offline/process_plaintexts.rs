@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/>.
 
 use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
-use thiserror::Error;
 
 use crate::preliminaries::{decode_write_ins, factorize, EPPTableAsContext};
 

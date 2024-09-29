@@ -16,11 +16,8 @@
 
 mod process_plaintexts;
 
-use thiserror::Error;
-
 pub use process_plaintexts::ProcessPlaintextsOutput;
-
-use crate::preliminaries::ElectoralModelError;
+use thiserror::Error;
 
 // enum representing the errors during the algorithms for Mix Offline
 #[derive(Error, Debug)]
