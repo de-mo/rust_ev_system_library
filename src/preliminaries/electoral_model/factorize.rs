@@ -20,12 +20,12 @@ use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
 pub fn factorize(
     context: &EPPTableAsContext,
     x: &Integer,
-) -> Result<Vec<Integer>, ElectoralModelError> {
-    let p_tilde = context.p_table.get_encoded_voting_options(&vec![])?;
+) -> Result<Vec<usize>, ElectoralModelError> {
+    let p_tilde = context.p_table.get_encoded_voting_options(&[])?;
     let psi = context.p_table.get_psi()?;
     let res = p_tilde
         .into_iter()
-        .filter(|p_tilde_k| x.is_divisible(&p_tilde_k))
+        .filter(|p_tilde_k| x.is_divisible(&Integer::from(*p_tilde_k)))
         .collect::<Vec<_>>();
     if res.len() != psi {
         return Err(ElectoralModelError::FactorizeInput(format!(
@@ -33,14 +33,10 @@ pub fn factorize(
             res.len()
         )));
     }
-    if &res
-        .iter()
-        .fold(Integer::one().clone(), |acc, p| Integer::from(acc * p))
-        != x
-    {
-        return Err(ElectoralModelError::FactorizeInput(format!(
-            "The product of the factors is not equal to the given number"
-        )));
+    if &res.iter().fold(Integer::one().clone(), |acc, p| (acc * p)) != x {
+        return Err(ElectoralModelError::FactorizeInput(
+            "The product of the factors is not equal to the given number".to_string(),
+        ));
     }
     Ok(res)
 }

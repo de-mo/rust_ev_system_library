@@ -29,7 +29,7 @@ pub fn quadratic_residue_to_write_in(
     let q = encryption_parameters.q();
     let mut x = y.mod_exponentiate(&(Integer::from(p + 1) / 4), p);
     if &x > q {
-        x = x - p;
+        x -= p;
     }
     integer_to_write_in(encryption_parameters, &x)
 }
@@ -57,7 +57,7 @@ fn integer_to_write_in(
             .character_at_pos(usize::try_from(&b).unwrap())
             .unwrap();
         res.push(c);
-        x_internal = Integer::from(x_internal - &b) / a;
+        x_internal = (x_internal - &b) / a;
     }
     Ok(res)
 }

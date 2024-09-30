@@ -21,17 +21,17 @@ use crate::{preliminaries::EPPTableAsContext, MAX_LENGTH_WRITE_IN_FIELD};
 use super::{decoding_write_ins::quadratic_residue_to_write_in, WriteInsError};
 
 /// Algorithm 3.20
-pub fn is_writein_option(context: &EPPTableAsContext, p_tilde_i: &Integer) -> bool {
+pub fn is_writein_option(context: &EPPTableAsContext, p_tilde_i: &usize) -> bool {
     context
         .p_table()
         .get_write_in_encoded_voting_options()
-        .contains(&p_tilde_i)
+        .contains(p_tilde_i)
 }
 
 /// Algorithm 3.22
 pub fn decode_write_ins(
     context: &EPPTableAsContext,
-    p_hat: &[Integer],
+    p_hat: &[usize],
     w: &[Integer],
 ) -> Result<Vec<String>, WriteInsError> {
     let psi = context
@@ -56,12 +56,14 @@ pub fn decode_write_ins(
     if delta == 1 {
         return Ok(vec![]);
     }
-    p_hat
-        .iter()
-        .filter(|p_hat_i| is_writein_option(context, p_hat_i))
-        .map(|w_k| {
+    let mut res = vec![];
+    let mut w_iter = w.iter();
+    for p_hat_i in p_hat.iter() {
+        if is_writein_option(context, p_hat_i) {
+            let w_k = w_iter.next().unwrap();
             let s = quadratic_residue_to_write_in(context.encryption_parameters(), w_k)?;
-            Ok(truncate(&s, MAX_LENGTH_WRITE_IN_FIELD))
-        })
-        .collect::<Result<Vec<_>, WriteInsError>>()
+            res.push(truncate(&s, MAX_LENGTH_WRITE_IN_FIELD))
+        }
+    }
+    Ok(res)
 }

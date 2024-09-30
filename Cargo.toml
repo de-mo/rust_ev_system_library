@@ -14,3 +14,8 @@ license = "LGPL-3.0+"
 #rust_ev_crypto_primitives = "0.6"
 rust_ev_crypto_primitives = { path = "../rust_ev_crypto_primitives" }
 thiserror = "1"
+
+# Dev dpendencies
+[dev-dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

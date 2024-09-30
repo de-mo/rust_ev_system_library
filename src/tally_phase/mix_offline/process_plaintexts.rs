@@ -21,7 +21,7 @@ use crate::preliminaries::{decode_write_ins, factorize, EPPTableAsContext};
 use super::MixOfflineError;
 
 pub struct ProcessPlaintextsOutput {
-    pub l_votes: Vec<Vec<Integer>>,
+    pub l_votes: Vec<Vec<usize>>,
     pub l_decoded_votes: Vec<Vec<String>>,
     pub l_write_ins: Vec<Vec<String>>,
 }
@@ -93,7 +93,7 @@ impl ProcessPlaintextsOutput {
                         "tau_prime is differant that tau_hat".to_string(),
                     ));
                 }
-                let w_k = m_i.iter().skip(0).cloned().collect::<Vec<_>>();
+                let w_k = m_i.iter().skip(1).cloned().collect::<Vec<_>>();
                 let s_hat_k = decode_write_ins(context, &p_hat_k, &w_k).map_err(|e| {
                     MixOfflineError::ProcessPlaintextsProcess(format!(
                         "Write-in error decoding the write-ins: {:?}",

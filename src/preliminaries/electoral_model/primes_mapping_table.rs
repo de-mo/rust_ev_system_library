@@ -15,18 +15,19 @@
 // <https://www.gnu.org/licenses/>.
 
 use super::ElectoralModelError;
-use rust_ev_crypto_primitives::Integer;
 use std::collections::HashSet;
 
 const BLANK: &str = "BLANK";
 const WRITE_IN: &str = "WRITE_IN";
 
+#[derive(Debug, Clone)]
 pub struct PTableElement {
-    actual_voting_option: String,
-    encoded_voting_option: Integer,
-    semantic_infomation: String,
-    correctness_information: String,
+    pub actual_voting_option: String,
+    pub encoded_voting_option: usize,
+    pub semantic_infomation: String,
+    pub correctness_information: String,
 }
+#[derive(Debug, Clone)]
 pub struct PTable(pub Vec<PTableElement>);
 
 impl PTable {
@@ -34,7 +35,7 @@ impl PTable {
     pub fn get_encoded_voting_options(
         &self,
         v_prime: &[&str],
-    ) -> Result<Vec<Integer>, ElectoralModelError> {
+    ) -> Result<Vec<usize>, ElectoralModelError> {
         let m_prime = v_prime.len();
         if m_prime > self.n() {
             return Err(ElectoralModelError::GetEncodedVotingOptionsInput(format!(
@@ -49,22 +50,22 @@ impl PTable {
             }
         }
         if m_prime != v_prime.iter().collect::<HashSet<_>>().len() {
-            return Err(ElectoralModelError::GetEncodedVotingOptionsInput(format!(
-                "Voting options are not distinct"
-            )));
+            return Err(ElectoralModelError::GetEncodedVotingOptionsInput(
+                "Voting options are not distinct".to_string(),
+            ));
         }
         Ok(self
             .0
             .iter()
             .filter(|e| m_prime == 0 || v_prime.contains(&e.actual_voting_option.as_str()))
-            .map(|e| e.encoded_voting_option.clone())
+            .map(|e| e.encoded_voting_option)
             .collect())
     }
 
     /// Algorithm 3.4
     pub fn get_actual_voting_options(
         &self,
-        p_prime: &[Integer],
+        p_prime: &[usize],
     ) -> Result<Vec<String>, ElectoralModelError> {
         let m_prime = p_prime.len();
         if m_prime > self.n() {
@@ -80,9 +81,9 @@ impl PTable {
             }
         }
         if m_prime != p_prime.iter().collect::<HashSet<_>>().len() {
-            return Err(ElectoralModelError::GetActualVotingOptionsInput(format!(
-                "Voting options are not distinct"
-            )));
+            return Err(ElectoralModelError::GetActualVotingOptionsInput(
+                "Voting options are not distinct".to_string(),
+            ));
         }
         Ok(self
             .0
@@ -112,7 +113,7 @@ impl PTable {
         }
         if m_prime != v_prime.iter().collect::<HashSet<_>>().len() {
             return Err(ElectoralModelError::GetCorrectnessInformationInput(
-                format!("Voting options are not distinct"),
+                "Voting options are not distinct".to_string(),
             ));
         }
         Ok(self
@@ -140,11 +141,11 @@ impl PTable {
     }
 
     ///  Algorithm 3.8
-    pub fn get_write_in_encoded_voting_options(&self) -> Vec<&Integer> {
+    pub fn get_write_in_encoded_voting_options(&self) -> Vec<usize> {
         self.0
             .iter()
             .filter(|e| e.semantic_infomation.starts_with(WRITE_IN))
-            .map(|e| &e.encoded_voting_option)
+            .map(|e| e.encoded_voting_option)
             .collect::<Vec<_>>()
     }
 
@@ -171,9 +172,52 @@ impl PTable {
     }
 
     /// Test if pTable contains the given encoded voting Option
-    pub fn contains_encoded_voting_option(&self, encoded_voting_option: &Integer) -> bool {
+    pub fn contains_encoded_voting_option(&self, encoded_voting_option: &usize) -> bool {
         self.0
             .iter()
             .any(|e| &e.encoded_voting_option == encoded_voting_option)
+    }
+}
+
+#[cfg(test)]
+mod test_json_data {
+    use super::{PTable, PTableElement};
+    use serde_json::Value;
+
+    fn json_to_p_table_element(value: &Value) -> PTableElement {
+        PTableElement {
+            actual_voting_option: value["actualVotingOption"].as_str().unwrap().to_string(),
+            encoded_voting_option: value["encodedVotingOption"].as_u64().unwrap() as usize,
+            semantic_infomation: value["semanticInformation"].as_str().unwrap().to_string(),
+            correctness_information: value["correctnessInformation"]
+                .as_str()
+                .unwrap()
+                .to_string(),
+        }
+    }
+
+    pub fn json_to_p_table(value: &Value) -> PTable {
+        PTable(
+            value
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(json_to_p_table_element)
+                .collect(),
+        )
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::test_json_data::json_to_p_table;
+    use crate::test_json_data::get_prime_tables_1;
+
+    #[test]
+    fn test_get_write_in_encoded_voting_options() {
+        let json = get_prime_tables_1();
+        let p_table = json_to_p_table(&json["pTable"]);
+        print!("{:?}", p_table);
+        assert_eq!(p_table.get_write_in_encoded_voting_options(), vec![43])
     }
 }
