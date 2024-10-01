@@ -14,6 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+mod election_event_context;
 mod electoral_model;
 mod write_ins;
 

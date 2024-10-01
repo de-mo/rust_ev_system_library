@@ -20,15 +20,15 @@ use crate::preliminaries::{decode_write_ins, factorize, EPPTableAsContext};
 
 use super::MixOfflineError;
 
-pub struct ProcessPlaintextsOutput {
+pub struct ProcessPlaintextsOutput<'a> {
     pub l_votes: Vec<Vec<usize>>,
-    pub l_decoded_votes: Vec<Vec<String>>,
+    pub l_decoded_votes: Vec<Vec<&'a String>>,
     pub l_write_ins: Vec<Vec<String>>,
 }
 
-impl ProcessPlaintextsOutput {
+impl<'a> ProcessPlaintextsOutput<'a> {
     pub fn process_plaintexts(
-        context: &EPPTableAsContext,
+        context: &EPPTableAsContext<'a, '_>,
         plaintext_votes: &[Vec<Integer>],
     ) -> Result<Self, MixOfflineError> {
         let upper_n_hat_upper_c = plaintext_votes.len();

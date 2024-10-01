@@ -15,11 +15,13 @@
 // <https://www.gnu.org/licenses/>.
 
 mod factorize;
+mod hash_context;
 mod primes_mapping_table;
 
 pub use factorize::*;
+pub use hash_context::*;
 pub use primes_mapping_table::*;
-use rust_ev_crypto_primitives::elgamal::EncryptionParameters;
+use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, HashError};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -34,6 +36,10 @@ pub enum ElectoralModelError {
     GetCorrectnessInformationInput(String),
     #[error("Error output in factorize: {0}")]
     FactorizeInput(String),
+    #[error("Error validating context for get_hash_context: {0}")]
+    GetHashContextContextValidation(String),
+    #[error(transparent)]
+    HashError(#[from] HashError),
 }
 
 pub struct EPPTableAsContext<'a, 'b> {

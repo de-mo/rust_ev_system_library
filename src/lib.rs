@@ -27,8 +27,6 @@ mod test_json_data {
     use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, Hexa, Integer};
     use serde_json::Value;
 
-    use crate::preliminaries::PTableElement;
-
     pub fn json_array_value_to_array_string(array: &Value) -> Vec<String> {
         array
             .as_array()

@@ -66,7 +66,7 @@ impl PTable {
     pub fn get_actual_voting_options(
         &self,
         p_prime: &[usize],
-    ) -> Result<Vec<String>, ElectoralModelError> {
+    ) -> Result<Vec<&String>, ElectoralModelError> {
         let m_prime = p_prime.len();
         if m_prime > self.n() {
             return Err(ElectoralModelError::GetActualVotingOptionsInput(format!(
@@ -89,15 +89,20 @@ impl PTable {
             .0
             .iter()
             .filter(|e| m_prime == 0 || p_prime.contains(&e.encoded_voting_option))
-            .map(|e| e.actual_voting_option.clone())
+            .map(|e| &e.actual_voting_option)
             .collect())
     }
 
+    /// Algorithm 3.5
+    pub fn get_semantic_information(&self) -> Vec<&String> {
+        self.0.iter().map(|e| &e.semantic_infomation).collect()
+    }
+
     /// Algorithm 3.6
-    pub fn get_correctness_information(
-        &self,
+    pub fn get_correctness_information<'a>(
+        &'a self,
         v_prime: &[&str],
-    ) -> Result<Vec<String>, ElectoralModelError> {
+    ) -> Result<Vec<&'a String>, ElectoralModelError> {
         let m_prime = v_prime.len();
         if m_prime > self.n() {
             return Err(ElectoralModelError::GetCorrectnessInformationInput(
@@ -120,7 +125,7 @@ impl PTable {
             .0
             .iter()
             .filter(|e| m_prime == 0 || v_prime.contains(&e.actual_voting_option.as_str()))
-            .map(|e| e.correctness_information.clone())
+            .map(|e| &e.correctness_information)
             .collect())
     }
 
