@@ -21,12 +21,12 @@ use rust_ev_crypto_primitives::{
 };
 
 pub struct GetHashContextContext<'a, 'b, 'c, 'd, 'e, 'f> {
-    encryption_parameters: &'a EncryptionParameters,
-    ee: &'b str,
-    vcs: &'c str,
-    p_table: &'d PTable,
-    el_pk: &'e [Integer],
-    pk_ccr: &'f [Integer],
+    pub encryption_parameters: &'a EncryptionParameters,
+    pub ee: &'b str,
+    pub vcs: &'c str,
+    pub p_table: &'d PTable,
+    pub el_pk: &'e [Integer],
+    pub pk_ccr: &'f [Integer],
 }
 
 impl<'a, 'b, 'c, 'd, 'e, 'f> VerifyDomainTrait<ElectoralModelError>

@@ -15,15 +15,21 @@
 // <https://www.gnu.org/licenses/>.
 
 mod process_plaintexts;
+mod verifiy_client_proofs;
 
 pub use process_plaintexts::ProcessPlaintextsOutput;
 use thiserror::Error;
+pub use verifiy_client_proofs::*;
 
 // enum representing the errors during the algorithms for Mix Offline
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Clone)]
 pub enum MixOfflineError {
     #[error("Error input in process_plaintexts: {0}")]
     ProcessPlaintextsInput(String),
     #[error("Error processing in process_plaintexts: {0}")]
     ProcessPlaintextsProcess(String),
+    #[error("Domain Error in inputs of VerifyVotingClientProofs: {0}")]
+    VerifyVotingClientProofsInput(String),
+    #[error("Error in processing VerifyVotingClientProofs: {0}")]
+    VerifyVotingClientProofsProcess(String),
 }
