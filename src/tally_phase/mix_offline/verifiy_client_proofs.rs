@@ -14,6 +14,8 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use std::collections::HashSet;
+
 use crate::preliminaries::{get_hash_context, GetHashContextContext, PTable};
 use rust_ev_crypto_primitives::{
     elgamal::EncryptionParameters,
@@ -50,56 +52,70 @@ impl<'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j, 'k, 'l, 'm> VerifyDomainTrait<MixOf
     )
 {
     fn verifiy_domain(&self) -> Vec<MixOfflineError> {
+        let mut res = vec![];
         let upper_n_c = self.1.vc_1.len();
+        if upper_n_c == 0 {
+            res.push(MixOfflineError::ProcessPlaintextsInput(
+                "N_c must be greater or equal 1".to_string(),
+            ));
+        }
+        if upper_n_c > self.0.upper_n_upper_e {
+            res.push(MixOfflineError::ProcessPlaintextsInput(
+                "N_c must be smaller or equal N_E".to_string(),
+            ));
+        }
         if self.1.e1_1.len() != upper_n_c {
-            return vec![MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::ProcessPlaintextsInput(
                 "E1_1 has wrong length".to_string(),
-            )];
+            ));
         }
         if self.1.e1_tilde_1.len() != upper_n_c {
-            return vec![MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::ProcessPlaintextsInput(
                 "e1_tilde_1 has wrong length".to_string(),
-            )];
+            ));
         }
         if self.1.e2_1.len() != upper_n_c {
-            return vec![MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::ProcessPlaintextsInput(
                 "e2_1 has wrong length".to_string(),
-            )];
+            ));
         }
         if self.1.pi_exp_1.len() != upper_n_c {
-            return vec![MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::ProcessPlaintextsInput(
                 "pi_exp_1 has wrong length".to_string(),
-            )];
+            ));
         }
         if self.1.pi_eq_enc_1.len() != upper_n_c {
-            return vec![MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::ProcessPlaintextsInput(
                 "pi_eq_enc_1 has wrong length".to_string(),
-            )];
+            ));
         }
         if self.1.k_map.len() != self.0.upper_n_upper_e {
-            return vec![MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::ProcessPlaintextsInput(
                 "k_map has wrong length".to_string(),
-            )];
+            ));
         }
-        let psi_res = self.0.p_table.get_psi().map_err(|e| {
-            vec![MixOfflineError::VerifyVotingClientProofsInput(format!(
+        match self.0.p_table.get_psi() {
+            Err(e) => res.push(MixOfflineError::VerifyVotingClientProofsInput(format!(
                 "Error calculating psi: {}",
                 e
-            ))]
-        });
-        if let Err(e) = psi_res {
-            return e;
-        }
-        let psi = psi_res.unwrap();
-        for (i, e1_1_i) in self.1.e1_1.iter().enumerate() {
-            if e1_1_i.len() != psi + 1 {
-                return vec![MixOfflineError::ProcessPlaintextsInput(format!(
-                    "Inner vector of E1_1 is not of length psi+1 at position {}",
-                    i
-                ))];
+            ))),
+            Ok(psi) => {
+                for (i, e1_1_i) in self.1.e1_1.iter().enumerate() {
+                    if e1_1_i.len() != psi + 1 {
+                        res.push(MixOfflineError::ProcessPlaintextsInput(format!(
+                            "Inner vector of E1_1 is not of length psi+1 at position {}",
+                            i
+                        )));
+                    }
+                }
             }
         }
-        vec![]
+        if self.1.vc_1.len() != self.1.vc_1.iter().collect::<HashSet<_>>().len() {
+            res.push(MixOfflineError::ProcessPlaintextsInput(
+                "Confirmed verification card vc_1 are not distinct".to_string(),
+            ));
+        }
+        res
     }
 }
 
