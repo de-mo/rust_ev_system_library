@@ -14,12 +14,15 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+//! Module implementing the algorithms for mixing offline
+
 mod process_plaintexts;
 mod verifiy_client_proofs;
 
 pub use process_plaintexts::ProcessPlaintextsOutput;
-use thiserror::Error;
 pub use verifiy_client_proofs::*;
+
+use thiserror::Error;
 
 // enum representing the errors during the algorithms for Mix Offline
 #[derive(Error, Debug, Clone)]

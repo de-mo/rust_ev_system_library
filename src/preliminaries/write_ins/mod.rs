@@ -14,13 +14,17 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+//! Algorithms defined in section Write-ins
+
 mod decoding_write_ins;
 mod write_ins_tally_phase;
 
-use super::ElectoralModelError;
-use thiserror::Error;
 pub use write_ins_tally_phase::decode_write_ins;
 
+use super::ElectoralModelError;
+use thiserror::Error;
+
+/// Enum representing the errors during the algorithms in write-ins
 #[derive(Error, Debug)]
 pub enum WriteInsError {
     #[error("Error input in decode_write_ins: {0}")]

@@ -21,6 +21,8 @@ use rust_ev_crypto_primitives::{
 };
 
 /// Algorithm 3.17
+///
+/// Error [WriteInsError] if something is going wrong
 pub fn quadratic_residue_to_write_in(
     encryption_parameters: &EncryptionParameters,
     y: &Integer,
@@ -35,6 +37,8 @@ pub fn quadratic_residue_to_write_in(
 }
 
 /// Algorithm 3.17
+///
+/// Error [WriteInsError] if something is going wrong
 fn integer_to_write_in(
     encryption_parameters: &EncryptionParameters,
     x: &Integer,

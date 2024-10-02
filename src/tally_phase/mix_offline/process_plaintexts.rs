@@ -14,19 +14,22 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use super::MixOfflineError;
+use crate::preliminaries::{decode_write_ins, factorize, EPPTableAsContext};
 use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
 
-use crate::preliminaries::{decode_write_ins, factorize, EPPTableAsContext};
-
-use super::MixOfflineError;
-
+/// Output structure of ProcessPlaintexts according to the specifications
 pub struct ProcessPlaintextsOutput<'a> {
+    /// L_votes: List of all selected encoded voting options
     pub l_votes: Vec<Vec<usize>>,
+    /// L_decodedVotes: List of all selected decoded voting options
     pub l_decoded_votes: Vec<Vec<&'a String>>,
+    /// L_writeIns: List of all selected decoded write-in votes
     pub l_write_ins: Vec<Vec<String>>,
 }
 
 impl<'a> ProcessPlaintextsOutput<'a> {
+    /// Algorithm 6.9
     pub fn process_plaintexts(
         context: &EPPTableAsContext<'a, '_>,
         plaintext_votes: &[Vec<Integer>],

@@ -17,9 +17,9 @@
 use super::{ElectoralModelError, PTable};
 use rust_ev_crypto_primitives::{
     elgamal::EncryptionParameters, EncodeTrait, HashableMessage, Integer, RecursiveHashTrait,
-    VerifyDomainTrait,
 };
 
+/// Input structure of  GetHashContext according to the specifications
 pub struct GetHashContextContext<'a, 'b, 'c, 'd, 'e, 'f> {
     pub encryption_parameters: &'a EncryptionParameters,
     pub ee: &'b str,
@@ -29,18 +29,9 @@ pub struct GetHashContextContext<'a, 'b, 'c, 'd, 'e, 'f> {
     pub pk_ccr: &'f [Integer],
 }
 
-impl<'a, 'b, 'c, 'd, 'e, 'f> VerifyDomainTrait<ElectoralModelError>
-    for GetHashContextContext<'a, 'b, 'c, 'd, 'e, 'f>
-{
-    fn verifiy_domain(&self) -> Vec<ElectoralModelError> {
-        self.encryption_parameters
-            .verifiy_domain()
-            .iter()
-            .map(|e| ElectoralModelError::GetHashContextContextValidation(format!("{:#}", e)))
-            .collect()
-    }
-}
-
+/// Algorithm 3.11
+///
+/// Error [ElectoralModelError] if something is going wrong
 pub fn get_hash_context(context: &GetHashContextContext) -> Result<String, ElectoralModelError> {
     Ok(HashableMessage::from(context)
         .recursive_hash()
@@ -122,7 +113,7 @@ mod test {
     use super::*;
     use crate::{
         preliminaries::PTableElement,
-        test_json_data::{json_array_value_to_array_integer, json_value_to_integer},
+        test_json_data::{json_array_value_to_array_integer, json_value_to_integer_base16},
     };
     use serde_json::Value;
     use std::{fs, path::PathBuf};
@@ -161,9 +152,9 @@ mod test {
             let output = test_case["output"].as_str().unwrap();
             let context = &test_case["context"];
             let ep = EncryptionParameters::from((
-                &json_value_to_integer(&context["p"]),
-                &json_value_to_integer(&context["q"]),
-                &json_value_to_integer(&context["g"]),
+                &json_value_to_integer_base16(&context["p"]),
+                &json_value_to_integer_base16(&context["q"]),
+                &json_value_to_integer_base16(&context["g"]),
             ));
             let ee = context["ee"].as_str().unwrap();
             let vcs = context["vcs"].as_str().unwrap();

@@ -20,6 +20,7 @@ use std::collections::HashSet;
 const BLANK: &str = "BLANK";
 const WRITE_IN: &str = "WRITE_IN";
 
+/// Element in pTable according the spefication of Swiss Post
 #[derive(Debug, Clone)]
 pub struct PTableElement {
     pub actual_voting_option: String,
@@ -27,6 +28,8 @@ pub struct PTableElement {
     pub semantic_infomation: String,
     pub correctness_information: String,
 }
+
+/// pTable according the spefication of Swiss Post
 #[derive(Debug, Clone)]
 pub struct PTable(pub Vec<PTableElement>);
 
@@ -185,7 +188,7 @@ impl PTable {
 }
 
 #[cfg(test)]
-mod test_json_data {
+pub mod test_json_data {
     use super::{PTable, PTableElement};
     use serde_json::Value;
 

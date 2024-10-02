@@ -14,6 +14,8 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+//! Algorithms defined in section Electoral Model
+
 mod factorize;
 mod hash_context;
 mod primes_mapping_table;
@@ -21,9 +23,11 @@ mod primes_mapping_table;
 pub use factorize::*;
 pub use hash_context::*;
 pub use primes_mapping_table::*;
+
 use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, HashError};
 use thiserror::Error;
 
+/// Enum representing the errors during the algorithms in electoral model
 #[derive(Error, Debug)]
 pub enum ElectoralModelError {
     #[error("Error output in get_blank_correctness_information: {0}")]
@@ -42,6 +46,7 @@ pub enum ElectoralModelError {
     HashError(#[from] HashError),
 }
 
+/// Context containing pTable and encryption parameters
 pub struct EPPTableAsContext<'a, 'b> {
     p_table: &'a PTable,
     encryption_parameters: &'b EncryptionParameters,

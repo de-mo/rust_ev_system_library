@@ -14,9 +14,12 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+//! Algorithms defined in section Preliminaries
+
 mod election_event_context;
 mod electoral_model;
 mod write_ins;
 
+pub use election_event_context::*;
 pub use electoral_model::*;
 pub use write_ins::*;

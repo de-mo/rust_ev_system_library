@@ -17,6 +17,9 @@
 use super::{EPPTableAsContext, ElectoralModelError};
 use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
 
+/// Algorithm 3.12
+///
+/// Error [ElectoralModelError] if something is going wrong
 pub fn factorize(
     context: &EPPTableAsContext,
     x: &Integer,
@@ -39,4 +42,44 @@ pub fn factorize(
         ));
     }
     Ok(res)
+}
+
+#[cfg(test)]
+mod test {
+    use super::super::primes_mapping_table::test_json_data::json_to_p_table;
+    use super::*;
+    use crate::test_json_data::{
+        get_prime_tables_1, get_prime_tables_2, json_to_encryption_parameters,
+    };
+
+    #[test]
+    fn test_factorize_psi_1() {
+        let prime_tables_1 = get_prime_tables_1();
+        let p_table = json_to_p_table(&prime_tables_1["pTable"]);
+        let ep = json_to_encryption_parameters(&prime_tables_1["encryptionGroup"]);
+        let context = EPPTableAsContext {
+            p_table: &p_table,
+            encryption_parameters: &ep,
+        };
+        assert_eq!(factorize(&context, &Integer::from(13)).unwrap(), vec![13]);
+        assert!(factorize(&context, &Integer::from(11 * 13)).is_err(),);
+    }
+
+    #[test]
+    fn test_factorize_psi_11() {
+        let prime_tables_1 = get_prime_tables_2();
+        let p_table = json_to_p_table(&prime_tables_1["pTable"]);
+        let ep = json_to_encryption_parameters(&prime_tables_1["encryptionGroup"]);
+        let context = EPPTableAsContext {
+            p_table: &p_table,
+            encryption_parameters: &ep,
+        };
+        let res: Vec<usize> = vec![61, 67, 71, 73, 79, 83, 89, 101, 107, 109, 149];
+        let x = res.iter().fold(Integer::one().clone(), |acc, p| acc * p);
+        assert_eq!(factorize(&context, &x).unwrap(), res);
+        assert!(factorize(&context, &Integer::from(61 * 67)).is_err(),);
+        let res2: Vec<usize> = vec![7, 61, 67, 71, 73, 79, 83, 89, 101, 107, 109];
+        let x2 = res2.iter().fold(Integer::one().clone(), |acc, p| acc * p);
+        assert!(factorize(&context, &x2).is_err());
+    }
 }

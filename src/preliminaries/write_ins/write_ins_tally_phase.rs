@@ -21,7 +21,7 @@ use crate::{preliminaries::EPPTableAsContext, MAX_LENGTH_WRITE_IN_FIELD};
 use super::{decoding_write_ins::quadratic_residue_to_write_in, WriteInsError};
 
 /// Algorithm 3.20
-pub fn is_writein_option(context: &EPPTableAsContext, p_tilde_i: &usize) -> bool {
+fn is_writein_option(context: &EPPTableAsContext, p_tilde_i: &usize) -> bool {
     context
         .p_table()
         .get_write_in_encoded_voting_options()
@@ -29,6 +29,8 @@ pub fn is_writein_option(context: &EPPTableAsContext, p_tilde_i: &usize) -> bool
 }
 
 /// Algorithm 3.22
+///
+/// Error [WriteInsError] if something is going wrong
 pub fn decode_write_ins(
     context: &EPPTableAsContext,
     p_hat: &[usize],

@@ -25,6 +25,7 @@ use rust_ev_crypto_primitives::{
 
 use super::MixOfflineError;
 
+/// Context structure of VerifyVotingClientProof according to the specifications
 pub struct VerifyVotingClientProofsContext<'a, 'b, 'c, 'd, 'e, 'f> {
     encryption_parameters: &'a EncryptionParameters,
     ee: &'b str,
@@ -35,6 +36,7 @@ pub struct VerifyVotingClientProofsContext<'a, 'b, 'c, 'd, 'e, 'f> {
     pk_ccr: &'f [Integer],
 }
 
+/// Input structure of VerifyVotingClientProof according to the specifications
 pub struct VerifyVotingClientProofsInput<'g, 'h, 'i, 'j, 'k, 'l, 'm> {
     vc_1: &'g [String],
     e1_1: &'h [Vec<Integer>],
@@ -119,6 +121,11 @@ impl<'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j, 'k, 'l, 'm> VerifyDomainTrait<MixOf
     }
 }
 
+/// Algorithm 6.6
+///
+/// Return a [Vec<String>] with the unsuccessfully verifications. Empty if the verification is ok
+///
+/// Error [MixOfflineError] if something is going wrong
 pub fn verify_voting_client_proofs(
     context: &VerifyVotingClientProofsContext,
     input: &VerifyVotingClientProofsInput,

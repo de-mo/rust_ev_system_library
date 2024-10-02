@@ -14,4 +14,6 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+//! Module implementing the algorithms for the tally phase
+
 pub mod mix_offline;

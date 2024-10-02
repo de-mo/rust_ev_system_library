@@ -24,7 +24,7 @@ pub const MAX_LENGTH_WRITE_IN_FIELD: usize = 400;
 mod test_json_data {
     use std::{fs, path::PathBuf};
 
-    use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, Hexa, Integer};
+    use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, DecodeTrait, Hexa, Integer};
     use serde_json::Value;
 
     pub fn json_array_value_to_array_string(array: &Value) -> Vec<String> {
@@ -40,15 +40,19 @@ mod test_json_data {
         Integer::from_hexa_string_slice(&json_array_value_to_array_string(array)).unwrap()
     }
 
-    pub fn json_value_to_integer(value: &Value) -> Integer {
+    pub fn json_value_to_integer_base16(value: &Value) -> Integer {
         Integer::from_hexa_string(value.as_str().unwrap()).unwrap()
     }
 
-    fn json_to_encryption_parameters(value: &Value) -> EncryptionParameters {
+    pub fn json_value_to_integer_base64(value: &Value) -> Integer {
+        Integer::base64_decode(value.as_str().unwrap()).unwrap()
+    }
+
+    pub fn json_to_encryption_parameters(value: &Value) -> EncryptionParameters {
         EncryptionParameters::from((
-            &json_value_to_integer(&value["p"]),
-            &json_value_to_integer(&value["q"]),
-            &json_value_to_integer(&value["g"]),
+            &json_value_to_integer_base64(&value["p"]),
+            &json_value_to_integer_base64(&value["q"]),
+            &json_value_to_integer_base64(&value["g"]),
         ))
     }
 
@@ -56,6 +60,13 @@ mod test_json_data {
         let p = PathBuf::from(".")
             .join("test_data")
             .join("prime_tables_1.json");
+        serde_json::from_str(&fs::read_to_string(p).unwrap()).unwrap()
+    }
+
+    pub fn get_prime_tables_2() -> Value {
+        let p = PathBuf::from(".")
+            .join("test_data")
+            .join("prime_tables_2.json");
         serde_json::from_str(&fs::read_to_string(p).unwrap()).unwrap()
     }
 }
