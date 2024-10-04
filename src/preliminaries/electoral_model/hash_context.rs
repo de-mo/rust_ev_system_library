@@ -110,19 +110,21 @@ where
 
 #[cfg(test)]
 mod test {
+    use std::fs;
+
     use super::*;
     use crate::{
         preliminaries::PTableElement,
+        test_data::get_test_data_path,
         test_json_data::{json_array_value_to_array_integer, json_value_to_integer_base16},
     };
     use serde_json::Value;
-    use std::{fs, path::PathBuf};
 
     pub fn get_hash_contexts() -> Vec<Value> {
-        let p = PathBuf::from(".")
-            .join("test_data")
-            .join("get-hash-context.json");
-        serde_json::from_str(&fs::read_to_string(p).unwrap()).unwrap()
+        serde_json::from_str(
+            &fs::read_to_string(get_test_data_path().join("get-hash-context.json")).unwrap(),
+        )
+        .unwrap()
     }
 
     fn json_to_p_table_element(value: &Value) -> PTableElement {

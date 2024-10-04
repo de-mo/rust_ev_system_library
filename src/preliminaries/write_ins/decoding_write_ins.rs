@@ -31,7 +31,7 @@ pub fn quadratic_residue_to_write_in(
     let q = encryption_parameters.q();
     let mut x = y.mod_exponentiate(&(Integer::from(p + 1) / 4), p);
     if &x > q {
-        x -= p;
+        x = p - x;
     }
     integer_to_write_in(encryption_parameters, &x)
 }
@@ -43,9 +43,9 @@ fn integer_to_write_in(
     encryption_parameters: &EncryptionParameters,
     x: &Integer,
 ) -> Result<String, WriteInsError> {
-    if x == Integer::zero() {
+    if x <= Integer::zero() {
         return Err(WriteInsError::IntegerToWriteInput(
-            "x cannot be 0".to_string(),
+            "x cannot be less or equal 0".to_string(),
         ));
     }
     let a = ALPHABET_LATIN.size();
@@ -56,12 +56,77 @@ fn integer_to_write_in(
         if &x_internal == Integer::zero() {
             break;
         }
-        let b = Integer::from(x % a);
-        let c = ALPHABET_LATIN
-            .character_at_pos(usize::try_from(&b).unwrap())
-            .unwrap();
-        res.push(c);
-        x_internal = (x_internal - &b) / a;
+        let b = x_internal.mod_u(a as u32) as usize;
+        let c = ALPHABET_LATIN.character_at_pos(b).unwrap();
+        res.insert(0, c);
+        x_internal = (x_internal - b) / a;
     }
     Ok(res)
+}
+
+#[cfg(test)]
+mod test {
+    use std::fs;
+
+    use crate::{
+        test_data::get_test_data_writeins_path,
+        test_json_data::{json_to_encryption_parameters_base16, json_value_to_integer_base16},
+    };
+
+    use super::*;
+    use serde_json::Value;
+
+    fn get_test_case_integer_to_write_in() -> Value {
+        serde_json::from_str(
+            &fs::read_to_string(get_test_data_writeins_path().join("integer-to-write-in.json"))
+                .unwrap(),
+        )
+        .unwrap()
+    }
+
+    fn get_test_case_qr_to_write_in() -> Value {
+        serde_json::from_str(
+            &fs::read_to_string(get_test_data_writeins_path().join("qr-to-write-in.json")).unwrap(),
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn test_integer_to_write_in() {
+        let value = get_test_case_integer_to_write_in();
+        for tc in value.as_array().unwrap().iter() {
+            let description = tc["description"].as_str().unwrap();
+            let ep = json_to_encryption_parameters_base16(&tc["context"]);
+            let x = json_value_to_integer_base16(&tc["input"]["x"]);
+            let expected = tc["output"]["output"].as_str().unwrap();
+            assert_eq!(
+                integer_to_write_in(&ep, &x).unwrap().as_str(),
+                expected,
+                "{}",
+                description
+            )
+        }
+        assert!(integer_to_write_in(
+            &json_to_encryption_parameters_base16(&value[0]["context"]),
+            Integer::zero()
+        )
+        .is_err())
+    }
+
+    #[test]
+    fn test_qr_to_write_in() {
+        let value = get_test_case_qr_to_write_in();
+        for tc in value.as_array().unwrap().iter() {
+            let description = tc["description"].as_str().unwrap();
+            let ep = json_to_encryption_parameters_base16(&tc["context"]);
+            let y = json_value_to_integer_base16(&tc["input"]["y"]);
+            let expected = tc["output"]["output"].as_str().unwrap();
+            assert_eq!(
+                quadratic_residue_to_write_in(&ep, &y).unwrap().as_str(),
+                expected,
+                "{}",
+                description
+            )
+        }
+    }
 }

@@ -48,15 +48,14 @@ pub fn factorize(
 mod test {
     use super::super::primes_mapping_table::test_json_data::json_to_p_table;
     use super::*;
-    use crate::test_json_data::{
-        get_prime_tables_1, get_prime_tables_2, json_to_encryption_parameters,
-    };
+    use crate::test_data::{get_prime_tables_1, get_prime_tables_2};
+    use crate::test_json_data::json_to_encryption_parameters_base64;
 
     #[test]
     fn test_factorize_psi_1() {
         let prime_tables_1 = get_prime_tables_1();
         let p_table = json_to_p_table(&prime_tables_1["pTable"]);
-        let ep = json_to_encryption_parameters(&prime_tables_1["encryptionGroup"]);
+        let ep = json_to_encryption_parameters_base64(&prime_tables_1["encryptionGroup"]);
         let context = EPPTableAsContext {
             p_table: &p_table,
             encryption_parameters: &ep,
@@ -69,7 +68,7 @@ mod test {
     fn test_factorize_psi_11() {
         let prime_tables_1 = get_prime_tables_2();
         let p_table = json_to_p_table(&prime_tables_1["pTable"]);
-        let ep = json_to_encryption_parameters(&prime_tables_1["encryptionGroup"]);
+        let ep = json_to_encryption_parameters_base64(&prime_tables_1["encryptionGroup"]);
         let context = EPPTableAsContext {
             p_table: &p_table,
             encryption_parameters: &ep,

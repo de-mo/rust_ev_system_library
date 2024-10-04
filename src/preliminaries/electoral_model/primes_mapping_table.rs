@@ -219,7 +219,7 @@ pub mod test_json_data {
 #[cfg(test)]
 mod test {
     use super::test_json_data::json_to_p_table;
-    use crate::test_json_data::get_prime_tables_1;
+    use crate::test_data::get_prime_tables_1;
 
     #[test]
     fn test_get_write_in_encoded_voting_options() {
