@@ -1,10 +1,11 @@
 [package]
-name = "rust_ev_verifier_lib"
+name = "rust_ev_system_library"
+description = "Implementation of E-Voting system library functionalities for the Verifier"
 version = "0.1.0"
 authors = ["Denis Morel"]
 edition = "2021"
 rust-version = "1.81"
-repository = "https://github.com/de-mo/rust_ev_verifier_lib"
+repository = "https://github.com/de-mo/rust_ev_system_library"
 readme = "README.md"
 categories = ["cryptography", "mathematics"]
 keywords = ["math", "e-voting", "crypto"]
