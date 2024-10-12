@@ -1,18 +1,18 @@
 [package]
-name = "ev_system_library"
+name = "rust_ev_verifier_lib"
 version = "0.1.0"
 authors = ["Denis Morel"]
 edition = "2021"
 rust-version = "1.81"
-#repository = "https://github.com/de-mo/rust_verifier"
+repository = "https://github.com/de-mo/rust_ev_verifier_lib"
 readme = "README.md"
 categories = ["cryptography", "mathematics"]
 keywords = ["math", "e-voting", "crypto"]
 license = "LGPL-3.0+"
 
 [dependencies]
-#rust_ev_crypto_primitives = "0.6"
-rust_ev_crypto_primitives = { path = "../rust_ev_crypto_primitives" }
+rust_ev_crypto_primitives = "0.6"
+#rust_ev_crypto_primitives = { path = "../rust_ev_crypto_primitives" }
 thiserror = "1"
 
 # Dev dpendencies

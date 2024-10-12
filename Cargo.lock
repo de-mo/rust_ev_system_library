@@ -186,16 +186,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
 
 [[package]]
-name = "ev_system_library"
-version = "0.1.0"
-dependencies = [
- "rust_ev_crypto_primitives",
- "serde",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
 name = "foreign-types"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -491,7 +481,9 @@ dependencies = [
 
 [[package]]
 name = "rust_ev_crypto_primitives"
-version = "0.7.0"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33891ee86ffb728eef3ab9d98132db0748c81e2a18cad0b12ba9f2e38cf60170"
 dependencies = [
  "argon2",
  "chrono",
@@ -501,6 +493,16 @@ dependencies = [
  "openssl",
  "rug",
  "rug-miller-rabin",
+ "thiserror",
+]
+
+[[package]]
+name = "rust_ev_verifier_lib"
+version = "0.1.0"
+dependencies = [
+ "rust_ev_crypto_primitives",
+ "serde",
+ "serde_json",
  "thiserror",
 ]
 
