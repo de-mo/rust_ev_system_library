@@ -14,6 +14,8 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use rust_ev_crypto_primitives::HashableMessage;
+
 use super::ElectoralModelError;
 use std::collections::HashSet;
 
@@ -25,7 +27,7 @@ const WRITE_IN: &str = "WRITE_IN";
 pub struct PTableElement {
     pub actual_voting_option: String,
     pub encoded_voting_option: usize,
-    pub semantic_infomation: String,
+    pub semantic_information: String,
     pub correctness_information: String,
 }
 
@@ -98,7 +100,7 @@ impl PTable {
 
     /// Algorithm 3.5
     pub fn get_semantic_information(&self) -> Vec<&String> {
-        self.0.iter().map(|e| &e.semantic_infomation).collect()
+        self.0.iter().map(|e| &e.semantic_information).collect()
     }
 
     /// Algorithm 3.6
@@ -137,7 +139,7 @@ impl PTable {
         let res = self
             .0
             .iter()
-            .filter(|e| e.semantic_infomation.starts_with(BLANK))
+            .filter(|e| e.semantic_information.starts_with(BLANK))
             .map(|e| e.correctness_information.as_str())
             .collect::<Vec<_>>();
         if res.is_empty() {
@@ -152,7 +154,7 @@ impl PTable {
     pub fn get_write_in_encoded_voting_options(&self) -> Vec<usize> {
         self.0
             .iter()
-            .filter(|e| e.semantic_infomation.starts_with(WRITE_IN))
+            .filter(|e| e.semantic_information.starts_with(WRITE_IN))
             .map(|e| e.encoded_voting_option)
             .collect::<Vec<_>>()
     }
@@ -187,6 +189,17 @@ impl PTable {
     }
 }
 
+impl<'a> From<&'a PTableElement> for HashableMessage<'a> {
+    fn from(value: &'a PTableElement) -> Self {
+        Self::from(vec![
+            Self::from(&value.actual_voting_option),
+            Self::from(&value.encoded_voting_option),
+            Self::from(&value.semantic_information),
+            Self::from(&value.correctness_information),
+        ])
+    }
+}
+
 #[cfg(test)]
 pub mod test_json_data {
     use super::{PTable, PTableElement};
@@ -196,7 +209,7 @@ pub mod test_json_data {
         PTableElement {
             actual_voting_option: value["actualVotingOption"].as_str().unwrap().to_string(),
             encoded_voting_option: value["encodedVotingOption"].as_u64().unwrap() as usize,
-            semantic_infomation: value["semanticInformation"].as_str().unwrap().to_string(),
+            semantic_information: value["semanticInformation"].as_str().unwrap().to_string(),
             correctness_information: value["correctnessInformation"]
                 .as_str()
                 .unwrap()

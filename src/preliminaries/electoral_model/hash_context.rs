@@ -131,7 +131,7 @@ mod test {
         PTableElement {
             actual_voting_option: value["v"].as_str().unwrap().to_string(),
             encoded_voting_option: value["pTilde"].as_u64().unwrap() as usize,
-            semantic_infomation: value["sigma"].as_str().unwrap().to_string(),
+            semantic_information: value["sigma"].as_str().unwrap().to_string(),
             correctness_information: value["tau"].as_str().unwrap().to_string(),
         }
     }

@@ -82,7 +82,7 @@ impl<'hash> From<&'hash PTable> for HashableMessage<'hash> {
                     HashableMessage::from(vec![
                         HashableMessage::from(&e.actual_voting_option),
                         HashableMessage::from(&e.encoded_voting_option),
-                        HashableMessage::from(&e.semantic_infomation),
+                        HashableMessage::from(&e.semantic_information),
                         HashableMessage::from(&e.correctness_information),
                     ])
                 })
