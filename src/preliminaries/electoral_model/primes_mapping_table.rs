@@ -17,13 +17,13 @@
 use rust_ev_crypto_primitives::HashableMessage;
 
 use super::ElectoralModelError;
-use std::collections::HashSet;
+use std::{collections::HashSet, fmt::Display};
 
 const BLANK: &str = "BLANK";
 const WRITE_IN: &str = "WRITE_IN";
 
 /// Element in pTable according the spefication of Swiss Post
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PTableElement {
     pub actual_voting_option: String,
     pub encoded_voting_option: usize,
@@ -34,6 +34,19 @@ pub struct PTableElement {
 /// pTable according the spefication of Swiss Post
 #[derive(Debug, Clone)]
 pub struct PTable(pub Vec<PTableElement>);
+
+impl Display for PTableElement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "({},{},{},{})",
+            self.actual_voting_option,
+            self.encoded_voting_option,
+            self.semantic_information,
+            self.correctness_information
+        )
+    }
+}
 
 impl PTable {
     /// Algorithm 3.3
