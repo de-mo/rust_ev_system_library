@@ -26,31 +26,38 @@ use rust_ev_crypto_primitives::{
 use super::MixOfflineError;
 
 /// Context structure of VerifyVotingClientProof according to the specifications
-pub struct VerifyVotingClientProofsContext<'a, 'b, 'c, 'd, 'e, 'f> {
+pub struct VerifyVotingClientProofsContext<'a> {
     encryption_parameters: &'a EncryptionParameters,
-    ee: &'b str,
-    vcs: &'c str,
-    p_table: &'d PTable,
+    ee: &'a str,
+    vcs: &'a str,
+    p_table: &'a PTable,
     upper_n_upper_e: usize,
-    el_pk: &'e [Integer],
-    pk_ccr: &'f [Integer],
+    el_pk: &'a [&'a Integer],
+    pk_ccr: &'a [&'a Integer],
 }
 
 /// Input structure of VerifyVotingClientProof according to the specifications
-pub struct VerifyVotingClientProofsInput<'g, 'h, 'i, 'j, 'k, 'l, 'm> {
-    vc_1: &'g [String],
-    e1_1: &'h [Vec<Integer>],
-    e1_tilde_1: &'i [(Integer, Integer)],
-    e2_1: &'j [Vec<Integer>],
-    pi_exp_1: &'k [(Integer, Integer)],
-    pi_eq_enc_1: &'l [(Integer, (Integer, Integer))],
-    k_map: &'m [(String, Integer)],
+pub struct VerifyVotingClientProofsInput<'a> {
+    vc_1: &'a [String],
+    e1_1: &'a [Vec<&'a Integer>],
+    e1_tilde_1: &'a [(&'a Integer, &'a Integer)],
+    e2_1: &'a [Vec<&'a Integer>],
+    pi_exp_1: &'a [(&'a Integer, &'a Integer)],
+    pi_eq_enc_1: &'a [(&'a Integer, (&'a Integer, &'a Integer))],
+    k_map: &'a [(&'a str, &'a Integer)],
 }
 
-impl<'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j, 'k, 'l, 'm> VerifyDomainTrait<MixOfflineError>
+/// Output structure of VerifyVotingClientProof according to the specifications
+pub struct VerifyVotingClientProofsOutput {
+    pub verif_exp: Vec<String>,
+    pub verif_eq_enc: Vec<String>,
+    pub errors: Vec<MixOfflineError>,
+}
+
+impl<'a, 'b> VerifyDomainTrait<MixOfflineError>
     for (
-        &VerifyVotingClientProofsContext<'a, 'b, 'c, 'd, 'e, 'f>,
-        &VerifyVotingClientProofsInput<'g, 'h, 'i, 'j, 'k, 'l, 'm>,
+        &VerifyVotingClientProofsContext<'a>,
+        &VerifyVotingClientProofsInput<'b>,
     )
 {
     fn verifiy_domain(&self) -> Vec<MixOfflineError> {
@@ -121,112 +128,136 @@ impl<'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j, 'k, 'l, 'm> VerifyDomainTrait<MixOf
     }
 }
 
-/// Algorithm 6.6
-///
-/// Return a [Vec<String>] with the unsuccessfully verifications. Empty if the verification is ok
-///
-/// Error [MixOfflineError] if something is going wrong
-pub fn verify_voting_client_proofs(
-    context: &VerifyVotingClientProofsContext,
-    input: &VerifyVotingClientProofsInput,
-) -> Result<Vec<String>, MixOfflineError> {
-    let mut res = vec![];
-    let verif_domain = (context, input).verifiy_domain();
-    if !verif_domain.is_empty() {
-        return Err(verif_domain[0].clone());
-    }
-    let p_tilde_ccr = context
-        .pk_ccr
-        .iter()
-        .fold(Integer::one().clone(), |acc, pk_ccr_i| {
-            acc.mod_multiply(pk_ccr_i, context.encryption_parameters.p())
-        });
-    for (i, vc_1_i) in input.vc_1.iter().enumerate() {
-        let upper_k_id = input
-            .k_map
+impl VerifyVotingClientProofsOutput {
+    /// Algorithm 6.6
+    ///
+    /// Return a [Vec<String>] with the unsuccessfully verifications. Empty if the verification is ok
+    ///
+    /// Error [MixOfflineError] if something is going wrong
+    pub fn verify_voting_client_proofs(
+        context: &VerifyVotingClientProofsContext,
+        input: &VerifyVotingClientProofsInput,
+    ) -> Self {
+        let mut errors = (context, input).verifiy_domain();
+        if !errors.is_empty() {
+            return Self {
+                verif_exp: vec![],
+                verif_eq_enc: vec![],
+                errors,
+            };
+        }
+        let mut verif_exp = vec![];
+        let mut verif_eq_enc = vec![];
+
+        let p_tilde_ccr = context
+            .pk_ccr
             .iter()
-            .find(|(vc_i, _)| vc_i == vc_1_i)
-            .map(|(_, k_i)| k_i)
-            .ok_or(MixOfflineError::ProcessPlaintextsProcess(format!(
-                "Entry of KMAP for vc1[{}]={} not found",
-                i, vc_1_i
-            )))?;
-        let gamma_1 = input.e1_1[i][0].clone();
-        let phi_1_0 = input.e1_1[i][1].clone();
-        let gamma_1_k_id = input.e1_tilde_1[i].0.clone();
-        let phi_1_0_k_id = input.e1_tilde_1[i].1.clone();
-        let e2_tilde_i = (
-            input.e2_1[i][0].clone(),
-            input.e2_1[i]
+            .fold(Integer::one().clone(), |acc, pk_ccr_i| {
+                acc.mod_multiply(pk_ccr_i, context.encryption_parameters.p())
+            });
+        for (i, vc_1_i) in input.vc_1.iter().enumerate() {
+            let upper_k_id = match input
+                .k_map
                 .iter()
-                .skip(1)
-                .fold(Integer::one().clone(), |acc, phi_2_k| {
-                    acc.mod_multiply(phi_2_k, context.encryption_parameters.p())
-                }),
-        );
-        let mut i_aux = vec![
-            "CreateVote".to_string(),
-            vc_1_i.to_string(),
-            get_hash_context(&GetHashContextContext::from(context)).map_err(|e| {
-                MixOfflineError::ProcessPlaintextsProcess(format!(
-                    "Error in get_hash_context: {}",
+                .find(|(vc_i, _)| vc_i == vc_1_i)
+                .map(|(_, k_i)| k_i)
+            {
+                Some(&e) => e,
+                None => {
+                    errors.push(MixOfflineError::ProcessPlaintextsProcess(format!(
+                        "Entry of KMAP for vc1[{}]={} not found",
+                        i, vc_1_i
+                    )));
+                    break;
+                }
+            };
+            let gamma_1 = input.e1_1[i][0].clone();
+            let phi_1_0 = input.e1_1[i][1].clone();
+            let gamma_1_k_id = input.e1_tilde_1[i].0.clone();
+            let phi_1_0_k_id = input.e1_tilde_1[i].1.clone();
+            let e2_tilde_i = (
+                input.e2_1[i][0].clone(),
+                input.e2_1[i]
+                    .iter()
+                    .skip(1)
+                    .fold(Integer::one().clone(), |acc, phi_2_k| {
+                        acc.mod_multiply(phi_2_k, context.encryption_parameters.p())
+                    }),
+            );
+            let mut i_aux = vec![
+                "CreateVote".to_string(),
+                vc_1_i.to_string(),
+                match get_hash_context(&GetHashContextContext::from(context)) {
+                    Ok(e) => e,
+                    Err(e) => {
+                        errors.push(MixOfflineError::ProcessPlaintextsProcess(format!(
+                            "Error in get_hash_context: {}",
+                            e
+                        )));
+                        break;
+                    }
+                },
+            ];
+            let mut i_aux_extension = input.e1_1[i]
+                .iter()
+                .map(|e| e.to_string())
+                .collect::<Vec<_>>();
+            i_aux.append(&mut i_aux_extension);
+            let mut i_aux_extension: Vec<String> = input.e2_1[i]
+                .iter()
+                .map(|e| e.to_string())
+                .collect::<Vec<_>>();
+            i_aux.append(&mut i_aux_extension);
+            match verify_exponentiation(
+                context.encryption_parameters,
+                &vec![context.encryption_parameters.g().clone(), gamma_1, phi_1_0],
+                &vec![upper_k_id.clone(), gamma_1_k_id, phi_1_0_k_id],
+                (input.pi_exp_1[i].0, input.pi_exp_1[i].1),
+                &i_aux,
+            ) {
+                Ok(res) => {
+                    if !res {
+                        verif_exp.push(format!("VerifExp_i for {i} not successful"));
+                    }
+                }
+                Err(e) => errors.push(MixOfflineError::ProcessPlaintextsProcess(format!(
+                    "Error in verify_exponentiation: {}",
                     e
-                ))
-            })?,
-        ];
-        let mut i_aux_extension = input.e1_1[i]
-            .iter()
-            .map(|e| e.to_string())
-            .collect::<Vec<_>>();
-        i_aux.append(&mut i_aux_extension);
-        let mut i_aux_extension: Vec<String> = input.e2_1[i]
-            .iter()
-            .map(|e| e.to_string())
-            .collect::<Vec<_>>();
-        i_aux.append(&mut i_aux_extension);
-        if !verify_exponentiation(
-            context.encryption_parameters,
-            &vec![context.encryption_parameters.g().clone(), gamma_1, phi_1_0],
-            &vec![upper_k_id.clone(), gamma_1_k_id, phi_1_0_k_id],
-            (&input.pi_exp_1[i].0, &input.pi_exp_1[i].1),
-            &i_aux,
-        )
-        .map_err(|e| {
-            MixOfflineError::ProcessPlaintextsProcess(format!(
-                "Error in verify_exponentiation: {}",
-                e
-            ))
-        })? {
-            res.push(format!("VerifExp_i for {i} not successful"));
+                ))),
+            }
+            match verify_plaintext_equality(
+                context.encryption_parameters,
+                (input.e1_tilde_1[i].0, input.e1_tilde_1[i].1),
+                (&e2_tilde_i.0, &e2_tilde_i.1),
+                context.el_pk[0],
+                &p_tilde_ccr,
+                (
+                    input.pi_eq_enc_1[i].0,
+                    (input.pi_eq_enc_1[i].1 .0, input.pi_eq_enc_1[i].1 .1),
+                ),
+                &i_aux,
+            ) {
+                Ok(res) => {
+                    if !res {
+                        verif_eq_enc.push(format!("VerifEqEn_I for {i} not successful"));
+                    }
+                }
+                Err(e) => errors.push(MixOfflineError::ProcessPlaintextsProcess(format!(
+                    "Error in verify_plaintext_equality: {}",
+                    e
+                ))),
+            }
         }
-        if !verify_plaintext_equality(
-            context.encryption_parameters,
-            (&input.e1_tilde_1[i].0, &input.e1_tilde_1[i].1),
-            (&e2_tilde_i.0, &e2_tilde_i.1),
-            &context.el_pk[0],
-            &p_tilde_ccr,
-            (
-                &input.pi_eq_enc_1[i].0,
-                (&input.pi_eq_enc_1[i].1 .0, &input.pi_eq_enc_1[i].1 .1),
-            ),
-            &i_aux,
-        )
-        .map_err(|e| {
-            MixOfflineError::ProcessPlaintextsProcess(format!(
-                "Error in verify_plaintext_equality: {}",
-                e
-            ))
-        })? {
-            res.push(format!("VerifEqEn_I for {i} not successful"));
+        Self {
+            verif_exp,
+            verif_eq_enc,
+            errors,
         }
     }
-    Ok(res)
 }
 
-impl<'a, 'b, 'c, 'd, 'e, 'f> From<&VerifyVotingClientProofsContext<'a, 'b, 'c, 'd, 'e, 'f>>
-    for GetHashContextContext<'a, 'b, 'c, 'd, 'e, 'f>
-{
-    fn from(value: &VerifyVotingClientProofsContext<'a, 'b, 'c, 'd, 'e, 'f>) -> Self {
+impl<'a> From<&VerifyVotingClientProofsContext<'a>> for GetHashContextContext<'a> {
+    fn from(value: &VerifyVotingClientProofsContext<'a>) -> Self {
         GetHashContextContext {
             encryption_parameters: value.encryption_parameters,
             ee: value.ee,
