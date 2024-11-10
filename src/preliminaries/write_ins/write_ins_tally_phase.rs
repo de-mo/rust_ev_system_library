@@ -16,7 +16,10 @@
 
 use rust_ev_crypto_primitives::{string::truncate, Integer};
 
-use crate::{preliminaries::EPPTableAsContext, MAX_LENGTH_WRITE_IN_FIELD};
+use crate::{
+    preliminaries::{EPPTableAsContext, PTableTrait},
+    MAX_LENGTH_WRITE_IN_FIELD,
+};
 
 use super::{decoding_write_ins::quadratic_residue_to_write_in, WriteInsError};
 

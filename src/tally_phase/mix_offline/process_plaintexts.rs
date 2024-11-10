@@ -15,7 +15,7 @@
 // <https://www.gnu.org/licenses/>.
 
 use super::MixOfflineError;
-use crate::preliminaries::{decode_write_ins, factorize, EPPTableAsContext};
+use crate::preliminaries::{decode_write_ins, factorize, EPPTableAsContext, PTableTrait};
 use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
 
 /// Output structure of ProcessPlaintexts according to the specifications

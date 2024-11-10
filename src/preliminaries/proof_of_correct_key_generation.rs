@@ -173,7 +173,7 @@ impl VerifyKeyGenerationSchnorrProofsOuput {
                     &VerifyCCSchnorrProofsInput {
                         pk_cc: input.pk_ccr,
                         pi_pkcc: input.pi_pkccr,
-                        i_aux: &vec![context.ee.to_string(), "GenKeysCCR".to_string()],
+                        i_aux: &[context.ee.to_string(), "GenKeysCCR".to_string()],
                     },
                 )
             },
@@ -189,7 +189,7 @@ impl VerifyKeyGenerationSchnorrProofsOuput {
                             &VerifyCCSchnorrProofsInput {
                                 pk_cc: input.el_pk,
                                 pi_pkcc: input.pi_elpk,
-                                i_aux: &vec![h_context.clone(), "SetupTallyCCM".to_string()],
+                                i_aux: &[h_context.clone(), "SetupTallyCCM".to_string()],
                             },
                         )
                     },
@@ -203,7 +203,7 @@ impl VerifyKeyGenerationSchnorrProofsOuput {
                             &VerifyCCSchnorrProofsInput {
                                 pk_cc: &[input.eb_pk.to_vec()],
                                 pi_pkcc: &[input.pi_eb.to_vec()],
-                                i_aux: &vec![h_context.clone(), "SetupTallyEB".to_string()],
+                                i_aux: &[h_context.clone(), "SetupTallyEB".to_string()],
                             },
                         )
                     },
@@ -277,7 +277,7 @@ impl<'a, 'b> VerifyDomainTrait<VerifyKeyGenerationSchnorrProofsError>
                     String::new()
                 })
                 .filter(|s| !s.is_empty())
-                .map(|s| VerifyKeyGenerationSchnorrProofsError::Domain(s))
+                .map(VerifyKeyGenerationSchnorrProofsError::Domain)
                 .collect::<Vec<_>>(),
         );
         res.append(
@@ -298,7 +298,7 @@ impl<'a, 'b> VerifyDomainTrait<VerifyKeyGenerationSchnorrProofsError>
                     String::new()
                 })
                 .filter(|s| !s.is_empty())
-                .map(|s| VerifyKeyGenerationSchnorrProofsError::Domain(s))
+                .map(VerifyKeyGenerationSchnorrProofsError::Domain)
                 .collect::<Vec<_>>(),
         );
         res
@@ -323,12 +323,7 @@ fn verify_cc_schnorr_proofs(
             .zip(input.pi_pkcc[j - 1].iter())
             .enumerate()
             .map(|(i, (pk_cc_j_i, pi_pkcc_j_i))| {
-                match verify_schnorr(
-                    context.ep,
-                    (&pi_pkcc_j_i.0, &pi_pkcc_j_i.1),
-                    pk_cc_j_i,
-                    &i_aux_j,
-                ) {
+                match verify_schnorr(context.ep, *pi_pkcc_j_i, pk_cc_j_i, &i_aux_j) {
                     Ok(b) => match b {
                         true => Ok(String::new()),
                         false => Ok(format!("Schnorr proof not ok for j={}, i={}", j, i)),
@@ -343,10 +338,9 @@ fn verify_cc_schnorr_proofs(
         result.append(
             &mut res_proofs
                 .iter()
-                .filter(|r| r.is_ok())
-                .map(|r| r.as_ref().unwrap())
+                .filter_map(|r| r.as_ref().ok())
                 .filter(|s| !s.is_empty())
-                .map(|s| s.clone())
+                .cloned()
                 .collect::<Vec<_>>(),
         );
         errors.append(

@@ -14,7 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use super::{ElectoralModelError, PTable};
+use super::{ElectoralModelError, PTable, PTableTrait};
 use rust_ev_crypto_primitives::{
     elgamal::EncryptionParameters, EncodeTrait, HashableMessage, Integer, RecursiveHashTrait,
 };
@@ -133,14 +133,12 @@ mod test {
     }
 
     pub fn json_to_p_table(value: &Value) -> PTable {
-        PTable(
-            value
-                .as_array()
-                .unwrap()
-                .iter()
-                .map(json_to_p_table_element)
-                .collect(),
-        )
+        value
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(json_to_p_table_element)
+            .collect()
     }
 
     #[test]

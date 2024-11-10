@@ -19,7 +19,7 @@ use rust_ev_crypto_primitives::{
 };
 use thiserror::Error;
 
-use super::{PTable, PTableElement};
+use super::PTableElement;
 
 /// Enum representing the errors during the algorithms regardinf election event context
 #[derive(Error, Debug)]
@@ -72,25 +72,6 @@ pub fn get_hash_election_event_context(
         .unwrap())
 }
 
-impl<'hash> From<&'hash PTable> for HashableMessage<'hash> {
-    fn from(value: &'hash PTable) -> Self {
-        HashableMessage::from(
-            value
-                .0
-                .iter()
-                .map(|e| {
-                    HashableMessage::from(vec![
-                        HashableMessage::from(&e.actual_voting_option),
-                        HashableMessage::from(&e.encoded_voting_option),
-                        HashableMessage::from(&e.semantic_information),
-                        HashableMessage::from(&e.correctness_information),
-                    ])
-                })
-                .collect::<Vec<_>>(),
-        )
-    }
-}
-
 impl<'a, 'hash> From<&'hash VerificationCardSetContext<'a>> for HashableMessage<'hash>
 where
     'hash: 'a,
@@ -129,10 +110,11 @@ where
             value
                 .vcs_contexts
                 .iter()
-                .map(|vcs| HashableMessage::from(vcs))
+                .map(HashableMessage::from)
                 .collect::<Vec<_>>(),
         );
-        let h = HashableMessage::from(vec![
+
+        HashableMessage::from(vec![
             HashableMessage::from(value.ee),
             HashableMessage::from(value.ee_alias),
             HashableMessage::from(value.ee_descr),
@@ -142,8 +124,7 @@ where
             HashableMessage::from(value.n_max),
             HashableMessage::from(value.phi_max),
             HashableMessage::from(value.delta_max),
-        ]);
-        h
+        ])
     }
 }
 
@@ -206,8 +187,8 @@ mod test {
             test_ballot_box: value["testBallotBox"].as_bool().unwrap(),
             upper_n_upper_e: value["numberOfVotingCards"].as_u64().unwrap() as usize,
             grace_period: value["gracePeriod"].as_u64().unwrap() as usize,
-            p_table: &p_table,
-            encryption_parameters: &ep,
+            p_table,
+            encryption_parameters: ep,
         }
     }
 
@@ -260,15 +241,13 @@ mod test {
                         .zip(p_tables.iter())
                         .zip(start_times.iter().zip(finish_times.iter())),
                 )
-                .map(|(v, ((ep, p_table), (st, ft)))| {
-                    json_to_vcs_context(&p_table, &ep, st, ft, &v)
-                })
+                .map(|(v, ((ep, p_table), (st, ft)))| json_to_vcs_context(p_table, ep, st, ft, v))
                 .collect::<Vec<_>>();
             let hash_context = GetHashElectionEventContextContext {
                 encryption_parameters: &ep,
-                ee: &ee,
-                ee_alias: &ee_alias,
-                ee_descr: &ee_descr,
+                ee,
+                ee_alias,
+                ee_descr,
                 vcs_contexts,
                 t_s_ee: &t_s_ee,
                 t_f_ee: &t_f_ee,

@@ -16,7 +16,7 @@
 
 use std::collections::HashSet;
 
-use crate::preliminaries::{get_hash_context, GetHashContextContext, PTable};
+use crate::preliminaries::{get_hash_context, GetHashContextContext, PTable, PTableTrait};
 use rust_ev_crypto_primitives::{
     elgamal::EncryptionParameters,
     zero_knowledge_proofs::{verify_exponentiation, verify_plaintext_equality},
