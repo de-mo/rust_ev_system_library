@@ -30,8 +30,8 @@ pub struct ProcessPlaintextsOutput {
 
 impl ProcessPlaintextsOutput {
     /// Algorithm 6.9
-    pub fn process_plaintexts<'a>(
-        context: &EPPTableAsContext<'a, '_>,
+    pub fn process_plaintexts(
+        context: &EPPTableAsContext,
         plaintext_votes: &[&[Integer]],
     ) -> Result<Self, MixOfflineError> {
         let upper_n_hat_upper_c = plaintext_votes.len();
