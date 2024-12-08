@@ -18,7 +18,7 @@ use std::collections::HashSet;
 
 use crate::preliminaries::{get_hash_context, GetHashContextContext, PTable, PTableTrait};
 use rust_ev_crypto_primitives::{
-    elgamal::EncryptionParameters,
+    elgamal::{Ciphertext, EncryptionParameters},
     zero_knowledge_proofs::{verify_exponentiation, verify_plaintext_equality},
     ConstantsTrait, Integer, OperationsTrait, VerifyDomainTrait,
 };
@@ -27,24 +27,24 @@ use super::MixOfflineError;
 
 /// Context structure of VerifyVotingClientProof according to the specifications
 pub struct VerifyVotingClientProofsContext<'a> {
-    encryption_parameters: &'a EncryptionParameters,
-    ee: &'a str,
-    vcs: &'a str,
-    p_table: &'a PTable,
-    upper_n_upper_e: usize,
-    el_pk: &'a [&'a Integer],
-    pk_ccr: &'a [&'a Integer],
+    pub encryption_parameters: &'a EncryptionParameters,
+    pub ee: &'a str,
+    pub vcs: &'a str,
+    pub p_table: &'a PTable,
+    pub upper_n_upper_e: usize,
+    pub el_pk: &'a [&'a Integer],
+    pub pk_ccr: &'a [&'a Integer],
 }
 
 /// Input structure of VerifyVotingClientProof according to the specifications
 pub struct VerifyVotingClientProofsInput<'a> {
-    vc_1: &'a [String],
-    e1_1: &'a [Vec<&'a Integer>],
-    e1_tilde_1: &'a [(&'a Integer, &'a Integer)],
-    e2_1: &'a [Vec<&'a Integer>],
-    pi_exp_1: &'a [(&'a Integer, &'a Integer)],
-    pi_eq_enc_1: &'a [(&'a Integer, (&'a Integer, &'a Integer))],
-    k_map: &'a [(&'a str, &'a Integer)],
+    pub vc_1: &'a [&'a str],
+    pub e1_1: &'a [&'a Ciphertext],
+    pub e1_tilde_1: &'a [(&'a Integer, &'a Integer)],
+    pub e2_1: &'a [&'a Ciphertext],
+    pub pi_exp_1: &'a [(&'a Integer, &'a Integer)],
+    pub pi_eq_enc_1: &'a [(&'a Integer, (&'a Integer, &'a Integer))],
+    pub k_map: &'a [(&'a str, &'a Integer)],
 }
 
 /// Output structure of VerifyVotingClientProof according to the specifications
@@ -52,6 +52,18 @@ pub struct VerifyVotingClientProofsOutput {
     pub verif_exp: Vec<String>,
     pub verif_eq_enc: Vec<String>,
     pub errors: Vec<MixOfflineError>,
+}
+
+impl VerifyVotingClientProofsOutput {
+    pub fn errors(&self) -> &[MixOfflineError] {
+        &self.errors
+    }
+
+    pub fn failures(&self) -> Vec<String> {
+        let mut res = self.verif_exp.clone();
+        res.extend(self.verif_eq_enc.iter().cloned());
+        res
+    }
 }
 
 impl<'a, 'b> VerifyDomainTrait<MixOfflineError>
@@ -110,7 +122,7 @@ impl<'a, 'b> VerifyDomainTrait<MixOfflineError>
             ))),
             Ok(psi) => {
                 for (i, e1_1_i) in self.1.e1_1.iter().enumerate() {
-                    if e1_1_i.len() != psi + 1 {
+                    if e1_1_i.l() != psi {
                         res.push(MixOfflineError::ProcessPlaintextsInput(format!(
                             "Inner vector of E1_1 is not of length psi+1 at position {}",
                             i
@@ -130,10 +142,6 @@ impl<'a, 'b> VerifyDomainTrait<MixOfflineError>
 
 impl VerifyVotingClientProofsOutput {
     /// Algorithm 6.6
-    ///
-    /// Return a [Vec<String>] with the unsuccessfully verifications. Empty if the verification is ok
-    ///
-    /// Error [MixOfflineError] if something is going wrong
     pub fn verify_voting_client_proofs(
         context: &VerifyVotingClientProofsContext,
         input: &VerifyVotingClientProofsInput,
@@ -171,15 +179,15 @@ impl VerifyVotingClientProofsOutput {
                     break;
                 }
             };
-            let gamma_1 = input.e1_1[i][0].clone();
-            let phi_1_0 = input.e1_1[i][1].clone();
+            let gamma_1 = &input.e1_1[i].gamma;
+            let phi_1_0 = &input.e1_1[i].phis[0];
             let gamma_1_k_id = input.e1_tilde_1[i].0.clone();
             let phi_1_0_k_id = input.e1_tilde_1[i].1.clone();
             let e2_tilde_i = (
-                input.e2_1[i][0].clone(),
+                &input.e2_1[i].gamma,
                 input.e2_1[i]
+                    .phis
                     .iter()
-                    .skip(1)
                     .fold(Integer::one().clone(), |acc, phi_2_k| {
                         acc.mod_multiply(phi_2_k, context.encryption_parameters.p())
                     }),
@@ -198,20 +206,24 @@ impl VerifyVotingClientProofsOutput {
                     }
                 },
             ];
+            i_aux.push(input.e1_1[i].gamma.to_string());
             let mut i_aux_extension = input.e1_1[i]
+                .phis
                 .iter()
                 .map(|e| e.to_string())
                 .collect::<Vec<_>>();
             i_aux.append(&mut i_aux_extension);
+            i_aux.push(input.e2_1[i].gamma.to_string());
             let mut i_aux_extension: Vec<String> = input.e2_1[i]
+                .phis
                 .iter()
                 .map(|e| e.to_string())
                 .collect::<Vec<_>>();
             i_aux.append(&mut i_aux_extension);
             match verify_exponentiation(
                 context.encryption_parameters,
-                &vec![context.encryption_parameters.g().clone(), gamma_1, phi_1_0],
-                &vec![upper_k_id.clone(), gamma_1_k_id, phi_1_0_k_id],
+                &[context.encryption_parameters.g(), gamma_1, phi_1_0],
+                &[upper_k_id, &gamma_1_k_id, &phi_1_0_k_id],
                 (input.pi_exp_1[i].0, input.pi_exp_1[i].1),
                 &i_aux,
             ) {
@@ -228,7 +240,7 @@ impl VerifyVotingClientProofsOutput {
             match verify_plaintext_equality(
                 context.encryption_parameters,
                 (input.e1_tilde_1[i].0, input.e1_tilde_1[i].1),
-                (&e2_tilde_i.0, &e2_tilde_i.1),
+                (e2_tilde_i.0, &e2_tilde_i.1),
                 context.el_pk[0],
                 &p_tilde_ccr,
                 (
