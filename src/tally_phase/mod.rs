@@ -17,3 +17,4 @@
 //! Module implementing the algorithms for the tally phase
 
 pub mod mix_offline;
+pub mod mix_online;
