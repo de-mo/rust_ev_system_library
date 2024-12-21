@@ -16,7 +16,7 @@
 
 use rust_ev_crypto_primitives::{
     elgamal::{combine_public_keys, verify_decryptions, Ciphertext, EncryptionParameters},
-    mix_net::{verify_shuffle, ShuffleArgument},
+    mix_net::{verify_shuffle, MixNetResultTrait, ShuffleArgument},
     Integer, VerifyDomainTrait,
 };
 
@@ -29,7 +29,7 @@ pub struct VerifyMixDecOfflineContext<'a> {
     pub bb: &'a str,
     pub delta: usize,
     pub el_pk: &'a [Integer],
-    pub ccm_pk: &'a [&'a [Integer]],
+    pub ccm_el_pk: &'a [&'a [Integer]],
     pub eb_pk: &'a [Integer],
 }
 
@@ -175,7 +175,7 @@ impl<'a, 'b> VerifyDomainTrait<MixOfflineError>
 
 impl VerifyMixDecOfflineOutput {
     /// Algorithm 6.7
-    pub fn verify_voting_client_proofs(
+    pub fn verify_mix_dec_offline(
         context: &VerifyMixDecOfflineContext,
         input: &VerifyMixDecOfflineInput,
     ) -> Self {
@@ -194,11 +194,15 @@ impl VerifyMixDecOfflineOutput {
             context.encryption_parameters,
             input.c_init_1,
             input.c_mix[0],
-            &input.pi_mix[1],
+            &input.pi_mix[0],
             context.el_pk,
         ) {
-            Ok(res) => shuffle_verif.push(format!("VerifiyShuffle 1 not successful: {}", res)),
-            Err(e) => errors.push(MixOfflineError::VerifyVotingClientProofsProcess(format!(
+            Ok(res) => {
+                if !res.is_ok() {
+                    shuffle_verif.push(format!("VerifiyShuffle 1 not successful: {}", res))
+                }
+            }
+            Err(e) => errors.push(MixOfflineError::VerifyMixDecOfflineProcess(format!(
                 "VerifiyShuffle 1: {}",
                 e
             ))),
@@ -210,17 +214,20 @@ impl VerifyMixDecOfflineOutput {
             "MixDecOnline".to_string(),
             "1".to_string(),
         ];
-
         match verify_decryptions(
             context.encryption_parameters,
-            input.c_init_1,
-            context.ccm_pk[0],
+            input.c_mix[0],
+            context.ccm_el_pk[0],
             input.c_dec[0],
             input.pi_dec[0].as_slice(),
             &i_aux,
         ) {
-            Ok(res) => decrypt_verif.push(format!("VerifyDecryptions 1 not successful: {}", res)),
-            Err(e) => errors.push(MixOfflineError::VerifyVotingClientProofsProcess(format!(
+            Ok(res) => {
+                if !res.is_ok() {
+                    decrypt_verif.push(format!("VerifyDecryptions 1 not successful: {}", res))
+                }
+            }
+            Err(e) => errors.push(MixOfflineError::VerifyMixDecOfflineProcess(format!(
                 "VerifyDecryptions 1: {}",
                 e
             ))),
@@ -228,50 +235,67 @@ impl VerifyMixDecOfflineOutput {
 
         (1..4).for_each(|j| {
             let mut combined_vec = context
-                .ccm_pk
+                .ccm_el_pk
                 .iter()
                 .skip(j)
                 .map(|v| v.to_vec())
                 .collect::<Vec<_>>();
             combined_vec.push(context.eb_pk.to_vec());
-            let combined_el_pk =
-                combine_public_keys(context.encryption_parameters.p(), &combined_vec);
-            match verify_shuffle(
-                context.encryption_parameters,
-                input.c_dec[j - 1],
-                input.c_mix[j],
-                &input.pi_mix[j],
-                &combined_el_pk,
-            ) {
-                Ok(res) => {
-                    shuffle_verif.push(format!("VerifiyShuffle {} not successful: {}", j + 1, res))
+
+            match combine_public_keys(context.encryption_parameters.p(), &combined_vec) {
+                Ok(combined_el_pk) => {
+                    match verify_shuffle(
+                        context.encryption_parameters,
+                        input.c_dec[j - 1],
+                        input.c_mix[j],
+                        &input.pi_mix[j],
+                        &combined_el_pk,
+                    ) {
+                        Ok(res) => {
+                            if !res.is_ok() {
+                                shuffle_verif.push(format!(
+                                    "VerifiyShuffle {} not successful: {}",
+                                    j + 1,
+                                    res
+                                ))
+                            }
+                        }
+                        Err(e) => errors.push(MixOfflineError::VerifyMixDecOfflineProcess(
+                            format!("VerifiyShuffle {}: {}", j + 1, e),
+                        )),
+                    }
                 }
-                Err(e) => errors.push(MixOfflineError::VerifyVotingClientProofsProcess(format!(
-                    "VerifiyShuffle {}: {}",
+                Err(e) => errors.push(MixOfflineError::VerifyMixDecOfflineProcess(format!(
+                    "VerifiyShuffle {}: Error calculating combined el_pk {}",
                     j + 1,
                     e
                 ))),
             }
+
             let i_aux = [
                 context.ee.to_string(),
                 context.bb.to_string(),
                 "MixDecOnline".to_string(),
-                j.to_string(),
+                (j + 1).to_string(),
             ];
             match verify_decryptions(
                 context.encryption_parameters,
                 input.c_mix[j],
-                context.ccm_pk[j],
+                context.ccm_el_pk[j],
                 input.c_dec[j],
                 &input.pi_dec[j],
                 &i_aux,
             ) {
-                Ok(res) => decrypt_verif.push(format!(
-                    "VerifyDecryptions {} not successful: {}",
-                    j + 1,
-                    res
-                )),
-                Err(e) => errors.push(MixOfflineError::VerifyVotingClientProofsProcess(format!(
+                Ok(res) => {
+                    if !res.is_ok() {
+                        decrypt_verif.push(format!(
+                            "VerifyDecryptions {} not successful: {}",
+                            j + 1,
+                            res
+                        ))
+                    }
+                }
+                Err(e) => errors.push(MixOfflineError::VerifyMixDecOfflineProcess(format!(
                     "VerifyDecryptions {}: {}",
                     j + 1,
                     e
