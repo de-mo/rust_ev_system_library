@@ -76,44 +76,55 @@ impl<'a, 'b> VerifyDomainTrait<MixOfflineError>
         let mut res = vec![];
         let upper_n_c = self.1.vc_1.len();
         if upper_n_c == 0 {
-            res.push(MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::VerifyVotingClientProofsInput(
                 "N_c must be greater or equal 1".to_string(),
             ));
         }
         if upper_n_c > self.0.upper_n_upper_e {
-            res.push(MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::VerifyVotingClientProofsInput(
                 "N_c must be smaller or equal N_E".to_string(),
             ));
         }
         if self.1.e1_1.len() != upper_n_c {
-            res.push(MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::VerifyVotingClientProofsInput(
                 "E1_1 has wrong length".to_string(),
             ));
         }
         if self.1.e1_tilde_1.len() != upper_n_c {
-            res.push(MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::VerifyVotingClientProofsInput(
                 "e1_tilde_1 has wrong length".to_string(),
             ));
         }
         if self.1.e2_1.len() != upper_n_c {
-            res.push(MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::VerifyVotingClientProofsInput(
                 "e2_1 has wrong length".to_string(),
             ));
         }
         if self.1.pi_exp_1.len() != upper_n_c {
-            res.push(MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::VerifyVotingClientProofsInput(
                 "pi_exp_1 has wrong length".to_string(),
             ));
         }
         if self.1.pi_eq_enc_1.len() != upper_n_c {
-            res.push(MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::VerifyVotingClientProofsInput(
                 "pi_eq_enc_1 has wrong length".to_string(),
             ));
         }
         if self.1.k_map.len() != self.0.upper_n_upper_e {
-            res.push(MixOfflineError::ProcessPlaintextsInput(
-                "k_map has wrong length".to_string(),
-            ));
+            res.push(MixOfflineError::VerifyVotingClientProofsInput(format!(
+                "Length of k_map (={}) must have the length of N_E (={})",
+                self.1.k_map.len(),
+                self.0.upper_n_upper_e
+            )));
+        }
+        let delta = self.0.p_table.get_delta();
+        for (i, e1_1_i) in self.1.e1_1.iter().enumerate() {
+            if e1_1_i.l() != delta {
+                res.push(MixOfflineError::VerifyVotingClientProofsInput(format!(
+                            "Inner vector of E1_1 has length {} but must have length of delta+1 {} at position {}",e1_1_i.l()+1, delta+1,
+                            i
+                        )));
+            }
         }
         match self.0.p_table.get_psi() {
             Err(e) => res.push(MixOfflineError::VerifyVotingClientProofsInput(format!(
@@ -121,10 +132,10 @@ impl<'a, 'b> VerifyDomainTrait<MixOfflineError>
                 e
             ))),
             Ok(psi) => {
-                for (i, e1_1_i) in self.1.e1_1.iter().enumerate() {
-                    if e1_1_i.l() != psi {
-                        res.push(MixOfflineError::ProcessPlaintextsInput(format!(
-                            "Inner vector of E1_1 is not of length psi+1 at position {}",
+                for (i, e2_1_i) in self.1.e2_1.iter().enumerate() {
+                    if e2_1_i.l() != psi {
+                        res.push(MixOfflineError::VerifyVotingClientProofsInput(format!(
+                            "Inner vector of E2_1 has length {} but must have length of psi+1 {} at position {}",e2_1_i.l()+1, psi+1,
                             i
                         )));
                     }
@@ -132,7 +143,7 @@ impl<'a, 'b> VerifyDomainTrait<MixOfflineError>
             }
         }
         if self.1.vc_1.len() != self.1.vc_1.iter().collect::<HashSet<_>>().len() {
-            res.push(MixOfflineError::ProcessPlaintextsInput(
+            res.push(MixOfflineError::VerifyVotingClientProofsInput(
                 "Confirmed verification card vc_1 are not distinct".to_string(),
             ));
         }
@@ -160,6 +171,7 @@ impl VerifyVotingClientProofsOutput {
         let p_tilde_ccr = context
             .pk_ccr
             .iter()
+            .take(context.p_table.get_psi().unwrap())
             .fold(Integer::one().clone(), |acc, pk_ccr_i| {
                 acc.mod_multiply(pk_ccr_i, context.encryption_parameters.p())
             });
@@ -172,7 +184,7 @@ impl VerifyVotingClientProofsOutput {
             {
                 Some(&e) => e,
                 None => {
-                    errors.push(MixOfflineError::ProcessPlaintextsProcess(format!(
+                    errors.push(MixOfflineError::VerifyVotingClientProofsProcess(format!(
                         "Entry of KMAP for vc1[{}]={} not found",
                         i, vc_1_i
                     )));
@@ -198,7 +210,7 @@ impl VerifyVotingClientProofsOutput {
                 match get_hash_context(&GetHashContextContext::from(context)) {
                     Ok(e) => e,
                     Err(e) => {
-                        errors.push(MixOfflineError::ProcessPlaintextsProcess(format!(
+                        errors.push(MixOfflineError::VerifyVotingClientProofsProcess(format!(
                             "Error in get_hash_context: {}",
                             e
                         )));
@@ -232,7 +244,7 @@ impl VerifyVotingClientProofsOutput {
                         verif_exp.push(format!("VerifExp_i for {i} not successful"));
                     }
                 }
-                Err(e) => errors.push(MixOfflineError::ProcessPlaintextsProcess(format!(
+                Err(e) => errors.push(MixOfflineError::VerifyVotingClientProofsProcess(format!(
                     "Error in verify_exponentiation: {}",
                     e
                 ))),
@@ -254,7 +266,7 @@ impl VerifyVotingClientProofsOutput {
                         verif_eq_enc.push(format!("VerifEqEn_I for {i} not successful"));
                     }
                 }
-                Err(e) => errors.push(MixOfflineError::ProcessPlaintextsProcess(format!(
+                Err(e) => errors.push(MixOfflineError::VerifyVotingClientProofsProcess(format!(
                     "Error in verify_plaintext_equality: {}",
                     e
                 ))),
