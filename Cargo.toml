@@ -1,7 +1,7 @@
 [package]
 name = "rust_ev_system_library"
 description = "Implementation of E-Voting system library functionalities for the Verifier"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Denis Morel"]
 edition = "2021"
 rust-version = "1.83"
@@ -13,8 +13,8 @@ license = "LGPL-3.0+"
 exclude = ["/specs"]
 
 [dependencies]
-#rust_ev_crypto_primitives = "0.6"
-rust_ev_crypto_primitives = { path = "../rust_ev_crypto_primitives" }
+rust_ev_crypto_primitives = "0.6"
+#rust_ev_crypto_primitives = { path = "../rust_ev_crypto_primitives" }
 thiserror = "2"
 chrono = "0.4"
 rayon = "1"
