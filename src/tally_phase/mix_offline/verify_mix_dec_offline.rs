@@ -61,10 +61,10 @@ impl VerifyMixDecOfflineOutput {
     }
 }
 
-impl<'a, 'b> VerifyDomainTrait<MixOfflineError>
+impl VerifyDomainTrait<MixOfflineError>
     for (
-        &VerifyMixDecOfflineContext<'a>,
-        &VerifyMixDecOfflineInput<'b>,
+        &VerifyMixDecOfflineContext<'_>,
+        &VerifyMixDecOfflineInput<'_>,
     )
 {
     fn verifiy_domain(&self) -> Vec<MixOfflineError> {

@@ -66,10 +66,10 @@ impl VerifyVotingClientProofsOutput {
     }
 }
 
-impl<'a, 'b> VerifyDomainTrait<MixOfflineError>
+impl VerifyDomainTrait<MixOfflineError>
     for (
-        &VerifyVotingClientProofsContext<'a>,
-        &VerifyVotingClientProofsInput<'b>,
+        &VerifyVotingClientProofsContext<'_>,
+        &VerifyVotingClientProofsInput<'_>,
     )
 {
     fn verifiy_domain(&self) -> Vec<MixOfflineError> {

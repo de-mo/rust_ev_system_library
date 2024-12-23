@@ -55,10 +55,10 @@ impl<'a> GetMixnetInitialCiphertextsInput<'a> {
     }
 }
 
-impl<'a, 'b> VerifyDomainTrait<MixOnlineError>
+impl VerifyDomainTrait<MixOnlineError>
     for (
-        &GetMixnetInitialCiphertextsContext<'a>,
-        &GetMixnetInitialCiphertextsInput<'b>,
+        &GetMixnetInitialCiphertextsContext<'_>,
+        &GetMixnetInitialCiphertextsInput<'_>,
     )
 {
     fn verifiy_domain(&self) -> Vec<MixOnlineError> {
