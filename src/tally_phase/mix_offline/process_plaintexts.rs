@@ -15,24 +15,24 @@
 // <https://www.gnu.org/licenses/>.
 
 use super::MixOfflineError;
-use crate::preliminaries::{decode_write_ins, factorize, EPPTableAsContext};
+use crate::preliminaries::{decode_write_ins, factorize, EPPTableAsContext, PTableTrait};
 use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
 
 /// Output structure of ProcessPlaintexts according to the specifications
-pub struct ProcessPlaintextsOutput<'a> {
+pub struct ProcessPlaintextsOutput {
     /// L_votes: List of all selected encoded voting options
     pub l_votes: Vec<Vec<usize>>,
     /// L_decodedVotes: List of all selected decoded voting options
-    pub l_decoded_votes: Vec<Vec<&'a String>>,
+    pub l_decoded_votes: Vec<Vec<String>>,
     /// L_writeIns: List of all selected decoded write-in votes
     pub l_write_ins: Vec<Vec<String>>,
 }
 
-impl<'a> ProcessPlaintextsOutput<'a> {
+impl ProcessPlaintextsOutput {
     /// Algorithm 6.9
     pub fn process_plaintexts(
-        context: &EPPTableAsContext<'a, '_>,
-        plaintext_votes: &[Vec<Integer>],
+        context: &EPPTableAsContext,
+        plaintext_votes: &[&[Integer]],
     ) -> Result<Self, MixOfflineError> {
         let upper_n_hat_upper_c = plaintext_votes.len();
         if upper_n_hat_upper_c < 2 {
@@ -75,7 +75,10 @@ impl<'a> ProcessPlaintextsOutput<'a> {
                             "Electoral model error getting actual voting options: {:?}",
                             e
                         ))
-                    })?;
+                    })?
+                    .iter()
+                    .map(|&s| s.clone())
+                    .collect::<Vec<_>>();
                 let tau_prime = context
                     .p_table()
                     .get_correctness_information(

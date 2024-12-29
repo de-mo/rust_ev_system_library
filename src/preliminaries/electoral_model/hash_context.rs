@@ -14,19 +14,19 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use super::{ElectoralModelError, PTable};
+use super::{ElectoralModelError, PTable, PTableTrait};
 use rust_ev_crypto_primitives::{
     elgamal::EncryptionParameters, EncodeTrait, HashableMessage, Integer, RecursiveHashTrait,
 };
 
 /// Input structure of  GetHashContext according to the specifications
-pub struct GetHashContextContext<'a, 'b, 'c, 'd, 'e, 'f> {
+pub struct GetHashContextContext<'a> {
     pub encryption_parameters: &'a EncryptionParameters,
-    pub ee: &'b str,
-    pub vcs: &'c str,
-    pub p_table: &'d PTable,
-    pub el_pk: &'e [Integer],
-    pub pk_ccr: &'f [Integer],
+    pub ee: &'a str,
+    pub vcs: &'a str,
+    pub p_table: &'a PTable,
+    pub el_pk: &'a [&'a Integer],
+    pub pk_ccr: &'a [&'a Integer],
 }
 
 /// Algorithm 3.11
@@ -40,12 +40,8 @@ pub fn get_hash_context(context: &GetHashContextContext) -> Result<String, Elect
         .unwrap())
 }
 
-impl<'a, 'b, 'c, 'd, 'e, 'f, 'hash> From<&'hash GetHashContextContext<'a, 'b, 'c, 'd, 'e, 'f>>
-    for HashableMessage<'hash>
-where
-    'hash: 'a + 'b + 'c + 'd + 'e + 'f,
-{
-    fn from(context: &'hash GetHashContextContext) -> Self {
+impl<'a> From<&'a GetHashContextContext<'a>> for HashableMessage<'a> {
+    fn from(context: &'a GetHashContextContext) -> Self {
         let mut h = vec![
             HashableMessage::from("EncryptionParameters"),
             HashableMessage::from(context.encryption_parameters.p()),
@@ -93,14 +89,14 @@ where
         let mut extension = context
             .el_pk
             .iter()
-            .map(HashableMessage::from)
+            .map(|&e| HashableMessage::from(e))
             .collect::<Vec<_>>();
         h.push(HashableMessage::from("ELpk"));
         h.append(&mut extension);
         let mut extension = context
             .pk_ccr
             .iter()
-            .map(HashableMessage::from)
+            .map(|&e| HashableMessage::from(e))
             .collect::<Vec<_>>();
         h.push(HashableMessage::from("pkCCR"));
         h.append(&mut extension);
@@ -137,14 +133,12 @@ mod test {
     }
 
     pub fn json_to_p_table(value: &Value) -> PTable {
-        PTable(
-            value
-                .as_array()
-                .unwrap()
-                .iter()
-                .map(json_to_p_table_element)
-                .collect(),
-        )
+        value
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(json_to_p_table_element)
+            .collect()
     }
 
     #[test]
@@ -168,8 +162,8 @@ mod test {
                 ee,
                 vcs,
                 p_table: &p_table,
-                el_pk: &el_pk,
-                pk_ccr: &pk_ccr,
+                el_pk: &el_pk.iter().collect::<Vec<_>>(),
+                pk_ccr: &pk_ccr.iter().collect::<Vec<_>>(),
             };
             assert_eq!(
                 get_hash_context(&hash_context_context).unwrap(),

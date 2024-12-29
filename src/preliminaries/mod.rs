@@ -18,8 +18,10 @@
 
 mod election_event_context;
 mod electoral_model;
+mod proof_of_correct_key_generation;
 mod write_ins;
 
 pub use election_event_context::*;
 pub use electoral_model::*;
+pub use proof_of_correct_key_generation::*;
 pub use write_ins::*;

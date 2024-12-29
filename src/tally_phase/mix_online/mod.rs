@@ -16,5 +16,16 @@
 
 //! Module implementing the algorithms for the tally phase
 
-pub mod mix_offline;
-pub mod mix_online;
+mod get_mixnet_initial_ciphertexts;
+
+pub use get_mixnet_initial_ciphertexts::*;
+use thiserror::Error;
+
+// enum representing the errors during the algorithms for Mix Offline
+#[derive(Error, Debug, Clone)]
+pub enum MixOnlineError {
+    #[error("Error input in GetMixnetInitialCiphertexts: {0}")]
+    GetMixnetInitialCiphertextsInput(String),
+    #[error("Error processing in GetMixnetInitialCiphertexts: {0}")]
+    GetMixnetInitialCiphertextsProcess(String),
+}

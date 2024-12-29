@@ -54,8 +54,7 @@ mod test_data {
 
 #[cfg(test)]
 mod test_json_data {
-    use std::{fs, path::PathBuf};
-
+    use chrono::NaiveDateTime;
     use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, DecodeTrait, Hexa, Integer};
     use serde_json::Value;
 
@@ -94,5 +93,9 @@ mod test_json_data {
             &json_value_to_integer_base16(&value["q"]),
             &json_value_to_integer_base16(&value["g"]),
         ))
+    }
+
+    pub fn json_value_to_naive_datetime(value: &Value) -> NaiveDateTime {
+        NaiveDateTime::parse_from_str(value.as_str().unwrap(), "%Y-%m-%dT%H:%M:%S").unwrap()
     }
 }

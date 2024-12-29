@@ -14,16 +14,15 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use rust_ev_crypto_primitives::HashableMessage;
-
 use super::ElectoralModelError;
-use std::collections::HashSet;
+use rust_ev_crypto_primitives::HashableMessage;
+use std::{collections::HashSet, fmt::Display};
 
 const BLANK: &str = "BLANK";
 const WRITE_IN: &str = "WRITE_IN";
 
 /// Element in pTable according the spefication of Swiss Post
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PTableElement {
     pub actual_voting_option: String,
     pub encoded_voting_option: usize,
@@ -32,12 +31,33 @@ pub struct PTableElement {
 }
 
 /// pTable according the spefication of Swiss Post
-#[derive(Debug, Clone)]
-pub struct PTable(pub Vec<PTableElement>);
+pub type PTable = Vec<PTableElement>;
 
-impl PTable {
+impl Display for PTableElement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "({},{},{},{})",
+            self.actual_voting_option,
+            self.encoded_voting_option,
+            self.semantic_information,
+            self.correctness_information
+        )
+    }
+}
+
+impl PTableTrait for PTable {
+    fn get_elements(&self) -> &[PTableElement] {
+        self.as_slice()
+    }
+}
+
+pub trait PTableTrait {
+    /// Get the slice of elements
+    fn get_elements(&self) -> &[PTableElement];
+
     /// Algorithm 3.3
-    pub fn get_encoded_voting_options(
+    fn get_encoded_voting_options(
         &self,
         v_prime: &[&str],
     ) -> Result<Vec<usize>, ElectoralModelError> {
@@ -60,7 +80,7 @@ impl PTable {
             ));
         }
         Ok(self
-            .0
+            .get_elements()
             .iter()
             .filter(|e| m_prime == 0 || v_prime.contains(&e.actual_voting_option.as_str()))
             .map(|e| e.encoded_voting_option)
@@ -68,7 +88,7 @@ impl PTable {
     }
 
     /// Algorithm 3.4
-    pub fn get_actual_voting_options(
+    fn get_actual_voting_options(
         &self,
         p_prime: &[usize],
     ) -> Result<Vec<&String>, ElectoralModelError> {
@@ -91,7 +111,7 @@ impl PTable {
             ));
         }
         Ok(self
-            .0
+            .get_elements()
             .iter()
             .filter(|e| m_prime == 0 || p_prime.contains(&e.encoded_voting_option))
             .map(|e| &e.actual_voting_option)
@@ -99,12 +119,15 @@ impl PTable {
     }
 
     /// Algorithm 3.5
-    pub fn get_semantic_information(&self) -> Vec<&String> {
-        self.0.iter().map(|e| &e.semantic_information).collect()
+    fn get_semantic_information(&self) -> Vec<&String> {
+        self.get_elements()
+            .iter()
+            .map(|e| &e.semantic_information)
+            .collect()
     }
 
     /// Algorithm 3.6
-    pub fn get_correctness_information<'a>(
+    fn get_correctness_information<'a>(
         &'a self,
         v_prime: &[&str],
     ) -> Result<Vec<&'a String>, ElectoralModelError> {
@@ -127,7 +150,7 @@ impl PTable {
             ));
         }
         Ok(self
-            .0
+            .get_elements()
             .iter()
             .filter(|e| m_prime == 0 || v_prime.contains(&e.actual_voting_option.as_str()))
             .map(|e| &e.correctness_information)
@@ -135,9 +158,9 @@ impl PTable {
     }
 
     ///  Algorithm 3.7
-    pub fn get_blank_correctness_information(&self) -> Result<Vec<&str>, ElectoralModelError> {
+    fn get_blank_correctness_information(&self) -> Result<Vec<&str>, ElectoralModelError> {
         let res = self
-            .0
+            .get_elements()
             .iter()
             .filter(|e| e.semantic_information.starts_with(BLANK))
             .map(|e| e.correctness_information.as_str())
@@ -151,8 +174,8 @@ impl PTable {
     }
 
     ///  Algorithm 3.8
-    pub fn get_write_in_encoded_voting_options(&self) -> Vec<usize> {
-        self.0
+    fn get_write_in_encoded_voting_options(&self) -> Vec<usize> {
+        self.get_elements()
             .iter()
             .filter(|e| e.semantic_information.starts_with(WRITE_IN))
             .map(|e| e.encoded_voting_option)
@@ -160,30 +183,30 @@ impl PTable {
     }
 
     ///  Algorithm 3.9
-    pub fn get_psi(&self) -> Result<usize, ElectoralModelError> {
+    fn get_psi(&self) -> Result<usize, ElectoralModelError> {
         Ok(self.get_blank_correctness_information()?.len())
     }
 
     ///  Algorithm 3.10
-    pub fn get_delta(&self) -> usize {
+    fn get_delta(&self) -> usize {
         self.get_write_in_encoded_voting_options().len() + 1
     }
 
     /// Size of pTable
-    pub fn n(&self) -> usize {
-        self.0.len()
+    fn n(&self) -> usize {
+        self.get_elements().len()
     }
 
     /// Test if pTable contains the given acutal voting Option
-    pub fn contains_actual_voting_option(&self, actual_voting_option: &str) -> bool {
-        self.0
+    fn contains_actual_voting_option(&self, actual_voting_option: &str) -> bool {
+        self.get_elements()
             .iter()
             .any(|e| e.actual_voting_option == actual_voting_option)
     }
 
     /// Test if pTable contains the given encoded voting Option
-    pub fn contains_encoded_voting_option(&self, encoded_voting_option: &usize) -> bool {
-        self.0
+    fn contains_encoded_voting_option(&self, encoded_voting_option: &usize) -> bool {
+        self.get_elements()
             .iter()
             .any(|e| &e.encoded_voting_option == encoded_voting_option)
     }
@@ -218,20 +241,19 @@ pub mod test_json_data {
     }
 
     pub fn json_to_p_table(value: &Value) -> PTable {
-        PTable(
-            value
-                .as_array()
-                .unwrap()
-                .iter()
-                .map(json_to_p_table_element)
-                .collect(),
-        )
+        value
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(json_to_p_table_element)
+            .collect()
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::test_json_data::json_to_p_table;
+    use super::*;
     use crate::test_data::get_prime_tables_1;
 
     #[test]

@@ -18,21 +18,27 @@
 
 mod process_plaintexts;
 mod verifiy_client_proofs;
+mod verify_mix_dec_offline;
 
 pub use process_plaintexts::ProcessPlaintextsOutput;
 pub use verifiy_client_proofs::*;
+pub use verify_mix_dec_offline::*;
 
 use thiserror::Error;
 
 // enum representing the errors during the algorithms for Mix Offline
 #[derive(Error, Debug, Clone)]
 pub enum MixOfflineError {
-    #[error("Error input in process_plaintexts: {0}")]
+    #[error("Error input in ProcessPlaintexts: {0}")]
     ProcessPlaintextsInput(String),
-    #[error("Error processing in process_plaintexts: {0}")]
+    #[error("Error processing in ProcessPlaintexts: {0}")]
     ProcessPlaintextsProcess(String),
     #[error("Domain Error in inputs of VerifyVotingClientProofs: {0}")]
     VerifyVotingClientProofsInput(String),
     #[error("Error in processing VerifyVotingClientProofs: {0}")]
     VerifyVotingClientProofsProcess(String),
+    #[error("Domain Error in inputs of VerifyMixDecOffline: {0}")]
+    VerifyMixDecOfflineInput(String),
+    #[error("Error in processing VerifyMixDecOffline: {0}")]
+    VerifyMixDecOfflineProcess(String),
 }

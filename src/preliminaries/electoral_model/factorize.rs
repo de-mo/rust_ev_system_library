@@ -14,7 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use super::{EPPTableAsContext, ElectoralModelError};
+use super::{EPPTableAsContext, ElectoralModelError, PTableTrait};
 use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
 
 /// Algorithm 3.12
