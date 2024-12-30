@@ -20,6 +20,14 @@ pub mod tally_phase;
 /// Maximum number of characters in a write-in field (l_w)
 pub const MAX_LENGTH_WRITE_IN_FIELD: usize = 400;
 
+/// Expose rust_ev_crypto_primitives und rust_ev_crypto_primitives::prelude to avoid problems
+/// of consistencies
+pub mod rust_ev_crypto_primitives {
+    pub mod prelude {
+        pub use rust_ev_crypto_primitives::*;
+    }
+}
+
 #[cfg(test)]
 mod test_data {
     use std::{fs, path::PathBuf};
