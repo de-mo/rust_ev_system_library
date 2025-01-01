@@ -59,10 +59,10 @@ impl VerifyKeyGenerationSchnorrProofsOuput {
     }
 }
 
-impl<'a, 'b, 'c> VerifyDomainTrait<VerifyKeyGenerationSchnorrProofsError>
+impl VerifyDomainTrait<VerifyKeyGenerationSchnorrProofsError>
     for (
-        &GetHashElectionEventContextContext<'a, 'b>,
-        &VerifyKeyGenerationSchnorrProofsInput<'c>,
+        &GetHashElectionEventContextContext<'_, '_>,
+        &VerifyKeyGenerationSchnorrProofsInput<'_>,
     )
 {
     fn verifiy_domain(&self) -> Vec<VerifyKeyGenerationSchnorrProofsError> {
@@ -91,17 +91,17 @@ impl<'a, 'b, 'c> VerifyDomainTrait<VerifyKeyGenerationSchnorrProofsError>
                 self.1.pi_elpk.len()
             )));
         }
-        if self.1.pk_ccr[0].len() != self.0.phi_max {
+        if self.1.pk_ccr[0].len() != self.0.psi_max {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of pk_ccr_0 must be phi_max={}. actual: {}",
-                self.0.phi_max,
+                self.0.psi_max,
                 self.1.pk_ccr[0].len()
             )));
         }
-        if self.1.pi_pkccr[0].len() != self.0.phi_max {
+        if self.1.pi_pkccr[0].len() != self.0.psi_max {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of pi_pkccr_0 must be phi_max={}. actual: {}",
-                self.0.phi_max,
+                self.0.psi_max,
                 self.1.pi_pkccr[0].len()
             )));
         }
@@ -237,10 +237,10 @@ pub struct VerifyCCSchnorrProofsInput<'a> {
     i_aux: &'a [String],
 }
 
-impl<'a, 'b> VerifyDomainTrait<VerifyKeyGenerationSchnorrProofsError>
+impl VerifyDomainTrait<VerifyKeyGenerationSchnorrProofsError>
     for (
-        &VerifyCCSchnorrProofsContext<'a>,
-        &VerifyCCSchnorrProofsInput<'b>,
+        &VerifyCCSchnorrProofsContext<'_>,
+        &VerifyCCSchnorrProofsInput<'_>,
     )
 {
     fn verifiy_domain(&self) -> Vec<VerifyKeyGenerationSchnorrProofsError> {

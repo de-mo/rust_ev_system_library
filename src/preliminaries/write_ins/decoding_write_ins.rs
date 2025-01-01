@@ -29,7 +29,11 @@ pub fn quadratic_residue_to_write_in(
 ) -> Result<String, WriteInsError> {
     let p = encryption_parameters.p();
     let q = encryption_parameters.q();
-    let mut x = y.mod_exponentiate(&(Integer::from(p + 1) / 4), p);
+    let mut x = y
+        .mod_exponentiate(&(Integer::from(p + 1) / 4), p)
+        .map_err(|e| {
+            WriteInsError::IntegerToWriteInput(format!("Error with mod_exponentiate {}", e))
+        })?;
     if &x > q {
         x = p - x;
     }

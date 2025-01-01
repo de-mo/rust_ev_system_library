@@ -14,12 +14,12 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use super::PTableElement;
+use chrono::NaiveDateTime;
 use rust_ev_crypto_primitives::{
     elgamal::EncryptionParameters, EncodeTrait, HashError, HashableMessage, RecursiveHashTrait,
 };
 use thiserror::Error;
-
-use super::PTableElement;
 
 /// Enum representing the errors during the algorithms regardinf election event context
 #[derive(Error, Debug)]
@@ -28,14 +28,22 @@ pub enum ElectionEventContextError {
     HashError(#[from] HashError),
 }
 
+/// Format to transform NaiveDate to String
+pub const NAIVE_DATETIME_TO_STRING_FORMAT: &str = "%Y-%m-%dT%H:%M:%S";
+
+/// Transform a naive date to string according to the specification of Swiss Post<
+pub fn naive_datetime_to_string(datetime: &NaiveDateTime) -> String {
+    datetime.format(NAIVE_DATETIME_TO_STRING_FORMAT).to_string()
+}
+
 /// Context for Verification card sets. Fields according specification of Swiss Post.
 pub struct VerificationCardSetContext<'a> {
     pub vcs: &'a str,
     pub vcs_alias: &'a str,
     pub vcs_desc: &'a str,
     pub bb: &'a str,
-    pub t_s_bb: &'a chrono::NaiveDateTime,
-    pub t_f_bb: &'a chrono::NaiveDateTime,
+    pub t_s_bb: &'a NaiveDateTime,
+    pub t_f_bb: &'a NaiveDateTime,
     pub test_ballot_box: bool,
     pub upper_n_upper_e: usize,
     pub grace_period: usize,
@@ -50,10 +58,10 @@ pub struct GetHashElectionEventContextContext<'a, 'b> {
     pub ee_alias: &'a str,
     pub ee_descr: &'a str,
     pub vcs_contexts: Vec<VerificationCardSetContext<'b>>,
-    pub t_s_ee: &'a chrono::NaiveDateTime,
-    pub t_f_ee: &'a chrono::NaiveDateTime,
+    pub t_s_ee: &'a NaiveDateTime,
+    pub t_f_ee: &'a NaiveDateTime,
     pub n_max: usize,
-    pub phi_max: usize,
+    pub psi_max: usize,
     pub delta_max: usize,
 }
 
@@ -83,15 +91,21 @@ where
                 HashableMessage::from(value.encryption_parameters.q()),
                 HashableMessage::from(value.encryption_parameters.g()),
             ]),
-            HashableMessage::from(value.p_table.iter().map(Self::from).collect::<Vec<_>>()),
+            HashableMessage::from(
+                value
+                    .p_table
+                    .iter()
+                    .map(HashableMessage::from)
+                    .collect::<Vec<_>>(),
+            ),
         ]);
         HashableMessage::from(vec![
             HashableMessage::from(value.vcs),
             HashableMessage::from(value.vcs_alias),
             HashableMessage::from(value.vcs_desc),
             HashableMessage::from(value.bb),
-            HashableMessage::from(value.t_s_bb),
-            HashableMessage::from(value.t_f_bb),
+            HashableMessage::from(naive_datetime_to_string(value.t_s_bb)),
+            HashableMessage::from(naive_datetime_to_string(value.t_f_bb)),
             HashableMessage::from(value.test_ballot_box),
             HashableMessage::from(value.upper_n_upper_e),
             HashableMessage::from(value.grace_period),
@@ -119,10 +133,10 @@ where
             HashableMessage::from(value.ee_alias),
             HashableMessage::from(value.ee_descr),
             h_vcs,
-            HashableMessage::from(value.t_s_ee),
-            HashableMessage::from(value.t_f_ee),
+            HashableMessage::from(naive_datetime_to_string(value.t_s_ee)),
+            HashableMessage::from(naive_datetime_to_string(value.t_f_ee)),
             HashableMessage::from(value.n_max),
-            HashableMessage::from(value.phi_max),
+            HashableMessage::from(value.psi_max),
             HashableMessage::from(value.delta_max),
         ])
     }
@@ -207,7 +221,7 @@ mod test {
             let t_s_ee = json_value_to_naive_datetime(&ee_context["startTime"]);
             let t_f_ee = json_value_to_naive_datetime(&ee_context["finishTime"]);
             let n_max = ee_context["maximumNumberOfVotingOptions"].as_u64().unwrap() as usize;
-            let phi_max = ee_context["maximumNumberOfSelections"].as_u64().unwrap() as usize;
+            let psi_max = ee_context["maximumNumberOfSelections"].as_u64().unwrap() as usize;
             let delta_max = ee_context["maximumNumberOfWriteInsPlusOne"]
                 .as_u64()
                 .unwrap() as usize;
@@ -252,7 +266,7 @@ mod test {
                 t_s_ee: &t_s_ee,
                 t_f_ee: &t_f_ee,
                 n_max,
-                phi_max,
+                psi_max,
                 delta_max,
             };
             assert_eq!(
