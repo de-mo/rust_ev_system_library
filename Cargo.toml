@@ -13,8 +13,8 @@ license = "LGPL-3.0+"
 exclude = ["/specs"]
 
 [dependencies]
-rust_ev_crypto_primitives = "0.7"
-#rust_ev_crypto_primitives = { path = "../rust_ev_crypto_primitives" }
+#rust_ev_crypto_primitives = "0.7"
+rust_ev_crypto_primitives = { path = "../rust_ev_crypto_primitives" }
 thiserror = "2"
 chrono = "0.4"
 rayon = "1"
