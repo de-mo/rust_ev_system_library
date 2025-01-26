@@ -67,7 +67,7 @@ pub struct GetHashElectionEventContextContext<'a, 'b> {
 
 /// Algorithm 3.2
 ///
-/// Return a [Vec<String>] with the unsuccessfully verifications. Empty if the verification is ok
+/// Return a [`Vec<String>`] with the unsuccessfully verifications. Empty if the verification is ok
 ///
 /// Error [ElectionEventContextError] if something is going wrong
 pub fn get_hash_election_event_context(
