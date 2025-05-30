@@ -28,7 +28,7 @@ use thiserror::Error;
 pub struct MixOnlineError(#[from] MixOnlineErrorRepr);
 
 #[derive(Error, Debug)]
-pub enum MixOnlineErrorRepr {
+enum MixOnlineErrorRepr {
     #[error("Error input in GetMixnetInitialCiphertexts: {0}")]
     GetMixnetInitialCiphertextsInput(String),
     #[error("Error calculating e_trivial")]
