@@ -19,13 +19,20 @@
 mod get_mixnet_initial_ciphertexts;
 
 pub use get_mixnet_initial_ciphertexts::*;
+use rust_ev_crypto_primitives::{elgamal::ElgamalError, HashError};
 use thiserror::Error;
 
-// enum representing the errors during the algorithms for Mix Offline
-#[derive(Error, Debug, Clone)]
-pub enum MixOnlineError {
+/// Errors during the algorithms for Mix Online
+#[derive(Error, Debug)]
+#[error(transparent)]
+pub struct MixOnlineError(#[from] MixOnlineErrorRepr);
+
+#[derive(Error, Debug)]
+pub enum MixOnlineErrorRepr {
     #[error("Error input in GetMixnetInitialCiphertexts: {0}")]
     GetMixnetInitialCiphertextsInput(String),
-    #[error("Error processing in GetMixnetInitialCiphertexts: {0}")]
-    GetMixnetInitialCiphertextsProcess(String),
+    #[error("Error calculating e_trivial")]
+    ETrivail { source: ElgamalError },
+    #[error("Error calculating hvc_j")]
+    HVCJ { source: HashError },
 }
