@@ -21,7 +21,7 @@ use crate::{
     MAX_LENGTH_WRITE_IN_FIELD,
 };
 
-use super::{decoding_write_ins::quadratic_residue_to_write_in, WriteInsError};
+use super::{decoding_write_ins::quadratic_residue_to_write_in, WriteInsError, WriteInsErrorRepr};
 
 /// Algorithm 3.20
 fn is_writein_option(context: &EPPTableAsContext, p_tilde_i: &usize) -> bool {
@@ -39,20 +39,28 @@ pub fn decode_write_ins(
     p_hat: &[usize],
     w: &[Integer],
 ) -> Result<Vec<String>, WriteInsError> {
+    decode_write_ins_impl(context, p_hat, w).map_err(WriteInsError::from)
+}
+
+pub fn decode_write_ins_impl(
+    context: &EPPTableAsContext,
+    p_hat: &[usize],
+    w: &[Integer],
+) -> Result<Vec<String>, WriteInsErrorRepr> {
     let psi = context
         .p_table()
         .get_psi()
-        .map_err(WriteInsError::ElectoralModelError)?;
+        .map_err(WriteInsErrorRepr::ElectoralModelError)?;
     let delta = context.p_table().get_delta();
     if p_hat.len() != psi {
-        return Err(WriteInsError::DecodeWriteInsInput(format!(
+        return Err(WriteInsErrorRepr::DecodeWriteInsInput(format!(
             "The length of p_hat={} must be psi={}",
             p_hat.len(),
             psi
         )));
     }
     if w.len() != delta - 1 {
-        return Err(WriteInsError::DecodeWriteInsInput(format!(
+        return Err(WriteInsErrorRepr::DecodeWriteInsInput(format!(
             "The length of w={} must be delta - 1={}",
             w.len(),
             delta - 1
@@ -66,7 +74,12 @@ pub fn decode_write_ins(
     for p_hat_i in p_hat.iter() {
         if is_writein_option(context, p_hat_i) {
             let w_k = w_iter.next().unwrap();
-            let s = quadratic_residue_to_write_in(context.encryption_parameters(), w_k)?;
+            let s = quadratic_residue_to_write_in(context.encryption_parameters(), w_k).map_err(
+                |e| WriteInsErrorRepr::QuadraticToWriteInsForVal {
+                    val: w_k.clone(),
+                    source: Box::new(e),
+                },
+            )?;
             res.push(truncate(&s, MAX_LENGTH_WRITE_IN_FIELD))
         }
     }

@@ -19,18 +19,29 @@
 mod decoding_write_ins;
 mod write_ins_tally_phase;
 
-pub use write_ins_tally_phase::decode_write_ins;
-
 use super::ElectoralModelError;
+use rust_ev_crypto_primitives::{Integer, ModExponentiateError};
 use thiserror::Error;
+pub use write_ins_tally_phase::decode_write_ins;
 
 /// Enum representing the errors during the algorithms in write-ins
 #[derive(Error, Debug)]
-pub enum WriteInsError {
+#[error(transparent)]
+pub struct WriteInsError(#[from] WriteInsErrorRepr);
+
+#[derive(Error, Debug)]
+enum WriteInsErrorRepr {
     #[error("Error input in decode_write_ins: {0}")]
     DecodeWriteInsInput(String),
-    #[error(transparent)]
+    #[error("Error getting psi")]
     ElectoralModelError(#[from] ElectoralModelError),
-    #[error("Error input in integer_to_write_in: {0}")]
-    IntegerToWriteInput(String),
+    #[error("Error calculating quadratic to write-in")]
+    QuadraticToWriteIns { source: ModExponentiateError },
+    #[error("Error calculating quadratic to write-in for {val}")]
+    QuadraticToWriteInsForVal {
+        val: Integer,
+        source: Box<WriteInsError>,
+    },
+    #[error("x cannot be less or equal 0")]
+    XPositive,
 }

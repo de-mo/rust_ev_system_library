@@ -14,7 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use super::WriteInsError;
+use super::{WriteInsError, WriteInsErrorRepr};
 use rust_ev_crypto_primitives::{
     alphabets::ALPHABET_LATIN, elgamal::EncryptionParameters, ConstantsTrait, Integer,
     OperationsTrait,
@@ -31,9 +31,7 @@ pub fn quadratic_residue_to_write_in(
     let q = encryption_parameters.q();
     let mut x = y
         .mod_exponentiate(&(Integer::from(p + 1) / 4), p)
-        .map_err(|e| {
-            WriteInsError::IntegerToWriteInput(format!("Error with mod_exponentiate {}", e))
-        })?;
+        .map_err(|e| WriteInsErrorRepr::QuadraticToWriteIns { source: e })?;
     if &x > q {
         x = p - x;
     }
@@ -48,9 +46,7 @@ fn integer_to_write_in(
     x: &Integer,
 ) -> Result<String, WriteInsError> {
     if x <= Integer::zero() {
-        return Err(WriteInsError::IntegerToWriteInput(
-            "x cannot be less or equal 0".to_string(),
-        ));
+        return Err(WriteInsError::from(WriteInsErrorRepr::XPositive));
     }
     let a = ALPHABET_LATIN.size();
     // ensure that x is in Z_q
