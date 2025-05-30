@@ -33,7 +33,7 @@ use thiserror::Error;
 pub struct ElectoralModelError(#[from] ElectoralModelErrorRepr);
 
 #[derive(Error, Debug)]
-pub enum ElectoralModelErrorRepr {
+enum ElectoralModelErrorRepr {
     #[error("Error output in get_blank_correctness_information: {0}")]
     GetBlankCorrectnessInformationOutput(String),
     #[error("Error output in get_encoded_voting_options: {0}")]
@@ -44,8 +44,6 @@ pub enum ElectoralModelErrorRepr {
     GetCorrectnessInformationInput(String),
     #[error("Error output in factorize: {0}")]
     FactorizeInput(String),
-    #[error("Error validating context for get_hash_context: {0}")]
-    GetHashContextContextValidation(String),
     #[error("Error hashing context")]
     HashContext { source: HashError },
 }
