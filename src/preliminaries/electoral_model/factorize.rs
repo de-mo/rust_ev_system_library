@@ -14,7 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use super::{EPPTableAsContext, ElectoralModelError, PTableTrait};
+use super::{EPPTableAsContext, ElectoralModelError, ElectoralModelErrorRepr, PTableTrait};
 use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
 
 /// Algorithm 3.12
@@ -31,14 +31,18 @@ pub fn factorize(
         .filter(|p_tilde_k| x.is_divisible(&Integer::from(*p_tilde_k)))
         .collect::<Vec<_>>();
     if res.len() != psi {
-        return Err(ElectoralModelError::FactorizeInput(format!(
-            "The nummer of factors {} is not equal psi {psi}",
-            res.len()
-        )));
+        return Err(ElectoralModelError::from(
+            ElectoralModelErrorRepr::FactorizeInput(format!(
+                "The nummer of factors {} is not equal psi {psi}",
+                res.len()
+            )),
+        ));
     }
     if &res.iter().fold(Integer::one().clone(), |acc, p| (acc * p)) != x {
-        return Err(ElectoralModelError::FactorizeInput(
-            "The product of the factors is not equal to the given number".to_string(),
+        return Err(ElectoralModelError::from(
+            ElectoralModelErrorRepr::FactorizeInput(
+                "The product of the factors is not equal to the given number".to_string(),
+            ),
         ));
     }
     Ok(res)

@@ -14,7 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use super::{ElectoralModelError, PTable, PTableTrait};
+use super::{ElectoralModelError, ElectoralModelErrorRepr, PTable, PTableTrait};
 use rust_ev_crypto_primitives::{
     elgamal::EncryptionParameters, EncodeTrait, HashableMessage, Integer, RecursiveHashTrait,
 };
@@ -35,7 +35,7 @@ pub struct GetHashContextContext<'a> {
 pub fn get_hash_context(context: &GetHashContextContext) -> Result<String, ElectoralModelError> {
     Ok(HashableMessage::from(context)
         .recursive_hash()
-        .map_err(ElectoralModelError::HashError)?
+        .map_err(|e| ElectoralModelErrorRepr::HashContext { source: e })?
         .base64_encode()
         .unwrap())
 }

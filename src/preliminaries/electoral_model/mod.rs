@@ -29,7 +29,11 @@ use thiserror::Error;
 
 /// Enum representing the errors during the algorithms in electoral model
 #[derive(Error, Debug)]
-pub enum ElectoralModelError {
+#[error(transparent)]
+pub struct ElectoralModelError(#[from] ElectoralModelErrorRepr);
+
+#[derive(Error, Debug)]
+pub enum ElectoralModelErrorRepr {
     #[error("Error output in get_blank_correctness_information: {0}")]
     GetBlankCorrectnessInformationOutput(String),
     #[error("Error output in get_encoded_voting_options: {0}")]
@@ -42,8 +46,8 @@ pub enum ElectoralModelError {
     FactorizeInput(String),
     #[error("Error validating context for get_hash_context: {0}")]
     GetHashContextContextValidation(String),
-    #[error(transparent)]
-    HashError(#[from] HashError),
+    #[error("Error hashing context")]
+    HashContext { source: HashError },
 }
 
 /// Context containing pTable and encryption parameters
