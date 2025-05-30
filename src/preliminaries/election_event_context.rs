@@ -23,10 +23,8 @@ use thiserror::Error;
 
 /// Enum representing the errors during the algorithms regardinf election event context
 #[derive(Error, Debug)]
-pub enum ElectionEventContextError {
-    #[error(transparent)]
-    HashError(#[from] HashError),
-}
+#[error("Error hashing election event context")]
+pub struct ElectionEventContextError(#[from] HashError);
 
 /// Format to transform NaiveDate to String
 pub const NAIVE_DATETIME_TO_STRING_FORMAT: &str = "%Y-%m-%dT%H:%M:%S";
@@ -75,7 +73,7 @@ pub fn get_hash_election_event_context(
 ) -> Result<String, ElectionEventContextError> {
     let h = HashableMessage::from(context);
     Ok(h.recursive_hash()
-        .map_err(ElectionEventContextError::HashError)?
+        .map_err(ElectionEventContextError)?
         .base64_encode()
         .unwrap())
 }
