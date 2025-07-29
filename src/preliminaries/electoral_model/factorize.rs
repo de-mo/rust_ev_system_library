@@ -50,7 +50,7 @@ pub fn factorize(
 
 #[cfg(test)]
 mod test {
-    use super::super::primes_mapping_table::test_json_data::json_to_p_table;
+    use super::super::primes_mapping_table::test::json_to_p_table;
     use super::*;
     use crate::test_data::{get_prime_tables_1, get_prime_tables_2};
     use crate::test_json_data::json_to_encryption_parameters_base64;

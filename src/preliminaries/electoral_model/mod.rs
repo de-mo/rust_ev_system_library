@@ -17,14 +17,12 @@
 //! Algorithms defined in section Electoral Model
 
 mod factorize;
-mod hash_context;
 mod primes_mapping_table;
 
 pub use factorize::*;
-pub use hash_context::*;
 pub use primes_mapping_table::*;
 
-use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, HashError};
+use rust_ev_crypto_primitives::elgamal::EncryptionParameters;
 use thiserror::Error;
 
 /// Enum representing the errors during the algorithms in electoral model
@@ -44,8 +42,6 @@ enum ElectoralModelErrorRepr {
     GetCorrectnessInformationInput(String),
     #[error("Error output in factorize: {0}")]
     FactorizeInput(String),
-    #[error("Error hashing context")]
-    HashContext { source: HashError },
 }
 
 /// Context containing pTable and encryption parameters

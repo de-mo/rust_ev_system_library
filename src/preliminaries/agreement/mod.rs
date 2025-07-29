@@ -14,16 +14,22 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-//! Algorithms defined in section Preliminaries
+//! Algorithms defined in section Agreement algorithms
 
-mod agreement;
-mod election_event_context;
-mod electoral_model;
-mod proof_of_correct_key_generation;
-mod write_ins;
+mod hash_context;
 
-pub use agreement::*;
-pub use election_event_context::*;
-pub use electoral_model::*;
-pub use proof_of_correct_key_generation::*;
-pub use write_ins::*;
+pub use hash_context::*;
+use rust_ev_crypto_primitives::HashError;
+use thiserror::Error;
+
+/// Enum representing the errors during the algorithms in electoral model
+#[derive(Error, Debug)]
+#[error(transparent)]
+pub struct AgreementError(#[from] AgreementErrorRepr);
+
+/// Enum representing the errors during the algorithms in electoral model
+#[derive(Error, Debug)]
+enum AgreementErrorRepr {
+    #[error("Error hashing context")]
+    HashContext { source: HashError },
+}

@@ -244,9 +244,11 @@ impl<'a> From<&'a PTableElement> for HashableMessage<'a> {
 }
 
 #[cfg(test)]
-pub mod test_json_data {
-    use super::{PTable, PTableElement};
+pub(super) mod test {
     use serde_json::Value;
+
+    use super::*;
+    use crate::test_data::get_prime_tables_1;
 
     fn json_to_p_table_element(value: &Value) -> PTableElement {
         PTableElement {
@@ -268,14 +270,6 @@ pub mod test_json_data {
             .map(json_to_p_table_element)
             .collect()
     }
-}
-
-#[cfg(test)]
-mod test {
-    use super::test_json_data::json_to_p_table;
-    use super::*;
-    use crate::test_data::get_prime_tables_1;
-
     #[test]
     fn test_get_write_in_encoded_voting_options() {
         let json = get_prime_tables_1();

@@ -14,7 +14,8 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use super::{ElectoralModelError, ElectoralModelErrorRepr, PTable, PTableTrait};
+use super::{AgreementError, AgreementErrorRepr};
+use crate::preliminaries::{PTable, PTableTrait};
 use rust_ev_crypto_primitives::{
     elgamal::EncryptionParameters, EncodeTrait, HashableMessage, Integer, RecursiveHashTrait,
 };
@@ -32,10 +33,10 @@ pub struct GetHashContextContext<'a> {
 /// Algorithm 3.11
 ///
 /// Error [ElectoralModelError] if something is going wrong
-pub fn get_hash_context(context: &GetHashContextContext) -> Result<String, ElectoralModelError> {
+pub fn get_hash_context(context: &GetHashContextContext) -> Result<String, AgreementError> {
     Ok(HashableMessage::from(context)
         .recursive_hash()
-        .map_err(|e| ElectoralModelErrorRepr::HashContext { source: e })?
+        .map_err(|e| AgreementErrorRepr::HashContext { source: e })?
         .base64_encode()
         .unwrap())
 }
@@ -106,56 +107,30 @@ impl<'a> From<&'a GetHashContextContext<'a>> for HashableMessage<'a> {
 
 #[cfg(test)]
 mod test {
-    use std::fs;
-
     use super::*;
     use crate::{
-        preliminaries::PTableElement,
-        test_data::get_test_data_path,
-        test_json_data::{json_array_value_to_array_integer_base16, json_value_to_integer_base16},
+        test_data::get_test_data_agreement,
+        test_json_data::json_to_p_table,
+        test_json_data::{
+            json_array_value_to_array_integer_base64, json_to_encryption_parameters_base64,
+        },
     };
-    use serde_json::Value;
-
-    pub fn get_hash_contexts() -> Vec<Value> {
-        serde_json::from_str(
-            &fs::read_to_string(get_test_data_path().join("get-hash-context.json")).unwrap(),
-        )
-        .unwrap()
-    }
-
-    fn json_to_p_table_element(value: &Value) -> PTableElement {
-        PTableElement {
-            actual_voting_option: value["v"].as_str().unwrap().to_string(),
-            encoded_voting_option: value["pTilde"].as_u64().unwrap() as usize,
-            semantic_information: value["sigma"].as_str().unwrap().to_string(),
-            correctness_information: value["tau"].as_str().unwrap().to_string(),
-        }
-    }
-
-    pub fn json_to_p_table(value: &Value) -> PTable {
-        value
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(json_to_p_table_element)
-            .collect()
-    }
 
     #[test]
     fn test_hash_context() {
-        for test_case in get_hash_contexts() {
-            let description = test_case["description"].as_str().unwrap();
-            let output = test_case["output"].as_str().unwrap();
-            let context = &test_case["context"];
-            let ep = EncryptionParameters::from((
-                &json_value_to_integer_base16(&context["p"]),
-                &json_value_to_integer_base16(&context["q"]),
-                &json_value_to_integer_base16(&context["g"]),
-            ));
+        for tc in get_test_data_agreement("get-hash-context.json")
+            .as_array()
+            .unwrap()
+            .iter()
+        {
+            let description = tc["description"].as_str().unwrap();
+            let output = tc["output"].as_str().unwrap();
+            let context = &tc["context"];
+            let ep = json_to_encryption_parameters_base64(&context);
             let ee = context["ee"].as_str().unwrap();
             let vcs = context["vcs"].as_str().unwrap();
-            let el_pk = json_array_value_to_array_integer_base16(&context["ELpk"]);
-            let pk_ccr = json_array_value_to_array_integer_base16(&context["pkCCR"]);
+            let el_pk = json_array_value_to_array_integer_base64(&context["ELpk"]);
+            let pk_ccr = json_array_value_to_array_integer_base64(&context["pkCCR"]);
             let p_table = json_to_p_table(&context["pTable"]);
             let hash_context_context = GetHashContextContext {
                 encryption_parameters: &ep,

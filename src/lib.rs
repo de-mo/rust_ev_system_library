@@ -35,6 +35,7 @@ mod test_data {
 
     const TEST_DATA_DIR_NAME: &str = "test_data";
     const WRITEINS_DIR_NAME: &str = "writeins";
+    const AGREEMENT_DIR_NAME: &str = "agreement";
 
     pub fn get_test_data_path() -> PathBuf {
         PathBuf::from(".").join(TEST_DATA_DIR_NAME)
@@ -44,9 +45,20 @@ mod test_data {
         get_test_data_path().join(WRITEINS_DIR_NAME)
     }
 
+    fn get_test_data_agreement_path() -> PathBuf {
+        get_test_data_path().join(AGREEMENT_DIR_NAME)
+    }
+
     pub fn get_test_data_writeins(filname: &str) -> Value {
         serde_json::from_str(
             &fs::read_to_string(get_test_data_writeins_path().join(filname)).unwrap(),
+        )
+        .unwrap()
+    }
+
+    pub fn get_test_data_agreement(filname: &str) -> Value {
+        serde_json::from_str(
+            &fs::read_to_string(get_test_data_agreement_path().join(filname)).unwrap(),
         )
         .unwrap()
     }
@@ -68,6 +80,7 @@ mod test_data {
 
 #[cfg(test)]
 mod test_json_data {
+    use crate::preliminaries::{PTable, PTableElement};
     use chrono::NaiveDateTime;
     use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, DecodeTrait, Hexa, Integer};
     use serde_json::Value;
@@ -125,5 +138,23 @@ mod test_json_data {
 
     pub fn json_value_to_naive_datetime(value: &Value) -> NaiveDateTime {
         NaiveDateTime::parse_from_str(value.as_str().unwrap(), "%Y-%m-%dT%H:%M:%S").unwrap()
+    }
+
+    fn json_to_p_table_element(value: &Value) -> PTableElement {
+        PTableElement {
+            actual_voting_option: value["v"].as_str().unwrap().to_string(),
+            encoded_voting_option: value["pTilde"].as_u64().unwrap() as usize,
+            semantic_information: value["sigma"].as_str().unwrap().to_string(),
+            correctness_information: value["tau"].as_str().unwrap().to_string(),
+        }
+    }
+
+    pub fn json_to_p_table(value: &Value) -> PTable {
+        value
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(json_to_p_table_element)
+            .collect()
     }
 }
