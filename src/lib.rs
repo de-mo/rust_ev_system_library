@@ -82,7 +82,7 @@ mod test_data {
 mod test_json_data {
     use crate::preliminaries::{PTable, PTableElement};
     use chrono::NaiveDateTime;
-    use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, DecodeTrait, Hexa, Integer};
+    use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, DecodeTrait, Integer};
     use serde_json::Value;
 
     pub fn json_array_value_to_array_string(array: &Value) -> Vec<String> {
@@ -92,10 +92,6 @@ mod test_json_data {
             .iter()
             .map(|v| v.as_str().unwrap().to_string())
             .collect()
-    }
-
-    pub fn json_array_value_to_array_integer_base16(array: &Value) -> Vec<Integer> {
-        Integer::from_hexa_string_slice(&json_array_value_to_array_string(array)).unwrap()
     }
 
     pub fn json_array_value_to_array_integer_base64(array: &Value) -> Vec<Integer> {
@@ -114,10 +110,6 @@ mod test_json_data {
             .iter()
             .map(|x| x.to_usize().unwrap())
             .collect()
-    }
-
-    pub fn json_value_to_integer_base16(value: &Value) -> Integer {
-        Integer::from_hexa_string(value.as_str().unwrap()).unwrap()
     }
 
     pub fn json_value_to_integer_base64(value: &Value) -> Integer {
