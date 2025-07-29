@@ -100,7 +100,21 @@ impl ProcessPlaintextsOutput {
                     ));
                 }
                 let w_k = m_i.iter().skip(1).cloned().collect::<Vec<_>>();
-                let s_hat_k = decode_write_ins(context, &p_hat_k, &w_k).map_err(|e| {
+                let s_hat_k = decode_write_ins(
+                    context.encryption_parameters(),
+                    context
+                        .p_table()
+                        .get_write_in_encoded_voting_options()
+                        .as_slice(),
+                    context
+                        .p_table()
+                        .get_psi()
+                        .map_err(|e| MixOfflineError::GetPsi { source: e })?,
+                    context.p_table().get_delta(),
+                    &p_hat_k,
+                    &w_k,
+                )
+                .map_err(|e| {
                     MixOfflineError::ProcessPlaintextsProcess(format!(
                         "Write-in error decoding the write-ins: {:?}",
                         e

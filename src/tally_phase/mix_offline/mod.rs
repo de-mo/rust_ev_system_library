@@ -26,8 +26,10 @@ pub use verify_mix_dec_offline::*;
 
 use thiserror::Error;
 
+use crate::preliminaries::ElectoralModelError;
+
 // enum representing the errors during the algorithms for Mix Offline
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug)]
 pub enum MixOfflineError {
     #[error("Error input in ProcessPlaintexts: {0}")]
     ProcessPlaintextsInput(String),
@@ -41,4 +43,6 @@ pub enum MixOfflineError {
     VerifyMixDecOfflineInput(String),
     #[error("Error in processing VerifyMixDecOffline: {0}")]
     VerifyMixDecOfflineProcess(String),
+    #[error("Error getting psi from pTable")]
+    GetPsi { source: ElectoralModelError },
 }

@@ -112,7 +112,7 @@ mod test {
     use crate::{
         preliminaries::PTableElement,
         test_data::get_test_data_path,
-        test_json_data::{json_array_value_to_array_integer, json_value_to_integer_base16},
+        test_json_data::{json_array_value_to_array_integer_base16, json_value_to_integer_base16},
     };
     use serde_json::Value;
 
@@ -154,8 +154,8 @@ mod test {
             ));
             let ee = context["ee"].as_str().unwrap();
             let vcs = context["vcs"].as_str().unwrap();
-            let el_pk = json_array_value_to_array_integer(&context["ELpk"]);
-            let pk_ccr = json_array_value_to_array_integer(&context["pkCCR"]);
+            let el_pk = json_array_value_to_array_integer_base16(&context["ELpk"]);
+            let pk_ccr = json_array_value_to_array_integer_base16(&context["pkCCR"]);
             let p_table = json_to_p_table(&context["pTable"]);
             let hash_context_context = GetHashContextContext {
                 encryption_parameters: &ep,

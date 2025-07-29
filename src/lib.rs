@@ -30,9 +30,8 @@ pub mod rust_ev_crypto_primitives {
 
 #[cfg(test)]
 mod test_data {
-    use std::{fs, path::PathBuf};
-
     use serde_json::Value;
+    use std::{fs, path::PathBuf};
 
     const TEST_DATA_DIR_NAME: &str = "test_data";
     const WRITEINS_DIR_NAME: &str = "writeins";
@@ -41,8 +40,15 @@ mod test_data {
         PathBuf::from(".").join(TEST_DATA_DIR_NAME)
     }
 
-    pub fn get_test_data_writeins_path() -> PathBuf {
+    fn get_test_data_writeins_path() -> PathBuf {
         get_test_data_path().join(WRITEINS_DIR_NAME)
+    }
+
+    pub fn get_test_data_writeins(filname: &str) -> Value {
+        serde_json::from_str(
+            &fs::read_to_string(get_test_data_writeins_path().join(filname)).unwrap(),
+        )
+        .unwrap()
     }
 
     pub fn get_prime_tables_1() -> Value {
@@ -75,8 +81,26 @@ mod test_json_data {
             .collect()
     }
 
-    pub fn json_array_value_to_array_integer(array: &Value) -> Vec<Integer> {
+    pub fn json_array_value_to_array_integer_base16(array: &Value) -> Vec<Integer> {
         Integer::from_hexa_string_slice(&json_array_value_to_array_string(array)).unwrap()
+    }
+
+    pub fn json_array_value_to_array_integer_base64(array: &Value) -> Vec<Integer> {
+        Integer::base_64_decode_vector(
+            json_array_value_to_array_string(array)
+                .iter()
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>()
+                .as_slice(),
+        )
+        .unwrap()
+    }
+
+    pub fn json_array_value_to_array_usize_base64(array: &Value) -> Vec<usize> {
+        json_array_value_to_array_integer_base64(array)
+            .iter()
+            .map(|x| x.to_usize().unwrap())
+            .collect()
     }
 
     pub fn json_value_to_integer_base16(value: &Value) -> Integer {
@@ -87,19 +111,15 @@ mod test_json_data {
         Integer::base64_decode(value.as_str().unwrap()).unwrap()
     }
 
+    pub fn json_value_to_usize_base64(value: &Value) -> usize {
+        json_value_to_integer_base64(value).to_usize().unwrap()
+    }
+
     pub fn json_to_encryption_parameters_base64(value: &Value) -> EncryptionParameters {
         EncryptionParameters::from((
             &json_value_to_integer_base64(&value["p"]),
             &json_value_to_integer_base64(&value["q"]),
             &json_value_to_integer_base64(&value["g"]),
-        ))
-    }
-
-    pub fn json_to_encryption_parameters_base16(value: &Value) -> EncryptionParameters {
-        EncryptionParameters::from((
-            &json_value_to_integer_base16(&value["p"]),
-            &json_value_to_integer_base16(&value["q"]),
-            &json_value_to_integer_base16(&value["g"]),
         ))
     }
 

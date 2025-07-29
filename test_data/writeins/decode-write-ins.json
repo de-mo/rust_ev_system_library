@@ -1,0 +1,219 @@
+[
+	{
+		"description": "3072-decode-write-ins-no-write-ins",
+		"context": {
+			"p": "AL/2fMyuD2Gzi6cK1zbPqOooS11srr8v7S/IjQrf+eKyIL/ZzNpZvTvVKxLN/M9Bqj2b+B+Vp9WUUmkL9F95k752CrvKPilwXUc6ZmONzW6nhmPA25Hj4Ksd/hr/JRgdTSw7oFn5Ex2V039DEjPqInbgUslg3LEw+d/9wL6XfJlH564F6lFqqBslKP7wNiWs/PSVw6tdXxduBvE4KulqRwMhCSwMHAKhlqtNog02BbTnKlz9Fs+Tgcg1E+vRiopKIb+VuGTtpMAhRYPpmjGA96Vh8Z1FG8Q1TnooTcfrDFoF3FiFbG3IzzpXtC2GbYX0U9G9jMYRF/tgakCvCg73bWA8ejB8C4hUNV1YNndMa7EiOOCYBngqSHu5iIrh21Teyj/sN00wzJpyLTBSWFBp0hK2L9Z1hxAzfKF0Eegv9+fnt1T0yfOhxJqhXg0KDpsFouqIAhbQUreA5oFoyjNjCdPBgConivzxwPj6M4HBRdoIZIkiIblg7NbUYWXgV7Ve6w==",
+			"q": "X/s+ZlcHsNnF04Vrm2fUdRQlrrZXX5f2l+RGhW/88VkQX+zmbSzeneqViWb+Z6DVHs38D8rT6sopNIX6L7zJ3zsFXeUfFLguo50zMcbmt1PDMeBtyPHwVY7/DX+SjA6mlh3QLPyJjsrpv6GJGfURO3ApZLBuWJh87/7gX0u+TKPz1wL1KLVUDZKUf3gbEtZ+ekrh1a6vi7cDeJwVdLUjgZCElgYOAVDLVabRBpsC2nOVLn6LZ8nA5BqJ9ejFRSUQ38rcMnbSYBCiwfTNGMB70rD4zqKN4hqnPRQm4/WGLQLuLEK2NuRnnSvaFsM2wvop6N7GYwiL/bA1IFeFB3u2sB49GD4FxCoarqwbO6Y12JEccEwDPBUkPdzERXDtqm9lH/YbpphmTTkWmCksKDTpCVsX6zrDiBm+ULoI9Bf78/Pbqnpk+dDiTVCvBoUHTYLRdUQBC2gpW8BzQLRlGbGE6eDAFRPFfnjgfH0ZwOCi7QQyRJEQ3LB2a2owsvAr2q91",
+			"g": "Aw==",
+			"p_w_tilde": [],
+			"psi": 24,
+			"delta": 1
+		},
+		"input": {
+			"p_hat": [
+				"ARk=",
+				"ARs=",
+				"ATk=",
+				"AT0=",
+				"AUs=",
+				"AVE=",
+				"AWE=",
+				"AWc=",
+				"AXs=",
+				"AX8=",
+				"AZk=",
+				"AaM=",
+				"AaU=",
+				"AbE=",
+				"Abs=",
+				"AdM=",
+				"Ad8=",
+				"Aes=",
+				"AfM=",
+				"Afc=",
+				"Agk=",
+				"Ags=",
+				"Ah0=",
+				"AiM="
+			],
+			"w": []
+		},
+		"output": {
+			"s_hat": []
+		}
+	},
+	{
+		"description": "3072-decode-write-ins-no-decoded-write-ins",
+		"context": {
+			"p": "AL/2fMyuD2Gzi6cK1zbPqOooS11srr8v7S/IjQrf+eKyIL/ZzNpZvTvVKxLN/M9Bqj2b+B+Vp9WUUmkL9F95k752CrvKPilwXUc6ZmONzW6nhmPA25Hj4Ksd/hr/JRgdTSw7oFn5Ex2V039DEjPqInbgUslg3LEw+d/9wL6XfJlH564F6lFqqBslKP7wNiWs/PSVw6tdXxduBvE4KulqRwMhCSwMHAKhlqtNog02BbTnKlz9Fs+Tgcg1E+vRiopKIb+VuGTtpMAhRYPpmjGA96Vh8Z1FG8Q1TnooTcfrDFoF3FiFbG3IzzpXtC2GbYX0U9G9jMYRF/tgakCvCg73bWA8ejB8C4hUNV1YNndMa7EiOOCYBngqSHu5iIrh21Teyj/sN00wzJpyLTBSWFBp0hK2L9Z1hxAzfKF0Eegv9+fnt1T0yfOhxJqhXg0KDpsFouqIAhbQUreA5oFoyjNjCdPBgConivzxwPj6M4HBRdoIZIkiIblg7NbUYWXgV7Ve6w==",
+			"q": "X/s+ZlcHsNnF04Vrm2fUdRQlrrZXX5f2l+RGhW/88VkQX+zmbSzeneqViWb+Z6DVHs38D8rT6sopNIX6L7zJ3zsFXeUfFLguo50zMcbmt1PDMeBtyPHwVY7/DX+SjA6mlh3QLPyJjsrpv6GJGfURO3ApZLBuWJh87/7gX0u+TKPz1wL1KLVUDZKUf3gbEtZ+ekrh1a6vi7cDeJwVdLUjgZCElgYOAVDLVabRBpsC2nOVLn6LZ8nA5BqJ9ejFRSUQ38rcMnbSYBCiwfTNGMB70rD4zqKN4hqnPRQm4/WGLQLuLEK2NuRnnSvaFsM2wvop6N7GYwiL/bA1IFeFB3u2sB49GD4FxCoarqwbO6Y12JEccEwDPBUkPdzERXDtqm9lH/YbpphmTTkWmCksKDTpCVsX6zrDiBm+ULoI9Bf78/Pbqnpk+dDiTVCvBoUHTYLRdUQBC2gpW8BzQLRlGbGE6eDAFRPFfnjgfH0ZwOCi7QQyRJEQ3LB2a2owsvAr2q91",
+			"g": "Aw==",
+			"p_w_tilde": [
+				"Bw==",
+				"DQ==",
+				"Ew==",
+				"Hw==",
+				"JQ==",
+				"KQ==",
+				"Ow==",
+				"PQ==",
+				"Rw==",
+				"SQ==",
+				"Tw=="
+			],
+			"psi": 32,
+			"delta": 12
+		},
+		"input": {
+			"p_hat": [
+				"ApU=",
+				"AqE=",
+				"AqU=",
+				"Aqs=",
+				"ArM=",
+				"AsU=",
+				"As8=",
+				"At0=",
+				"AuM=",
+				"Auc=",
+				"AvU=",
+				"AxM=",
+				"Ayk=",
+				"AzU=",
+				"Azs=",
+				"A1s=",
+				"A20=",
+				"A3E=",
+				"A3c=",
+				"A5c=",
+				"A6E=",
+				"A7M=",
+				"A9E=",
+				"A98=",
+				"A+U=",
+				"A/U=",
+				"A/0=",
+				"BBk=",
+				"BCU=",
+				"BEM=",
+				"BEU=",
+				"BEk="
+			],
+			"w": [
+				"Bw==",
+				"Ww==",
+				"BsE=",
+				"ANFf",
+				"HkK7",
+				"BNiv8w==",
+				"AR3wjQE=",
+				"RCJRmT0=",
+				"EuWEoX/r",
+				"BWNy0g16Aw==",
+				"AamwbtIopu0="
+			]
+		},
+		"output": {
+			"s_hat": []
+		}
+	},
+	{
+		"description": "3072-decode-write-ins-decoded-write-ins",
+		"context": {
+			"p": "AL/2fMyuD2Gzi6cK1zbPqOooS11srr8v7S/IjQrf+eKyIL/ZzNpZvTvVKxLN/M9Bqj2b+B+Vp9WUUmkL9F95k752CrvKPilwXUc6ZmONzW6nhmPA25Hj4Ksd/hr/JRgdTSw7oFn5Ex2V039DEjPqInbgUslg3LEw+d/9wL6XfJlH564F6lFqqBslKP7wNiWs/PSVw6tdXxduBvE4KulqRwMhCSwMHAKhlqtNog02BbTnKlz9Fs+Tgcg1E+vRiopKIb+VuGTtpMAhRYPpmjGA96Vh8Z1FG8Q1TnooTcfrDFoF3FiFbG3IzzpXtC2GbYX0U9G9jMYRF/tgakCvCg73bWA8ejB8C4hUNV1YNndMa7EiOOCYBngqSHu5iIrh21Teyj/sN00wzJpyLTBSWFBp0hK2L9Z1hxAzfKF0Eegv9+fnt1T0yfOhxJqhXg0KDpsFouqIAhbQUreA5oFoyjNjCdPBgConivzxwPj6M4HBRdoIZIkiIblg7NbUYWXgV7Ve6w==",
+			"q": "X/s+ZlcHsNnF04Vrm2fUdRQlrrZXX5f2l+RGhW/88VkQX+zmbSzeneqViWb+Z6DVHs38D8rT6sopNIX6L7zJ3zsFXeUfFLguo50zMcbmt1PDMeBtyPHwVY7/DX+SjA6mlh3QLPyJjsrpv6GJGfURO3ApZLBuWJh87/7gX0u+TKPz1wL1KLVUDZKUf3gbEtZ+ekrh1a6vi7cDeJwVdLUjgZCElgYOAVDLVabRBpsC2nOVLn6LZ8nA5BqJ9ejFRSUQ38rcMnbSYBCiwfTNGMB70rD4zqKN4hqnPRQm4/WGLQLuLEK2NuRnnSvaFsM2wvop6N7GYwiL/bA1IFeFB3u2sB49GD4FxCoarqwbO6Y12JEccEwDPBUkPdzERXDtqm9lH/YbpphmTTkWmCksKDTpCVsX6zrDiBm+ULoI9Bf78/Pbqnpk+dDiTVCvBoUHTYLRdUQBC2gpW8BzQLRlGbGE6eDAFRPFfnjgfH0ZwOCi7QQyRJEQ3LB2a2owsvAr2q91",
+			"g": "Aw==",
+			"p_w_tilde": [
+				"Bw==",
+				"DQ==",
+				"Ew==",
+				"Hw==",
+				"JQ==",
+				"KQ==",
+				"Ow=="
+			],
+			"psi": 58,
+			"delta": 8
+		},
+		"input": {
+			"p_hat": [
+				"AaM=",
+				"AaU=",
+				"AbE=",
+				"Abs=",
+				"AdM=",
+				"Ad8=",
+				"Aes=",
+				"AfM=",
+				"Afc=",
+				"Agk=",
+				"Ags=",
+				"Ah0=",
+				"AiM=",
+				"Ai0=",
+				"AjM=",
+				"Ajs=",
+				"AkE=",
+				"AlE=",
+				"Ams=",
+				"AoE=",
+				"AoM=",
+				"Aoc=",
+				"Ao0=",
+				"ApM=",
+				"ApU=",
+				"AqE=",
+				"AqU=",
+				"Aqs=",
+				"ArM=",
+				"AsU=",
+				"As8=",
+				"At0=",
+				"AuM=",
+				"Auc=",
+				"AvU=",
+				"AxM=",
+				"Ayk=",
+				"AzU=",
+				"Azs=",
+				"A1s=",
+				"A20=",
+				"A3E=",
+				"A3c=",
+				"A5c=",
+				"A6E=",
+				"A7M=",
+				"A9E=",
+				"A98=",
+				"A+U=",
+				"A/U=",
+				"A/0=",
+				"BBk=",
+				"BCU=",
+				"Bw==",
+				"DQ==",
+				"Ew==",
+				"Hw==",
+				"JQ=="
+			],
+			"w": [
+				"DYSOzgBzg5m2LmZ9LfOR8Nm6doBrCJYYeQ==",
+				"Hf7RapsRh0jSN1b7ub2eyOpUPVS/OOE=",
+				"MXYLwk8g4DDkzmBgbveBn3c8bwlR",
+				"E6J6AsP69sMiQ73O3FqqpCT31XbOFzfTpA==",
+				"A/4wtfiwnYGZHJosHs03BfBXbZJl2itlGjfSv0J6REVKkA==",
+				"APagjJNG4ySpiZTot3YlvKQMCeNMi/1nGzv7Rdk=",
+				"AjuTgqp2P53UG7L7nLvUAe6bdmk="
+			]
+		},
+		"output": {
+			"s_hat": [
+				"Otmar Lorenzen",
+				"Ismail Hering",
+				"Anni Wieland",
+				"Vanessa Heuser",
+				"Dominique Drechsler"
+			]
+		}
+	}
+]
