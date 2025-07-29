@@ -20,17 +20,20 @@ mod process_plaintexts;
 mod verifiy_client_proofs;
 mod verify_mix_dec_offline;
 
+use crate::preliminaries::ElectoralModelError;
 pub use process_plaintexts::ProcessPlaintextsOutput;
+use thiserror::Error;
 pub use verifiy_client_proofs::*;
 pub use verify_mix_dec_offline::*;
 
-use thiserror::Error;
-
-use crate::preliminaries::ElectoralModelError;
+/// Errors during the algorithms for Mix Offline
+#[derive(Error, Debug)]
+#[error(transparent)]
+pub struct MixOfflineError(#[from] MixOfflineErrorRepr);
 
 // enum representing the errors during the algorithms for Mix Offline
 #[derive(Error, Debug)]
-pub enum MixOfflineError {
+pub enum MixOfflineErrorRepr {
     #[error("Error input in ProcessPlaintexts: {0}")]
     ProcessPlaintextsInput(String),
     #[error("Error processing in ProcessPlaintexts: {0}")]

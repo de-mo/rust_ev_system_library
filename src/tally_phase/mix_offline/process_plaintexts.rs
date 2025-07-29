@@ -15,7 +15,10 @@
 // <https://www.gnu.org/licenses/>.
 
 use super::MixOfflineError;
-use crate::preliminaries::{decode_write_ins, factorize, EPPTableAsContext, PTableTrait};
+use crate::{
+    preliminaries::{decode_write_ins, factorize, EPPTableAsContext, PTableTrait},
+    tally_phase::mix_offline::MixOfflineErrorRepr,
+};
 use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
 
 /// Output structure of ProcessPlaintexts according to the specifications
@@ -34,15 +37,22 @@ impl ProcessPlaintextsOutput {
         context: &EPPTableAsContext,
         plaintext_votes: &[&[Integer]],
     ) -> Result<Self, MixOfflineError> {
+        Self::process_plaintexts_impl(context, plaintext_votes).map_err(MixOfflineError)
+    }
+
+    fn process_plaintexts_impl(
+        context: &EPPTableAsContext,
+        plaintext_votes: &[&[Integer]],
+    ) -> Result<Self, MixOfflineErrorRepr> {
         let upper_n_hat_upper_c = plaintext_votes.len();
         if upper_n_hat_upper_c < 2 {
-            return Err(MixOfflineError::ProcessPlaintextsInput(format!(
+            return Err(MixOfflineErrorRepr::ProcessPlaintextsInput(format!(
                 "N_C={upper_n_hat_upper_c} must be geater than 2"
             )));
         }
         let delta = plaintext_votes[0].len();
         if plaintext_votes.iter().any(|m_i| m_i.len() != delta) {
-            return Err(MixOfflineError::ProcessPlaintextsInput(
+            return Err(MixOfflineErrorRepr::ProcessPlaintextsInput(
                 "Not all vectors of plaintext_votes have the size of delta".to_string(),
             ));
         }
@@ -51,7 +61,7 @@ impl ProcessPlaintextsOutput {
             .p_table()
             .get_blank_correctness_information()
             .map_err(|e| {
-                MixOfflineError::ProcessPlaintextsProcess(format!(
+                MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
                     "Electoral model error processing tau_hat: {:?}",
                     e
                 ))
@@ -62,7 +72,7 @@ impl ProcessPlaintextsOutput {
         for m_i in plaintext_votes.iter() {
             if m_i != &ones {
                 let p_hat_k = factorize(context, &m_i[0]).map_err(|e| {
-                    MixOfflineError::ProcessPlaintextsProcess(format!(
+                    MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
                         "Electoral model error facorizing: {:?}",
                         e
                     ))
@@ -71,7 +81,7 @@ impl ProcessPlaintextsOutput {
                     .p_table()
                     .get_actual_voting_options(&p_hat_k)
                     .map_err(|e| {
-                        MixOfflineError::ProcessPlaintextsProcess(format!(
+                        MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
                             "Electoral model error getting actual voting options: {:?}",
                             e
                         ))
@@ -89,13 +99,13 @@ impl ProcessPlaintextsOutput {
                             .as_slice(),
                     )
                     .map_err(|e| {
-                        MixOfflineError::ProcessPlaintextsProcess(format!(
+                        MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
                             "Electoral model error getting correctnes information: {:?}",
                             e
                         ))
                     })?;
                 if tau_prime != tau_hat {
-                    return Err(MixOfflineError::ProcessPlaintextsProcess(
+                    return Err(MixOfflineErrorRepr::ProcessPlaintextsProcess(
                         "tau_prime is differant that tau_hat".to_string(),
                     ));
                 }
@@ -109,13 +119,13 @@ impl ProcessPlaintextsOutput {
                     context
                         .p_table()
                         .get_psi()
-                        .map_err(|e| MixOfflineError::GetPsi { source: e })?,
+                        .map_err(|e| MixOfflineErrorRepr::GetPsi { source: e })?,
                     context.p_table().get_delta(),
                     &p_hat_k,
                     &w_k,
                 )
                 .map_err(|e| {
-                    MixOfflineError::ProcessPlaintextsProcess(format!(
+                    MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
                         "Write-in error decoding the write-ins: {:?}",
                         e
                     ))
