@@ -47,7 +47,7 @@ pub struct VerificationCardSetContext<'a> {
     pub upper_n_upper_e: usize,
     pub grace_period: usize,
     pub p_table: &'a Vec<PTableElement>,
-    pub encryption_parameters: &'a EncryptionParameters,
+    pub dois: &'a [String],
 }
 
 /// Context for GetHashElectionEventContext. Fields according specification of Swiss Post.
@@ -84,20 +84,13 @@ where
     'hash: 'a,
 {
     fn from(value: &'hash VerificationCardSetContext<'a>) -> Self {
-        let h_p_table_j = HashableMessage::from(vec![
-            HashableMessage::from(vec![
-                HashableMessage::from(value.encryption_parameters.p()),
-                HashableMessage::from(value.encryption_parameters.q()),
-                HashableMessage::from(value.encryption_parameters.g()),
-            ]),
-            HashableMessage::from(
-                value
-                    .p_table
-                    .iter()
-                    .map(HashableMessage::from)
-                    .collect::<Vec<_>>(),
-            ),
-        ]);
+        let h_p_table_j = HashableMessage::from(vec![HashableMessage::from(
+            value
+                .p_table
+                .iter()
+                .map(HashableMessage::from)
+                .collect::<Vec<_>>(),
+        )]);
         HashableMessage::from(vec![
             HashableMessage::from(value.vcs),
             HashableMessage::from(value.vcs_alias),
@@ -109,6 +102,7 @@ where
             HashableMessage::from(value.upper_n_upper_e),
             HashableMessage::from(value.grace_period),
             h_p_table_j,
+            HashableMessage::from(value.dois),
         ])
     }
 }
@@ -128,6 +122,7 @@ where
         );
 
         HashableMessage::from(vec![
+            HashableMessage::from(value.encryption_parameters),
             HashableMessage::from(value.ee),
             HashableMessage::from(value.ee_alias),
             HashableMessage::from(value.ee_descr),
@@ -143,23 +138,45 @@ where
 
 #[cfg(test)]
 mod test {
-    use std::fs;
-
     use super::*;
     use crate::{
-        preliminaries::PTableElement,
-        test_data::get_test_data_path,
-        test_json_data::{json_to_encryption_parameters_base64, json_value_to_naive_datetime},
+        preliminaries::{PTable, PTableElement},
+        test_data::get_test_data_agreement,
+        test_json_data::{
+            json_array_value_to_array_string, json_to_encryption_parameters_base64,
+            json_value_to_naive_datetime,
+        },
     };
     use chrono::NaiveDateTime;
     use serde_json::Value;
 
     pub fn get_hash_contexts() -> Vec<Value> {
-        serde_json::from_str(
-            &fs::read_to_string(get_test_data_path().join("get-hash-election-event-context.json"))
-                .unwrap(),
-        )
-        .unwrap()
+        get_test_data_agreement("get-hash-election-event-context.json")
+            .as_array()
+            .unwrap()
+            .clone()
+    }
+
+    pub fn json_to_vcs_context<'a>(
+        p_table: &'a Vec<PTableElement>,
+        start_time: &'a NaiveDateTime,
+        stop_time: &'a NaiveDateTime,
+        value: &'a Value,
+        dois: &'a [String],
+    ) -> VerificationCardSetContext<'a> {
+        VerificationCardSetContext {
+            vcs: value["verificationCardSetId"].as_str().unwrap(),
+            vcs_alias: value["verificationCardSetAlias"].as_str().unwrap(),
+            vcs_desc: value["verificationCardSetDescription"].as_str().unwrap(),
+            bb: value["ballotBoxId"].as_str().unwrap(),
+            t_s_bb: start_time,
+            t_f_bb: stop_time,
+            test_ballot_box: value["testBallotBox"].as_bool().unwrap(),
+            upper_n_upper_e: value["numberOfEligibleVoters"].as_u64().unwrap() as usize,
+            grace_period: value["gracePeriod"].as_u64().unwrap() as usize,
+            p_table,
+            dois,
+        }
     }
 
     fn json_to_p_table_element(value: &Value) -> PTableElement {
@@ -174,7 +191,7 @@ mod test {
         }
     }
 
-    pub fn json_to_p_table(value: &Value) -> Vec<PTableElement> {
+    pub fn json_to_p_table(value: &Value) -> PTable {
         value
             .as_array()
             .unwrap()
@@ -183,30 +200,24 @@ mod test {
             .collect()
     }
 
-    pub fn json_to_vcs_context<'a>(
-        p_table: &'a Vec<PTableElement>,
-        ep: &'a EncryptionParameters,
-        start_time: &'a NaiveDateTime,
-        stop_time: &'a NaiveDateTime,
-        value: &'a Value,
-    ) -> VerificationCardSetContext<'a> {
-        VerificationCardSetContext {
-            vcs: value["verificationCardSetId"].as_str().unwrap(),
-            vcs_alias: value["verificationCardSetAlias"].as_str().unwrap(),
-            vcs_desc: value["verificationCardSetDescription"].as_str().unwrap(),
-            bb: value["ballotBoxId"].as_str().unwrap(),
-            t_s_bb: start_time,
-            t_f_bb: stop_time,
-            test_ballot_box: value["testBallotBox"].as_bool().unwrap(),
-            upper_n_upper_e: value["numberOfVotingCards"].as_u64().unwrap() as usize,
-            grace_period: value["gracePeriod"].as_u64().unwrap() as usize,
-            p_table,
-            encryption_parameters: ep,
+    fn json_to_hashable_message<'a>(value: &'a Value) -> HashableMessage<'a> {
+        match value {
+            v if v.is_array() => HashableMessage::from(
+                value
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|e| json_to_hashable_message(e))
+                    .collect::<Vec<_>>(),
+            ),
+            v if v.is_boolean() => HashableMessage::from(value.as_bool().unwrap()),
+            v if v.is_number() => HashableMessage::from(value.as_u64().unwrap() as usize),
+            v if v.is_string() => HashableMessage::from(value.as_str().unwrap()),
+            _ => panic!("Not possible"),
         }
     }
 
     #[test]
-    #[ignore = "Not working (but alogirthm is used in verify signature and is working"]
     fn test_hash_ee_context() {
         for test_case in get_hash_contexts() {
             let description = test_case["description"].as_str().unwrap();
@@ -239,22 +250,18 @@ mod test {
                 .iter()
                 .map(|v| json_to_p_table(&v["primesMappingTable"]["pTable"]))
                 .collect::<Vec<_>>();
-            let eps = json_vcs_contexts
+            let doiss = json_vcs_contexts
                 .iter()
-                .map(|v| {
-                    json_to_encryption_parameters_base64(
-                        &v["primesMappingTable"]["encryptionGroup"],
-                    )
-                })
+                .map(|v| json_array_value_to_array_string(&v["domainsOfInfluence"]))
                 .collect::<Vec<_>>();
             let vcs_contexts = json_vcs_contexts
                 .iter()
-                .zip(
-                    eps.iter()
-                        .zip(p_tables.iter())
-                        .zip(start_times.iter().zip(finish_times.iter())),
-                )
-                .map(|(v, ((ep, p_table), (st, ft)))| json_to_vcs_context(p_table, ep, st, ft, v))
+                .zip(p_tables.iter())
+                .zip(doiss.iter())
+                .zip(start_times.iter().zip(finish_times.iter()))
+                .map(|(((v, p_table), dois), (st, ft))| {
+                    json_to_vcs_context(p_table, st, ft, v, dois.as_slice())
+                })
                 .collect::<Vec<_>>();
             let hash_context = GetHashElectionEventContextContext {
                 encryption_parameters: &ep,
@@ -268,6 +275,9 @@ mod test {
                 psi_max,
                 delta_max,
             };
+            let h = json_to_hashable_message(&test_case["output"]["h"]);
+            let comp = HashableMessage::from(&hash_context).compare_to(&h, None);
+            assert!(comp.is_ok(), "{}", comp.unwrap_err());
             assert_eq!(
                 get_hash_election_event_context(&hash_context).unwrap(),
                 output,
