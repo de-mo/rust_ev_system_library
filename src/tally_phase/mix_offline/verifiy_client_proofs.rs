@@ -149,8 +149,7 @@ impl VerifyDomainTrait<MixOfflineError>
         match self.0.p_table.get_psi() {
             Err(e) => res.push(MixOfflineError(
                 MixOfflineErrorRepr::VerifyVotingClientProofsInput(format!(
-                    "Error calculating psi: {}",
-                    e
+                    "Error calculating psi: {e}",
                 )),
             )),
             Ok(psi) => {
@@ -211,8 +210,7 @@ impl VerifyVotingClientProofsOutput {
                 None => {
                     errors.push(MixOfflineError(
                         MixOfflineErrorRepr::VerifyVotingClientProofsProcess(format!(
-                            "Entry of KMAP for vc1[{}]={} not found",
-                            i, vc_1_i
+                            "Entry of KMAP for vc1[{i}]={vc_1_i} not found",
                         )),
                     ));
                     break;
@@ -239,8 +237,7 @@ impl VerifyVotingClientProofsOutput {
                     Err(e) => {
                         errors.push(MixOfflineError(
                             MixOfflineErrorRepr::VerifyVotingClientProofsProcess(format!(
-                                "Error in get_hash_context: {}",
-                                e
+                                "Error in get_hash_context: {e}",
                             )),
                         ));
                         break;
@@ -275,8 +272,7 @@ impl VerifyVotingClientProofsOutput {
                 }
                 Err(e) => errors.push(MixOfflineError(
                     MixOfflineErrorRepr::VerifyVotingClientProofsProcess(format!(
-                        "Error in verify_exponentiation: {}",
-                        e
+                        "Error in verify_exponentiation: {e}",
                     )),
                 )),
             }
@@ -299,8 +295,7 @@ impl VerifyVotingClientProofsOutput {
                 }
                 Err(e) => errors.push(MixOfflineError(
                     MixOfflineErrorRepr::VerifyVotingClientProofsProcess(format!(
-                        "Error in verify_plaintext_equality: {}",
-                        e
+                        "Error in verify_plaintext_equality: {e}",
                     )),
                 )),
             }

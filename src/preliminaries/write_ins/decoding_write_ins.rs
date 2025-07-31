@@ -80,8 +80,7 @@ mod test {
             assert_eq!(
                 integer_to_write_in(&q, &x).unwrap().as_str(),
                 expected,
-                "{}",
-                description
+                "{description}"
             )
         }
         assert!(integer_to_write_in(
@@ -102,8 +101,7 @@ mod test {
             assert_eq!(
                 quadratic_residue_to_write_in(&ep, &y).unwrap().as_str(),
                 expected,
-                "{}",
-                description
+                "{description}"
             )
         }
     }

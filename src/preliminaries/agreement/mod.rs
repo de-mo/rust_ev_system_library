@@ -16,8 +16,10 @@
 
 //! Algorithms defined in section Agreement algorithms
 
+mod election_event_context;
 mod hash_context;
 
+pub use election_event_context::*;
 pub use hash_context::*;
 use rust_ev_crypto_primitives::HashError;
 use thiserror::Error;

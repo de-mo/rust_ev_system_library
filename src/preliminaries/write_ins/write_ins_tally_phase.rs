@@ -104,8 +104,7 @@ mod test {
             assert_eq!(
                 is_writein_option(&p_w_tilde, &p_i_tilde),
                 expected,
-                "{}",
-                description
+                "{description}"
             )
         }
     }
@@ -133,7 +132,7 @@ mod test {
                 res.unwrap_err(),
                 description
             );
-            assert_eq!(res.unwrap(), expected, "{}", description)
+            assert_eq!(res.unwrap(), expected, "{description}")
         }
     }
 }

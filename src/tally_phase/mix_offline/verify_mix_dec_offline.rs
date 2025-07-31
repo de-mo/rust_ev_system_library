@@ -108,8 +108,7 @@ impl VerifyDomainTrait<MixOfflineError>
             if c_mix_j.len() != hat_upper_n_c {
                 inner_res.push(MixOfflineError(
                     MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
-                        "c_mix_{} must have a size of N_c",
-                        j
+                        "c_mix_{j} must have a size of N_c",
                     )),
                 ));
             };
@@ -118,8 +117,8 @@ impl VerifyDomainTrait<MixOfflineError>
                     true => None,
                     false => Some(MixOfflineError(
                         MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
-                            "c_mix_{}_{} has not size of delta (={})",
-                            j, i, context.delta
+                            "c_mix_{j}_{i} has not size of delta (={})",
+                            context.delta
                         )),
                     )),
                 }
@@ -145,8 +144,7 @@ impl VerifyDomainTrait<MixOfflineError>
             if c_dec_j.len() != hat_upper_n_c {
                 inner_res.push(MixOfflineError(
                     MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
-                        "c_dec_{} must have a size of N_c",
-                        j
+                        "c_dec_{j} must have a size of N_c",
                     )),
                 ));
             };
@@ -155,8 +153,8 @@ impl VerifyDomainTrait<MixOfflineError>
                     true => None,
                     false => Some(MixOfflineError(
                         MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
-                            "c_dec_{}_{} has not size of delta (={})",
-                            j, i, context.delta
+                            "c_dec_{j}_{i} has not size of delta (={})",
+                            context.delta
                         )),
                     )),
                 }
@@ -175,8 +173,7 @@ impl VerifyDomainTrait<MixOfflineError>
             if pi_dec_j.len() != hat_upper_n_c {
                 inner_res.push(MixOfflineError(
                     MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
-                        "pi_dec_{} must have a size of N_c",
-                        j
+                        "pi_dec_{j} must have a size of N_c",
                     )),
                 ));
             };
@@ -225,11 +222,11 @@ impl VerifyMixDecOfflineOutput {
         ) {
             Ok(res) => {
                 if !res.is_ok() {
-                    shuffle_verif.push(format!("VerifiyShuffle 1 not successful: {}", res))
+                    shuffle_verif.push(format!("VerifiyShuffle 1 not successful: {res}",))
                 }
             }
             Err(e) => errors.push(MixOfflineError(
-                MixOfflineErrorRepr::VerifyMixDecOfflineProcess(format!("VerifiyShuffle 1: {}", e)),
+                MixOfflineErrorRepr::VerifyMixDecOfflineProcess(format!("VerifiyShuffle 1: {e}")),
             )),
         }
 
@@ -249,13 +246,12 @@ impl VerifyMixDecOfflineOutput {
         ) {
             Ok(res) => {
                 if !res.is_ok() {
-                    decrypt_verif.push(format!("VerifyDecryptions 1 not successful: {}", res))
+                    decrypt_verif.push(format!("VerifyDecryptions 1 not successful: {res}"))
                 }
             }
             Err(e) => errors.push(MixOfflineError(
                 MixOfflineErrorRepr::VerifyMixDecOfflineProcess(format!(
-                    "VerifyDecryptions 1: {}",
-                    e
+                    "VerifyDecryptions 1: {e}"
                 )),
             )),
         }

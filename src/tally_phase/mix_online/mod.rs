@@ -34,5 +34,5 @@ enum MixOnlineErrorRepr {
     #[error("Error calculating e_trivial")]
     ETrivail { source: ElgamalError },
     #[error("Error calculating hvc_j")]
-    HVCJ { source: HashError },
+    Hvcj { source: HashError },
 }

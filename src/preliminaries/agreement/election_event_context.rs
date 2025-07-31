@@ -14,12 +14,13 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use super::PTableElement;
 use chrono::NaiveDateTime;
 use rust_ev_crypto_primitives::{
     elgamal::EncryptionParameters, EncodeTrait, HashError, HashableMessage, RecursiveHashTrait,
 };
 use thiserror::Error;
+
+use crate::preliminaries::PTableElement;
 
 /// Enum representing the errors during the algorithms regardinf election event context
 #[derive(Error, Debug)]
@@ -270,8 +271,7 @@ mod test {
             assert_eq!(
                 get_hash_election_event_context(&hash_context).unwrap(),
                 output,
-                "{}",
-                description
+                "{description}",
             )
         }
     }

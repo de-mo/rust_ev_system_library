@@ -62,8 +62,7 @@ impl ProcessPlaintextsOutput {
             .get_blank_correctness_information()
             .map_err(|e| {
                 MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
-                    "Electoral model error processing tau_hat: {:?}",
-                    e
+                    "Electoral model error processing tau_hat: {e:?}",
                 ))
             })?;
         let mut l_votes = vec![];
@@ -73,8 +72,7 @@ impl ProcessPlaintextsOutput {
             if m_i != &ones {
                 let p_hat_k = factorize(context, &m_i[0]).map_err(|e| {
                     MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
-                        "Electoral model error facorizing: {:?}",
-                        e
+                        "Electoral model error facorizing: {e:?}",
                     ))
                 })?;
                 let v_hat_k = context
@@ -82,8 +80,7 @@ impl ProcessPlaintextsOutput {
                     .get_actual_voting_options(&p_hat_k)
                     .map_err(|e| {
                         MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
-                            "Electoral model error getting actual voting options: {:?}",
-                            e
+                            "Electoral model error getting actual voting options: {e:?}",
                         ))
                     })?
                     .iter()
@@ -100,8 +97,7 @@ impl ProcessPlaintextsOutput {
                     )
                     .map_err(|e| {
                         MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
-                            "Electoral model error getting correctnes information: {:?}",
-                            e
+                            "Electoral model error getting correctnes information: {e:?}",
                         ))
                     })?;
                 if tau_prime != tau_hat {
@@ -126,8 +122,7 @@ impl ProcessPlaintextsOutput {
                 )
                 .map_err(|e| {
                     MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
-                        "Write-in error decoding the write-ins: {:?}",
-                        e
+                        "Write-in error decoding the write-ins: {e:?}",
                     ))
                 })?;
                 l_votes.push(p_hat_k);

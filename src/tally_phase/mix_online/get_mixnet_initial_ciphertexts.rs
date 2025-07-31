@@ -102,7 +102,7 @@ impl GetMixnetInitialCiphertextsOuput {
         let hvc_j = input
             .vc_map_j_to_hashable_message()
             .recursive_hash()
-            .map_err(|e| MixOnlineErrorRepr::HVCJ { source: e })?
+            .map_err(|e| MixOnlineErrorRepr::Hvcj { source: e })?
             .base64_encode()
             .unwrap();
         Ok(Self { hvc_j, c_init_j })

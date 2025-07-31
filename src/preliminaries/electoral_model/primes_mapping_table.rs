@@ -274,7 +274,7 @@ pub(super) mod test {
     fn test_get_write_in_encoded_voting_options() {
         let json = get_prime_tables_1();
         let p_table = json_to_p_table(&json["pTable"]);
-        print!("{:?}", p_table);
+        print!("{p_table:?}");
         assert_eq!(p_table.get_write_in_encoded_voting_options(), vec![43])
     }
 }

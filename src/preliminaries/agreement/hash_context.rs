@@ -126,7 +126,7 @@ mod test {
             let description = tc["description"].as_str().unwrap();
             let output = tc["output"].as_str().unwrap();
             let context = &tc["context"];
-            let ep = json_to_encryption_parameters_base64(&context);
+            let ep = json_to_encryption_parameters_base64(context);
             let ee = context["ee"].as_str().unwrap();
             let vcs = context["vcs"].as_str().unwrap();
             let el_pk = json_array_value_to_array_integer_base64(&context["ELpk"]);
@@ -143,8 +143,7 @@ mod test {
             assert_eq!(
                 get_hash_context(&hash_context_context).unwrap(),
                 output,
-                "{}",
-                description
+                "{description}",
             )
         }
     }

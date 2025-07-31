@@ -150,9 +150,7 @@ impl VerifyKeyGenerationSchnorrProofsOuput {
         }
 
         // Calculate h_context
-        let h_context = match get_hash_election_event_context(context)
-            .map_err(ElectionEventContextError::from)
-        {
+        let h_context = match get_hash_election_event_context(context) {
             Ok(c) => c,
             Err(e) => return Self::new_with_error(VerifyKeyGenerationSchnorrProofsError::from(e)),
         };
@@ -326,11 +324,10 @@ fn verify_cc_schnorr_proofs(
                 match verify_schnorr(context.ep, *pi_pkcc_j_i, pk_cc_j_i, &i_aux_j) {
                     Ok(b) => match b {
                         true => Ok(String::new()),
-                        false => Ok(format!("Schnorr proof not ok for j={}, i={}", j, i)),
+                        false => Ok(format!("Schnorr proof not ok for j={j}, i={i}")),
                     },
                     Err(e) => Err(VerifyKeyGenerationSchnorrProofsError::SchorrProof(format!(
-                        "j={}, i={}: {}",
-                        j, i, e
+                        "j={j}, i={i}: {e}",
                     ))),
                 }
             })
