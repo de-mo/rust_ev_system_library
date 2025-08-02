@@ -14,6 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+pub mod chanel_security;
 pub mod preliminaries;
 pub mod tally_phase;
 
@@ -36,6 +37,7 @@ mod test_data {
     const TEST_DATA_DIR_NAME: &str = "test_data";
     const WRITEINS_DIR_NAME: &str = "writeins";
     const AGREEMENT_DIR_NAME: &str = "agreement";
+    const STREAM_DIR_NAME: &str = "stream";
 
     pub fn get_test_data_path() -> PathBuf {
         PathBuf::from(".").join(TEST_DATA_DIR_NAME)
@@ -49,6 +51,10 @@ mod test_data {
         get_test_data_path().join(AGREEMENT_DIR_NAME)
     }
 
+    fn get_test_data_straam_path() -> PathBuf {
+        get_test_data_path().join(STREAM_DIR_NAME)
+    }
+
     pub fn get_test_data_writeins(filname: &str) -> Value {
         serde_json::from_str(
             &fs::read_to_string(get_test_data_writeins_path().join(filname)).unwrap(),
@@ -59,6 +65,13 @@ mod test_data {
     pub fn get_test_data_agreement(filname: &str) -> Value {
         serde_json::from_str(
             &fs::read_to_string(get_test_data_agreement_path().join(filname)).unwrap(),
+        )
+        .unwrap()
+    }
+
+    pub fn get_test_data_stream(filname: &str) -> Value {
+        serde_json::from_str(
+            &fs::read_to_string(get_test_data_straam_path().join(filname)).unwrap(),
         )
         .unwrap()
     }
@@ -82,7 +95,9 @@ mod test_data {
 mod test_json_data {
     use crate::preliminaries::{PTable, PTableElement};
     use chrono::NaiveDateTime;
-    use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, DecodeTrait, Integer};
+    use rust_ev_crypto_primitives::{
+        elgamal::EncryptionParameters, ByteArray, DecodeTrait, Integer,
+    };
     use serde_json::Value;
 
     pub fn json_array_value_to_array_string(array: &Value) -> Vec<String> {
@@ -118,6 +133,10 @@ mod test_json_data {
 
     pub fn json_value_to_usize_base64(value: &Value) -> usize {
         json_value_to_integer_base64(value).to_usize().unwrap()
+    }
+
+    pub fn json_value_to_bytearray_base64(value: &Value) -> ByteArray {
+        ByteArray::base64_decode(value.as_str().unwrap()).unwrap()
     }
 
     pub fn json_to_encryption_parameters_base64(value: &Value) -> EncryptionParameters {
