@@ -19,7 +19,7 @@ use std::io::{BufRead, BufWriter, Write};
 use rust_ev_crypto_primitives::{
     argon2::{Argon2Error, Argon2id, ARGON2_SALT_SIZE},
     basic_crypto_functions::{BasisCryptoError, Decrypter, Encrypter, CRYPTER_TAG_SIZE},
-    random::random_bytes,
+    random::{random_bytes, RandomError},
     symmetric_autheticated_encryption::AUTH_ENCRPYTION_NONCE_SIZE,
     ByteArray,
 };
@@ -66,7 +66,7 @@ enum StreamSymEncryptionErrorRepr {
     #[error("Argon2 error: {msg}")]
     Argon2 { msg: String, source: Argon2Error },
     #[error("Error generating the nonce")]
-    Nonce { source: BasisCryptoError },
+    Nonce { source: RandomError },
     #[error("Error creating encrypter")]
     Encrypter { source: BasisCryptoError },
     #[error("Error encrypting the plaintext")]
@@ -288,15 +288,16 @@ fn get_stream_plaintext_impl<W: ?Sized + Write>(
 mod test {
     use std::io::BufReader;
 
+    use rust_ev_crypto_primitives::{alphabets::ALPHABET_USER_FRIENDLY, random::gen_random_string};
+
     use super::*;
     use crate::{
         test_data::{get_test_data_stream, get_test_data_stream_path},
         test_json_data::{json_array_value_to_array_string, json_value_to_bytearray_base64},
     };
-    use random_string::{charsets, generate};
 
     fn generate_random_string(len: usize) -> String {
-        generate(len, charsets::ALPHANUMERIC)
+        gen_random_string(len, &ALPHABET_USER_FRIENDLY).unwrap()
     }
 
     #[test]
