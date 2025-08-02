@@ -51,7 +51,7 @@ mod test_data {
         get_test_data_path().join(AGREEMENT_DIR_NAME)
     }
 
-    fn get_test_data_straam_path() -> PathBuf {
+    pub fn get_test_data_stream_path() -> PathBuf {
         get_test_data_path().join(STREAM_DIR_NAME)
     }
 
@@ -71,7 +71,7 @@ mod test_data {
 
     pub fn get_test_data_stream(filname: &str) -> Value {
         serde_json::from_str(
-            &fs::read_to_string(get_test_data_straam_path().join(filname)).unwrap(),
+            &fs::read_to_string(get_test_data_stream_path().join(filname)).unwrap(),
         )
         .unwrap()
     }

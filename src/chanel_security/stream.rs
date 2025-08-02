@@ -238,17 +238,23 @@ fn get_stream_plaintext_impl<W: ?Sized + Write>(
     loop {
         let temp_buffer = next_buffer.clone();
         let count = count_next;
+        next_buffer = vec![0; ENCRYPTED_BLOCK_SIZE];
         count_next = input_reader.read(&mut next_buffer).map_err(|e| {
             StreamSymEncryptionErrorRepr::IORead {
                 msg: "Reading data in the buffer",
                 source: e,
             }
         })?;
+        println!("count: {count}");
+        println!("count_next: {count_next}");
         next_buffer.truncate(count_next);
         // End of stream. The last 16 bytes are the tag and must be delivered completly
         if count + count_next < ENCRYPTED_BLOCK_SIZE + CRYPTER_TAG_SIZE {
-            next_buffer.truncate(count_next);
             let input = ByteArray::from(&temp_buffer).new_append(&ByteArray::from(&next_buffer));
+            println!(
+                "Enter end case. count={count}. count_next={count_next}. Len new input={}",
+                input.len()
+            );
             let plaintext = decrypter
                 .decrypt_and_finalize_with_tag(&input)
                 .map_err(|e| StreamSymEncryptionErrorRepr::Decrypt { source: e })?;
@@ -280,9 +286,11 @@ fn get_stream_plaintext_impl<W: ?Sized + Write>(
 
 #[cfg(test)]
 mod test {
+    use std::io::BufReader;
+
     use super::*;
     use crate::{
-        test_data::get_test_data_stream,
+        test_data::{get_test_data_stream, get_test_data_stream_path},
         test_json_data::{json_array_value_to_array_string, json_value_to_bytearray_base64},
     };
     use random_string::{charsets, generate};
@@ -325,6 +333,18 @@ mod test {
             println!("len res: {}", res.len());
             println!("len expected: {}", expected.len());
         }
+    }
+
+    #[test]
+    fn test_stream_decrypt() {
+        let path = get_test_data_stream_path().join("test_data.bin");
+        let password = "password".to_string();
+        let aad = ByteArray::default();
+        let f = std::fs::File::open(&path).unwrap();
+        let mut reader = BufReader::new(f);
+        let mut plaintext_writer = BufWriter::new(vec![]);
+        let res = get_stream_plaintext(&mut reader, &password, &aad, &mut plaintext_writer);
+        assert!(res.is_ok(), "{:?}", res.unwrap_err())
     }
 
     #[test]
