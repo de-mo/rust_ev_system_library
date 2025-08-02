@@ -14,6 +14,16 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+//! This crate implements functionalities of the E-Voting System of Swiss Post that are necessary for the verifier.
+//! It is based on the specifications of Swiss Post, according to the following document version:
+//!
+//! - [System Specification](https://gitlab.com/swisspost-evoting/e-voting/e-voting-documentation/-/blob/master/System/System_Specification.pdf), version 1.5.0
+//!
+//! It implements only the functionalities that are necessary for the implementation of the Verifier.
+//!
+//! See the installation guide of the [Crypto Primitives](https://github.com/de-mo/rust_ev_crypto_primitives)
+//!
+
 pub mod chanel_security;
 pub mod preliminaries;
 pub mod tally_phase;
