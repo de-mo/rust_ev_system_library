@@ -245,16 +245,16 @@ fn get_stream_plaintext_impl<W: ?Sized + Write>(
                 source: e,
             }
         })?;
-        println!("count: {count}");
-        println!("count_next: {count_next}");
+        //println!("count: {count}");
+        //println!("count_next: {count_next}");
         next_buffer.truncate(count_next);
         // End of stream. The last 16 bytes are the tag and must be delivered completly
         if count + count_next < ENCRYPTED_BLOCK_SIZE + CRYPTER_TAG_SIZE {
             let input = ByteArray::from(&temp_buffer).new_append(&ByteArray::from(&next_buffer));
-            println!(
+            /*println!(
                 "Enter end case. count={count}. count_next={count_next}. Len new input={}",
                 input.len()
-            );
+            );*/
             let plaintext = decrypter
                 .decrypt_and_finalize_with_tag(&input)
                 .map_err(|e| StreamSymEncryptionErrorRepr::Decrypt { source: e })?;

@@ -1,0 +1,21 @@
+[package]
+name = "rust_ev_stream_crypter"
+description = "Program to encrypt/decrypt files according to the specification of Swiss Post"
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+version.workspace = true
+license.workspace = true
+readme = "README.md"
+categories.workspace = true
+keywords.workspace = true
+
+[dependencies]
+rust_ev_system_library = { path = ".." }
+anyhow = "1"
+chrono.workspace = true
+structopt = "0.3"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-appender = "0.2"
