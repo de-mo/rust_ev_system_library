@@ -48,6 +48,7 @@ mod test_data {
     const WRITEINS_DIR_NAME: &str = "writeins";
     const AGREEMENT_DIR_NAME: &str = "agreement";
     const STREAM_DIR_NAME: &str = "stream";
+    const XML_DIR_NAME: &str = "xml";
 
     pub fn get_test_data_path() -> PathBuf {
         PathBuf::from(".").join(TEST_DATA_DIR_NAME)
@@ -63,6 +64,10 @@ mod test_data {
 
     pub fn get_test_data_stream_path() -> PathBuf {
         get_test_data_path().join(STREAM_DIR_NAME)
+    }
+
+    pub fn get_test_data_xml_path() -> PathBuf {
+        get_test_data_path().join(XML_DIR_NAME)
     }
 
     pub fn get_test_data_writeins(filname: &str) -> Value {
@@ -84,6 +89,10 @@ mod test_data {
             &fs::read_to_string(get_test_data_stream_path().join(filname)).unwrap(),
         )
         .unwrap()
+    }
+
+    pub fn get_test_data_xml(filname: &str) -> String {
+        fs::read_to_string(get_test_data_xml_path().join(filname)).unwrap()
     }
 
     pub fn get_prime_tables_1() -> Value {

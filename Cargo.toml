@@ -35,6 +35,10 @@ chrono.workspace = true
 thiserror = "2"
 rayon = "1"
 tracing = "0.1"
+roxmltree = "0.20"
+regex = "1.11"
+xml-canonicalization = "0.1"
+
 
 # Dev dpendencies
 [dev-dependencies]
