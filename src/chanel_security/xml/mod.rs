@@ -23,11 +23,11 @@ use rust_ev_crypto_primitives::{
 use std::io::Cursor;
 use thiserror::Error;
 use xml_canonicalization::Canonicalizer;
-use xml_signature::XMLSignature;
+use xml_signature::{XMLWithXMLSignature, XMLWithXMLSignatureError};
 
 #[derive(Error, Debug)]
 #[error(transparent)]
-/// Error with dataset
+/// Error with tthe xml signature
 pub struct XMLSignatureError(#[from] XMLSignatureErrorSignOrVerify);
 
 #[derive(Error, Debug)]
@@ -38,14 +38,14 @@ enum XMLSignatureErrorSignOrVerify {
     Sign { source: XMLSignatureErrorRepr },
     #[error("Error verifying the xml")]
     Verify { source: XMLSignatureErrorRepr },
+    #[error("Error calculating the digest")]
+    Digest { source: XMLSignatureErrorRepr },
 }
 
 #[derive(Error, Debug)]
 enum XMLSignatureErrorRepr {
     #[error("Error collecting the xml signature")]
-    GetXMLSignature {
-        source: xml_signature::XMLSignatureError,
-    },
+    GetXMLSignature { source: XMLWithXMLSignatureError },
     #[error("Error canonicalizing")]
     C14N { source: Box<dyn std::error::Error> },
     #[error("Error calculating digest")]
@@ -55,18 +55,33 @@ enum XMLSignatureErrorRepr {
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
+/// Result of the verification of the xml signature
 pub enum VerifyXMLSignatureResult {
+    /// Verification is successful
     Success,
+    /// The digest in the xml signature ist wrong
     DigestWrong,
+    /// The signature ist wrong
     SignatureWrong,
 }
 
+/// Verify the xml signature, according to the specifications of Swiss Post
 pub fn verify_xml_signature(
     d_signed: &str,
     pk: &PublicKey,
 ) -> Result<VerifyXMLSignatureResult, XMLSignatureError> {
     verify_xml_signature_impl(d_signed, pk)
         .map_err(|e| XMLSignatureErrorSignOrVerify::Verify { source: e })
+        .map_err(XMLSignatureError)
+}
+
+/// Collect the digest
+///
+/// If the xml signature exists: get the digest in the xml signature
+/// Else: calculation the digest
+pub fn collect_xml_digest(xml: &str) -> Result<ByteArray, XMLSignatureError> {
+    collect_xml_digest_impl(xml)
+        .map_err(|e| XMLSignatureErrorSignOrVerify::Digest { source: e })
         .map_err(XMLSignatureError)
 }
 
@@ -86,10 +101,10 @@ fn verify_xml_signature_impl(
     pk: &PublicKey,
 ) -> Result<VerifyXMLSignatureResult, XMLSignatureErrorRepr> {
     let d_can = canonicalize(d_signed)?;
-    let xml_signature = XMLSignature::from_str(&d_can)
+    let xml_signature = XMLWithXMLSignature::from_str(&d_can)
         .map_err(|e| XMLSignatureErrorRepr::GetXMLSignature { source: e })?;
     let si = &xml_signature.signature.signed_info;
-    let si_can = xml_signature.find_canonalized_signed_info_str().unwrap();
+    let si_can = xml_signature.get_canonalized_signed_info_str().unwrap();
     let t = xml_signature.remove_signature_from_orig();
     let d_prime = sha256(&ByteArray::from(t.as_str()))
         .map_err(|e| XMLSignatureErrorRepr::SHA256 { source: e })?;
@@ -109,6 +124,19 @@ fn verify_xml_signature_impl(
     }
 }
 
+fn collect_xml_digest_impl(xml: &str) -> Result<ByteArray, XMLSignatureErrorRepr> {
+    match XMLWithXMLSignature::from_str(xml) {
+        Ok(xml_with_sig) => Ok(xml_with_sig
+            .signature
+            .signed_info
+            .reference
+            .digest_value
+            .clone()),
+        Err(_) => sha256(&ByteArray::from(canonicalize(xml)?.as_str()))
+            .map_err(|e| XMLSignatureErrorRepr::SHA256 { source: e }),
+    }
+}
+
 #[cfg(test)]
 mod test_data {
     use std::path::PathBuf;
@@ -117,6 +145,7 @@ mod test_data {
 
     const CONFIG_FILENAME: &str = "configuration-anonymized.xml";
     const ECH0222_FILENAME: &str = "eCH-0222_v3-0_NE_20231124_TT05.xml";
+    const ECH0222_WITHOUT_SIG_FILENAME: &str = "eCH-0222_v3-0_NE_20231124_TT05_without_sig.xml";
     const KEYSTORE_FILENAME: &str = "local_direct_trust_keystore_verifier.p12";
     const KEYSTORE_PWD_FILENAME: &str = "local_direct_trust_pw_verifier.txt";
 
@@ -126,6 +155,10 @@ mod test_data {
 
     pub fn get_test_data_ech0222() -> String {
         get_test_data_xml(ECH0222_FILENAME)
+    }
+
+    pub fn get_test_data_ech0222_without_sig() -> String {
+        get_test_data_xml(ECH0222_WITHOUT_SIG_FILENAME)
     }
 
     pub fn get_verifier_keystore_path() -> PathBuf {
@@ -170,5 +203,17 @@ mod test {
         let res = verify_xml_signature(data.as_str(), &get_public_key("sdm_tally"));
         assert!(res.is_ok(), "{:?}", res.unwrap_err());
         assert_eq!(res.unwrap(), VerifyXMLSignatureResult::Success);
+    }
+
+    #[test]
+    fn test_ech0222_digest() {
+        let data = get_test_data_ech0222();
+        let data_without_sig = get_test_data_ech0222_without_sig();
+        assert!(XMLWithXMLSignature::from_str(&data).is_ok());
+        assert!(XMLWithXMLSignature::from_str(&data_without_sig).is_err());
+        assert_eq!(
+            collect_xml_digest(&data).unwrap(),
+            collect_xml_digest(&data_without_sig).unwrap()
+        );
     }
 }
