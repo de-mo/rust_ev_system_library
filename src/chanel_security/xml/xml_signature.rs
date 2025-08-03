@@ -75,10 +75,7 @@ impl<'a> XMLSignature<'a> {
 
     pub fn remove_signature_from_orig(&self) -> String {
         match self.find_signature_str() {
-            Some(s) => {
-                println!("signature_str: {}", s);
-                self.input.replace(s, "")
-            }
+            Some(s) => self.input.replace(s, ""),
             None => self.input.to_string(),
         }
     }

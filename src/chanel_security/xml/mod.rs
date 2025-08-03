@@ -142,14 +142,14 @@ mod test {
     use super::{test_data::*, *};
     use rust_ev_crypto_primitives::direct_trust::Keystore;
 
-    fn get_public_key() -> PublicKey {
+    fn get_public_key(ca: &str) -> PublicKey {
         let keystore = Keystore::from_pkcs12(
             &get_verifier_keystore_path(),
             &get_verifier_keystore_pwd_path(),
         )
         .unwrap();
         keystore
-            .public_certificate("sdm_config")
+            .public_certificate(ca)
             .unwrap()
             .signing_certificate()
             .public_key()
@@ -159,7 +159,7 @@ mod test {
     #[test]
     fn test_config() {
         let data = get_test_data_config();
-        let res = verify_xml_signature(data.as_str(), &get_public_key());
+        let res = verify_xml_signature(data.as_str(), &get_public_key("canton"));
         assert!(res.is_ok(), "{:?}", res.unwrap_err());
         assert_eq!(res.unwrap(), VerifyXMLSignatureResult::Success);
     }
@@ -167,7 +167,7 @@ mod test {
     #[test]
     fn test_ech0222() {
         let data = get_test_data_ech0222();
-        let res = verify_xml_signature(data.as_str(), &get_public_key());
+        let res = verify_xml_signature(data.as_str(), &get_public_key("sdm_tally"));
         assert!(res.is_ok(), "{:?}", res.unwrap_err());
         assert_eq!(res.unwrap(), VerifyXMLSignatureResult::Success);
     }
