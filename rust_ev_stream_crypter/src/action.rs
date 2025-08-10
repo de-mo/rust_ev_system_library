@@ -18,7 +18,7 @@ use crate::CrytperSubcommand;
 use anyhow::{bail, Context};
 use rust_ev_system_library::{
     chanel_security::stream::{gen_stream_ciphertext, get_stream_plaintext},
-    rust_ev_crypto_primitives::prelude::ByteArray,
+    rust_ev_crypto_primitives::prelude::{argon2::Argon2idParameters, ByteArray},
 };
 use std::{
     fs::File,
@@ -92,6 +92,7 @@ pub fn encrypt(inputs: &CrytperSubcommand) -> anyhow::Result<()> {
         &inputs.password,
         &ByteArray::default(),
         &mut writer,
+        Argon2idParameters::default(),
     );
     if res.is_err() {
         error!("Error encrypting");
@@ -112,6 +113,7 @@ pub fn decrypt(inputs: &CrytperSubcommand) -> anyhow::Result<()> {
         &inputs.password,
         &ByteArray::default(),
         &mut writer,
+        Argon2idParameters::default(),
     );
     if res.is_err() {
         error!("Error decrypting");

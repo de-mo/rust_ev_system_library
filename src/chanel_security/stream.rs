@@ -17,7 +17,7 @@
 use std::io::{BufRead, BufWriter, Write};
 
 use rust_ev_crypto_primitives::{
-    argon2::{Argon2Error, Argon2id, ARGON2_SALT_SIZE},
+    argon2::{Argon2Error, Argon2id, Argon2idParameters, ARGON2_SALT_SIZE},
     basic_crypto_functions::{BasisCryptoError, Decrypter, Encrypter, CRYPTER_TAG_SIZE},
     random::{random_bytes, RandomError},
     symmetric_authenticated_encryption::AUTH_ENCRPYTION_NONCE_SIZE,
@@ -79,10 +79,17 @@ pub fn gen_stream_ciphertext<W: ?Sized + Write>(
     password: &str,
     associated_data: &ByteArray,
     target_writer: &mut BufWriter<W>,
+    argon_parameters: Argon2idParameters,
 ) -> Result<(), StreamSymEncryptionError> {
-    gen_stream_ciphertext_impl(input_reader, password, associated_data, target_writer)
-        .map_err(|e| StreamSymEncryptionErrorEncrypOrDecrypt::Encrypt { source: e })
-        .map_err(StreamSymEncryptionError::from)
+    gen_stream_ciphertext_impl(
+        input_reader,
+        password,
+        associated_data,
+        target_writer,
+        argon_parameters,
+    )
+    .map_err(|e| StreamSymEncryptionErrorEncrypOrDecrypt::Encrypt { source: e })
+    .map_err(StreamSymEncryptionError::from)
 }
 
 fn gen_stream_ciphertext_impl<W: ?Sized + Write>(
@@ -90,9 +97,10 @@ fn gen_stream_ciphertext_impl<W: ?Sized + Write>(
     password: &str,
     associated_data: &ByteArray,
     target_writer: &mut BufWriter<W>,
+    argon_parameters: Argon2idParameters,
 ) -> Result<(), StreamSymEncryptionErrorRepr> {
     // derived_key and salt)
-    let (derive_key, salt) = Argon2id::new_standard()
+    let (derive_key, salt) = Argon2id::new(argon_parameters)
         .gen_argon2id(&ByteArray::from(password))
         .map_err(|e| StreamSymEncryptionErrorRepr::Argon2 {
             msg: "Error in gen_argon2id".to_string(),
@@ -168,10 +176,17 @@ pub fn get_stream_plaintext<W: ?Sized + Write>(
     password: &str,
     associated_data: &ByteArray,
     target_writer: &mut BufWriter<W>,
+    argon_parameters: Argon2idParameters,
 ) -> Result<(), StreamSymEncryptionError> {
-    get_stream_plaintext_impl(input_reader, password, associated_data, target_writer)
-        .map_err(|e| StreamSymEncryptionErrorEncrypOrDecrypt::Decrypt { source: e })
-        .map_err(StreamSymEncryptionError::from)
+    get_stream_plaintext_impl(
+        input_reader,
+        password,
+        associated_data,
+        target_writer,
+        argon_parameters,
+    )
+    .map_err(|e| StreamSymEncryptionErrorEncrypOrDecrypt::Decrypt { source: e })
+    .map_err(StreamSymEncryptionError::from)
 }
 
 fn get_stream_plaintext_impl<W: ?Sized + Write>(
@@ -179,6 +194,7 @@ fn get_stream_plaintext_impl<W: ?Sized + Write>(
     password: &str,
     associated_data: &ByteArray,
     target_writer: &mut BufWriter<W>,
+    argon_parameters: Argon2idParameters,
 ) -> Result<(), StreamSymEncryptionErrorRepr> {
     let mut salt_buf: Vec<u8> = vec![0; ARGON2_SALT_SIZE as usize];
     let mut nonce_buf: Vec<u8> = vec![0; AUTH_ENCRPYTION_NONCE_SIZE as usize];
@@ -214,7 +230,7 @@ fn get_stream_plaintext_impl<W: ?Sized + Write>(
     let nonce = ByteArray::from_bytes(&nonce_buf);
 
     // Get derived_key
-    let derive_key = Argon2id::new_standard()
+    let derive_key = Argon2id::new(argon_parameters)
         .get_argon2id(&ByteArray::from(password), &salt)
         .map_err(|e| StreamSymEncryptionErrorRepr::Argon2 {
             msg: "Error in get_argon2id".to_string(),
@@ -325,6 +341,7 @@ mod test {
                 password,
                 &associated_data,
                 &mut buf_writer,
+                Argon2idParameters::Standard,
             )
             .unwrap();
             let res = buf_writer.into_inner().unwrap();
@@ -344,7 +361,13 @@ mod test {
         let f = std::fs::File::open(&path).unwrap();
         let mut reader = BufReader::new(f);
         let mut plaintext_writer = BufWriter::new(vec![]);
-        let res = get_stream_plaintext(&mut reader, &password, &aad, &mut plaintext_writer);
+        let res = get_stream_plaintext(
+            &mut reader,
+            &password,
+            &aad,
+            &mut plaintext_writer,
+            Argon2idParameters::Standard,
+        );
         assert!(res.is_ok(), "{:?}", res.unwrap_err())
     }
 
@@ -360,6 +383,7 @@ mod test {
             &password,
             &aad,
             &mut ciphertext_writer,
+            Argon2idParameters::Test,
         )
         .unwrap();
         let ciphertext = ciphertext_writer.into_inner().unwrap();
@@ -369,6 +393,7 @@ mod test {
             &password,
             &aad,
             &mut plaintext_writer,
+            Argon2idParameters::Test,
         )
         .unwrap();
         let res_plaintext = plaintext_writer.into_inner().unwrap();
