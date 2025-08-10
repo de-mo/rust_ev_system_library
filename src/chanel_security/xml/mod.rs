@@ -65,6 +65,12 @@ pub enum VerifyXMLSignatureResult {
     SignatureWrong,
 }
 
+impl VerifyXMLSignatureResult {
+    pub fn is_ok(&self) -> bool {
+        self == &VerifyXMLSignatureResult::Success
+    }
+}
+
 /// Verify the xml signature, according to the specifications of Swiss Post
 pub fn verify_xml_signature(
     d_signed: &str,
