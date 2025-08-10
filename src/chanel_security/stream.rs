@@ -20,7 +20,7 @@ use rust_ev_crypto_primitives::{
     argon2::{Argon2Error, Argon2id, ARGON2_SALT_SIZE},
     basic_crypto_functions::{BasisCryptoError, Decrypter, Encrypter, CRYPTER_TAG_SIZE},
     random::{random_bytes, RandomError},
-    symmetric_autheticated_encryption::AUTH_ENCRPYTION_NONCE_SIZE,
+    symmetric_authenticated_encryption::AUTH_ENCRPYTION_NONCE_SIZE,
     ByteArray,
 };
 use thiserror::Error;
