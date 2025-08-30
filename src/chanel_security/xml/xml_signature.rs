@@ -129,20 +129,6 @@ impl<'a> XMLWithXMLSignature<'a> {
         let re = Regex::new(rule).unwrap();
         re.find(self.input()).map(|m| m.as_str())
     }
-
-    /*pub fn get_canonalized_signed_info_str(&self) -> Option<String> {
-        self.find_signed_info_str().map(|s| {
-            s.replace(
-                "<ds:SignedInfo>",
-                format!(
-                    "<ds:SignedInfo xmlns:{}=\"{}\">",
-                    self.signature_contect.as_ref().unwrap().namespace_prefix,
-                    self.signature_contect.as_ref().unwrap().namespace_uri
-                )
-                .as_str(),
-            )
-        })
-    }*/
 }
 
 impl Signature {
