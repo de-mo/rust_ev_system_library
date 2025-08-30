@@ -38,6 +38,7 @@ tracing = "0.1"
 roxmltree = "0.20"
 regex = "1.11"
 xml-canonicalization = "0.1"
+xot = "0.31"
 
 
 # Dev dpendencies

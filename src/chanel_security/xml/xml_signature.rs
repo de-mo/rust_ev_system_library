@@ -24,8 +24,6 @@ use thiserror::Error;
 pub enum XMLWithXMLSignatureError {
     #[error("Error parsing the string")]
     Parse { source: RoXMLTreeError },
-    #[error("Signature not found")]
-    SignatureNotFound,
     #[error("Tag {0} not found")]
     TagNotFound(&'static str),
     #[error("Attribute {0} not found for tag {1}")]
@@ -60,35 +58,57 @@ pub struct Signature {
 }
 
 #[derive(Debug)]
-pub struct XMLWithXMLSignature<'a> {
-    input: &'a str,
+pub struct SignatureContent {
     pub signature: Signature,
     pub namespace_uri: String,
     pub namespace_prefix: String,
+}
+
+#[derive(Debug)]
+pub struct XMLWithXMLSignature<'a> {
+    input: &'a str,
+    pub signature_contect: Option<SignatureContent>,
 }
 
 impl<'a> XMLWithXMLSignature<'a> {
     pub fn from_str(xml_doc_as_str: &'a str) -> Result<Self, XMLWithXMLSignatureError> {
         let doc = Document::parse(xml_doc_as_str)
             .map_err(|e| XMLWithXMLSignatureError::Parse { source: e })?;
-        let signature = Signature::from_roxmltree_doc(&doc)?;
         let node = doc
             .root()
             .descendants()
-            .find(|n| n.has_tag_name("Signature"))
-            .unwrap();
-        let uri = node.tag_name().namespace().unwrap();
-        let prefix = node.lookup_prefix(uri).unwrap();
+            .find(|n| n.has_tag_name("Signature"));
+        let signature_contect = node
+            .map(|node: Node<'_, '_>| {
+                let signature = Signature::from_roxmltree_node(&node)?;
+                let uri = node.tag_name().namespace().unwrap();
+                Ok(SignatureContent {
+                    signature: signature,
+                    namespace_uri: uri.to_string(),
+                    namespace_prefix: node.lookup_prefix(uri).unwrap().to_string(),
+                })
+            })
+            .transpose()?;
         Ok(Self {
             input: xml_doc_as_str,
-            signature,
-            namespace_uri: uri.to_string(),
-            namespace_prefix: prefix.to_string(),
+            signature_contect,
         })
     }
 
     pub fn input(&self) -> &str {
         self.input
+    }
+
+    pub fn has_signature(&self) -> bool {
+        self.signature_contect.is_some()
+    }
+
+    pub fn unwrap_signature(&self) -> &Signature {
+        &self.unwrap_signature_content().signature
+    }
+
+    pub fn unwrap_signature_content(&self) -> &SignatureContent {
+        &self.signature_contect.as_ref().unwrap()
     }
 
     pub fn remove_signature_from_orig(&self) -> String {
@@ -104,38 +124,28 @@ impl<'a> XMLWithXMLSignature<'a> {
         re.find(self.input()).map(|m| m.as_str())
     }
 
-    fn find_signed_info_str(&self) -> Option<&str> {
+    pub fn find_signed_info_str(&self) -> Option<&str> {
         let rule = r"(<|<[^<]+:)SignedInfo(.|\n|\r|\t)*(</|</\S+:)SignedInfo>";
         let re = Regex::new(rule).unwrap();
         re.find(self.input()).map(|m| m.as_str())
     }
 
-    pub fn get_canonalized_signed_info_str(&self) -> Option<String> {
-        match self.find_signed_info_str() {
-            Some(s) => Some(
-                s.replace(
-                    "<ds:SignedInfo>",
-                    format!(
-                        "<ds:SignedInfo xmlns:{}=\"{}\">",
-                        self.namespace_prefix, self.namespace_uri
-                    )
-                    .as_str(),
-                ),
-            ),
-            None => None,
-        }
-    }
+    /*pub fn get_canonalized_signed_info_str(&self) -> Option<String> {
+        self.find_signed_info_str().map(|s| {
+            s.replace(
+                "<ds:SignedInfo>",
+                format!(
+                    "<ds:SignedInfo xmlns:{}=\"{}\">",
+                    self.signature_contect.as_ref().unwrap().namespace_prefix,
+                    self.signature_contect.as_ref().unwrap().namespace_uri
+                )
+                .as_str(),
+            )
+        })
+    }*/
 }
 
 impl Signature {
-    pub fn from_roxmltree_doc(document: &Document<'_>) -> Result<Self, XMLWithXMLSignatureError> {
-        let node = &document
-            .descendants()
-            .find(|n| n.has_tag_name("Signature"))
-            .ok_or(XMLWithXMLSignatureError::SignatureNotFound)?;
-        Self::from_roxmltree_node(&node)
-    }
-
     fn from_roxmltree_node(node: &Node<'_, '_>) -> Result<Self, XMLWithXMLSignatureError> {
         let mut signature_value_str = text_from_child_node("SignatureValue", node)?.to_string();
         signature_value_str.retain(|c| !c.is_whitespace());
@@ -193,6 +203,20 @@ impl SignedInfo {
             reference: Reference::from_roxmltree_node(&find_child("Reference", node)?)?,
         })
     }
+
+    pub fn set_digest_value(&mut self, digest_value: &ByteArray) {
+        self.reference.set_digest_value(digest_value);
+    }
+}
+
+impl Default for SignedInfo {
+    fn default() -> Self {
+        Self {
+            canonicalization_method: "http://www.w3.org/2001/10/xml-exc-c14n#".to_string(),
+            signature_method: "http://www.w3.org/2007/05/xmldsig-more#rsa-pss".to_string(),
+            reference: Reference::default(),
+        }
+    }
 }
 
 impl Reference {
@@ -222,11 +246,28 @@ impl Reference {
                 .unwrap(),
         })
     }
+
+    fn set_digest_value(&mut self, digest_value: &ByteArray) {
+        self.digest_value = digest_value.clone()
+    }
+}
+
+impl Default for Reference {
+    fn default() -> Self {
+        Self {
+            uri: String::default(),
+            transforms: vec!["http://www.w3.org/2000/09/xmldsig#enveloped-signature".to_string()],
+            digest_method: "http://www.w3.org/2001/04/xmlenc#sha256".to_string(),
+            digest_value: ByteArray::default(),
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::chanel_security::xml::test_data::{get_test_data_config, get_test_data_ech0222};
+    use crate::chanel_security::xml::test_data::{
+        get_test_data_config, get_test_data_ech0222, get_test_data_ech0222_without_sig,
+    };
 
     use super::*;
 
@@ -267,7 +308,14 @@ mod test {
         let data = get_test_data_config();
         let res = XMLWithXMLSignature::from_str(&data);
         assert!(res.is_ok(), "{:?}", res.unwrap_err());
+        assert!(res.unwrap().has_signature());
+        let data = get_test_data_ech0222();
         let res = XMLWithXMLSignature::from_str(&data);
-        assert!(res.is_ok(), "{:?}", res.unwrap_err())
+        assert!(res.is_ok(), "{:?}", res.unwrap_err());
+        assert!(res.unwrap().has_signature());
+        let data = get_test_data_ech0222_without_sig();
+        let res = XMLWithXMLSignature::from_str(&data);
+        assert!(res.is_ok(), "{:?}", res.unwrap_err());
+        assert!(!res.unwrap().has_signature());
     }
 }

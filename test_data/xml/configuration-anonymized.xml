@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><config:configuration xmlns:config="http://www.evoting.ch/xmlns/config/7" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<config:configuration xmlns:config="http://www.evoting.ch/xmlns/config/7"
+  xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
   <config:header>
     <config:fileDate>2025-06-20T14:32:37</config:fileDate>
     <config:voterTotal>43</config:voterTotal>
@@ -3711,22 +3713,26 @@
                 <config:ballotQuestionInfo>
                   <config:language>de</config:language>
                   <config:ballotQuestionTitle>Bei Gleichstand</config:ballotQuestionTitle>
-                  <config:ballotQuestion>Bei *Gleichstand*: Wollen Sie den «**Vorschlag**» oder den **«Gegenvorschlag»** annehmen?</config:ballotQuestion>
+                  <config:ballotQuestion>Bei *Gleichstand*: Wollen Sie den «**Vorschlag**» oder den
+                    **«Gegenvorschlag»** annehmen?</config:ballotQuestion>
                 </config:ballotQuestionInfo>
                 <config:ballotQuestionInfo>
                   <config:language>fr</config:language>
                   <config:ballotQuestionTitle>En cas d'égalité</config:ballotQuestionTitle>
-                  <config:ballotQuestion>En cas d'*égalité* : voulez-vous accepter «**la proposition**» ou la **«contre-proposition»** ?</config:ballotQuestion>
+                  <config:ballotQuestion>En cas d'*égalité* : voulez-vous accepter «**la
+                    proposition**» ou la **«contre-proposition»** ?</config:ballotQuestion>
                 </config:ballotQuestionInfo>
                 <config:ballotQuestionInfo>
                   <config:language>it</config:language>
                   <config:ballotQuestionTitle>In caso di parità di voti</config:ballotQuestionTitle>
-                  <config:ballotQuestion>In caso di *parità di voti*: volete accettare la «**proposta**» o la **«controproposta»**?</config:ballotQuestion>
+                  <config:ballotQuestion>In caso di *parità di voti*: volete accettare la
+                    «**proposta**» o la **«controproposta»**?</config:ballotQuestion>
                 </config:ballotQuestionInfo>
                 <config:ballotQuestionInfo>
                   <config:language>rm</config:language>
                   <config:ballotQuestionTitle>En connex cun l’egualitad</config:ballotQuestionTitle>
-                  <config:ballotQuestion>En connex cun l’*egualitad*: vulais Vus acceptar la «**proposta**» u la **«cuntraproposta»**?</config:ballotQuestion>
+                  <config:ballotQuestion>En connex cun l’*egualitad*: vulais Vus acceptar la
+                    «**proposta**» u la **«cuntraproposta»**?</config:ballotQuestion>
                 </config:ballotQuestionInfo>
               </config:ballotQuestion>
               <config:answer>
@@ -4408,10 +4414,24 @@
       <config:voterType>SWISSABROAD</config:voterType>
     </config:voter>
   </config:register>
-<ds:Signature><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><ds:SignatureMethod Algorithm="http://www.w3.org/2007/05/xmldsig-more#rsa-pss"/><ds:Reference URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>bpq5csIR0RpnYpAnfPuve6BpVGg3ErC0OpTYpH+Mfe8=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>ZzGVm00pCiVzWa7X0fUvwpjUxpJM7uBxA1O03GTGuXeVj/PXX4lWeSNmyEUpN98SNOmbAOFglmHK&#13;
-8AHZwlyi0WFnZbrtsRfR8D9XAtASRb3iYBrqpNIct39/NPE/WdfbH6Ap5bQmFd47JtbrtPvd/Q9g&#13;
-FOQ0xCYFYS+9xeOABe/Aw97e++IQstyyMkQcjhhsBKSoVCH6R4hfS8TtXDRSxjj6kFEIaOu7j8vz&#13;
-8SPx+7sArKUuB6l5xVFMQM6lbipma3at8vOfwm6x6o45v/tzFxjQdxxedy0Nuzr/nDMRfwI1s1jy&#13;
-VibeAw3tahwpIjJiTSsCDlaaXEi5MACk/gvtWGqLCjTya1xOuwl3YEAmqTduUbBkZdfSdG0R/kWa&#13;
-HExTxrADEhW+aa/m3hV1kCL+PvZqTfSSQcy+xNnsaEhOsmGJU4qDtQqEydremPYvnVgOTLJ8/pAm&#13;
-XCXoo+2kO/EQ8SJ1LOXraWC3ZJaCmEtVZWerF95Uus2/y9/vAPK0KIJ2</ds:SignatureValue></ds:Signature></config:configuration>
+  <ds:Signature>
+    <ds:SignedInfo>
+      <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+      <ds:SignatureMethod Algorithm="http://www.w3.org/2007/05/xmldsig-more#rsa-pss" />
+      <ds:Reference URI="">
+        <ds:Transforms>
+          <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+        </ds:Transforms>
+        <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+        <ds:DigestValue>bpq5csIR0RpnYpAnfPuve6BpVGg3ErC0OpTYpH+Mfe8=</ds:DigestValue>
+      </ds:Reference>
+    </ds:SignedInfo>
+    <ds:SignatureValue>ZzGVm00pCiVzWa7X0fUvwpjUxpJM7uBxA1O03GTGuXeVj/PXX4lWeSNmyEUpN98SNOmbAOFglmHK&#13;
+      8AHZwlyi0WFnZbrtsRfR8D9XAtASRb3iYBrqpNIct39/NPE/WdfbH6Ap5bQmFd47JtbrtPvd/Q9g&#13;
+      FOQ0xCYFYS+9xeOABe/Aw97e++IQstyyMkQcjhhsBKSoVCH6R4hfS8TtXDRSxjj6kFEIaOu7j8vz&#13;
+      8SPx+7sArKUuB6l5xVFMQM6lbipma3at8vOfwm6x6o45v/tzFxjQdxxedy0Nuzr/nDMRfwI1s1jy&#13;
+      VibeAw3tahwpIjJiTSsCDlaaXEi5MACk/gvtWGqLCjTya1xOuwl3YEAmqTduUbBkZdfSdG0R/kWa&#13;
+      HExTxrADEhW+aa/m3hV1kCL+PvZqTfSSQcy+xNnsaEhOsmGJU4qDtQqEydremPYvnVgOTLJ8/pAm&#13;
+      XCXoo+2kO/EQ8SJ1LOXraWC3ZJaCmEtVZWerF95Uus2/y9/vAPK0KIJ2</ds:SignatureValue>
+  </ds:Signature>
+</config:configuration>
