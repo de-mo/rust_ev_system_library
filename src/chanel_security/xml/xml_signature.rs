@@ -83,7 +83,7 @@ impl<'a> XMLWithXMLSignature<'a> {
                 let signature = Signature::from_roxmltree_node(&node)?;
                 let uri = node.tag_name().namespace().unwrap();
                 Ok(SignatureContent {
-                    signature: signature,
+                    signature,
                     namespace_uri: uri.to_string(),
                     namespace_prefix: node.lookup_prefix(uri).unwrap().to_string(),
                 })
@@ -108,7 +108,7 @@ impl<'a> XMLWithXMLSignature<'a> {
     }
 
     pub fn unwrap_signature_content(&self) -> &SignatureContent {
-        &self.signature_contect.as_ref().unwrap()
+        self.signature_contect.as_ref().unwrap()
     }
 
     pub fn remove_signature_from_orig(&self) -> String {
@@ -159,9 +159,9 @@ impl Signature {
     }
 }
 
-fn find_child<'a, 'input, 'b>(
+fn find_child<'a, 'input>(
     tag: &'static str,
-    node: &'b Node<'a, 'input>,
+    node: &Node<'a, 'input>,
 ) -> Result<Node<'a, 'input>, XMLWithXMLSignatureError> {
     node.children()
         .find(|n| n.has_tag_name(tag))

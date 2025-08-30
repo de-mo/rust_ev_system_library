@@ -47,8 +47,6 @@ enum XMLSignatureErrorSignOrVerify {
 enum XMLSignatureErrorRepr {
     #[error("Error collecting the xml signature")]
     GetXMLSignature { source: XMLWithXMLSignatureError },
-    #[error("Error calculating the digest")]
-    Digest { source: Box<XMLSignatureError> },
     #[error("Error parsing the xml")]
     Parse { source: XMLWithXMLSignatureError },
     #[error("No Signature found")]
@@ -59,11 +57,6 @@ enum XMLSignatureErrorRepr {
     SHA256 { source: BasisCryptoError },
     #[error("Error verfiying the signature")]
     Verify { source: BasisCryptoError },
-    #[error("IO Error: {msg}")]
-    IO {
-        msg: &'static str,
-        source: std::io::Error,
-    },
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
@@ -93,8 +86,14 @@ pub fn verify_xml_signature(
         .map_err(XMLSignatureError)
 }
 
-/// Generate the xml signature stream, according to the specifications of Swiss Post
-pub fn gen_xml_signature(d: &str, sk: &Secretkey) -> Result<String, XMLSignatureError> {
+/// Generate the xml signature, according to the specifications of Swiss Post
+///
+/// It is not working because of the following issues:
+/// - The position of the namespace ds depends of the type in the implementation of Swiss Post
+/// - Problem with the tab vs spaces in output of xot
+/// - Output of xot adds lines within tags, which is no more the same than the original
+#[allow(dead_code)]
+fn gen_xml_signature(d: &str, sk: &Secretkey) -> Result<String, XMLSignatureError> {
     gen_xml_signature_impl(d, sk)
         .map_err(|e| XMLSignatureErrorSignOrVerify::Sign { source: e })
         .map_err(XMLSignatureError)
@@ -126,7 +125,6 @@ fn verify_xml_signature_impl(
     pk: &PublicKey,
 ) -> Result<VerifyXMLSignatureResult, XMLSignatureErrorRepr> {
     let d_can = canonicalize(d_signed)?;
-    println!("{}", d_can);
     let xml_signature = XMLWithXMLSignature::from_str(&d_can)
         .map_err(|e| XMLSignatureErrorRepr::GetXMLSignature { source: e })?;
     if !xml_signature.has_signature() {
@@ -139,7 +137,6 @@ fn verify_xml_signature_impl(
         &xml_signature.unwrap_signature_content().namespace_uri,
     );
     let t = xml_signature.remove_signature_from_orig();
-    println!("{}", &t);
     let d_prime = sha256(&ByteArray::from(t.as_str()))
         .map_err(|e| XMLSignatureErrorRepr::SHA256 { source: e })?;
     let d = &si.reference.digest_value;
@@ -160,11 +157,10 @@ fn verify_xml_signature_impl(
 
 fn gen_xml_signature_impl(d: &str, sk: &Secretkey) -> Result<String, XMLSignatureErrorRepr> {
     let mut si = SignedInfo::default();
-    let d_transformed = XMLWithXMLSignature::from_str(&d)
+    let d_transformed = XMLWithXMLSignature::from_str(d)
         .map_err(|e| XMLSignatureErrorRepr::Parse { source: e })?
         .remove_signature_from_orig();
     let d_can = canonicalize(&d_transformed)?;
-    println!("{}", d_can);
     let digest = sha256(&ByteArray::from(d_can.as_str()))
         .map_err(|e| XMLSignatureErrorRepr::SHA256 { source: e })?;
     si.set_digest_value(&digest);
@@ -257,16 +253,6 @@ fn integrate_signature_xml(
     xot.append(ref_elt, elt).unwrap();
     let name = xot.add_name_ns("DigestValue", namespace);
     let elt = xot.new_element(name);
-    //println!("SIGN: Digest bytes: {:?}", sig_info.reference.digest_value);
-    /*println!(
-        "SIGN: Digest base64: {:?}",
-        sig_info
-            .reference
-            .digest_value
-            .base64_encode()
-            .unwrap()
-            .as_str()
-    );*/
     xot.append_text(
         elt,
         sig_info
@@ -336,7 +322,7 @@ impl XMLType {
                 {
                     return last_in_raw_data_delivery;
                 }
-                let (prefix, namespace) = self.get_prefix_namespace(xot, root).unwrap();
+                let (_, namespace) = self.get_prefix_namespace(xot, root).unwrap();
                 let ext_name = xot.add_name_ns("extension", namespace);
                 let ext_node = xot.new_element(ext_name);
                 xot.append(raw_data_delivery, ext_node).unwrap();
@@ -404,7 +390,7 @@ mod test_data {
 mod test {
     use super::{test_data::*, *};
     use rust_ev_crypto_primitives::direct_trust::Keystore;
-    use std::path::{Path, PathBuf};
+    use std::path::Path;
 
     fn get_public_key(ca: &str) -> PublicKey {
         let keystore = Keystore::from_pkcs12(
@@ -466,7 +452,6 @@ mod test {
         let sk = get_private_key(&get_tally_keystore_path(), &get_tally_keystore_pwd_path());
         let signed_xml_res = gen_xml_signature(&data_without_sig, &sk);
         assert!(signed_xml_res.is_ok(), "{:?}", signed_xml_res.unwrap_err());
-        //println!("{}", signed_xml_res.as_ref().unwrap());
         let res = verify_xml_signature(&signed_xml_res.unwrap(), &get_public_key("sdm_tally"));
         assert!(res.is_ok(), "{:?}", res.unwrap_err());
         assert_eq!(res.unwrap(), VerifyXMLSignatureResult::Success);

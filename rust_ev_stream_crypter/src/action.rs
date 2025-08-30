@@ -94,9 +94,9 @@ pub fn encrypt(inputs: &CrytperSubcommand) -> anyhow::Result<()> {
         &mut writer,
         Argon2idParameters::default(),
     );
-    if res.is_err() {
+    if let Err(e) = res {
         error!("Error encrypting");
-        return Err(res.unwrap_err().into());
+        return Err(e.into());
     }
     info!("Encrypting finished");
     Ok(())
@@ -115,9 +115,9 @@ pub fn decrypt(inputs: &CrytperSubcommand) -> anyhow::Result<()> {
         &mut writer,
         Argon2idParameters::default(),
     );
-    if res.is_err() {
+    if let Err(e) = res {
         error!("Error decrypting");
-        return Err(res.unwrap_err().into());
+        return Err(e.into());
     }
     info!("Decrypting finished");
     Ok(())
@@ -163,7 +163,7 @@ mod test {
         assert!(validate_output_file(&get_root().join("toto").join("toto.txt"), true).is_err());
         assert!(validate_output_file(&get_temp_path(), true).is_err());
         {
-            let mut f = std::fs::File::create(&get_temp_path().join("toto.txt")).unwrap();
+            let mut f = std::fs::File::create(get_temp_path().join("toto.txt")).unwrap();
             f.write_all(b"12345").unwrap();
         }
         assert!(validate_output_file(&get_temp_path().join("toto.txt"), false).is_err());

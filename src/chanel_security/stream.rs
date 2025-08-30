@@ -196,8 +196,8 @@ fn get_stream_plaintext_impl<W: ?Sized + Write>(
     target_writer: &mut BufWriter<W>,
     argon_parameters: Argon2idParameters,
 ) -> Result<(), StreamSymEncryptionErrorRepr> {
-    let mut salt_buf: Vec<u8> = vec![0; ARGON2_SALT_SIZE as usize];
-    let mut nonce_buf: Vec<u8> = vec![0; AUTH_ENCRPYTION_NONCE_SIZE as usize];
+    let mut salt_buf: Vec<u8> = vec![0; ARGON2_SALT_SIZE];
+    let mut nonce_buf: Vec<u8> = vec![0; AUTH_ENCRPYTION_NONCE_SIZE];
 
     // Getting salt
     let bytes_red =
@@ -207,7 +207,7 @@ fn get_stream_plaintext_impl<W: ?Sized + Write>(
                 msg: "Reading salt",
                 source: e,
             })?;
-    if bytes_red != ARGON2_SALT_SIZE as usize {
+    if bytes_red != ARGON2_SALT_SIZE {
         return Err(StreamSymEncryptionErrorRepr::ByteLengthError(format!(
             "size of bytes read {bytes_red} for salt wrong. Expected: {ARGON2_SALT_SIZE}"
         )));
@@ -222,7 +222,7 @@ fn get_stream_plaintext_impl<W: ?Sized + Write>(
                 msg: "Reading nonce",
                 source: e,
             })?;
-    if bytes_red != AUTH_ENCRPYTION_NONCE_SIZE as usize {
+    if bytes_red != AUTH_ENCRPYTION_NONCE_SIZE {
         return Err(StreamSymEncryptionErrorRepr::ByteLengthError(format!(
             "size of bytes read {bytes_red} for nonce wrong. Expected: {AUTH_ENCRPYTION_NONCE_SIZE}"
         )));
