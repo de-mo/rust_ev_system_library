@@ -61,7 +61,7 @@ impl VerifyKeyGenerationSchnorrProofsOuput {
 
 impl VerifyDomainTrait<VerifyKeyGenerationSchnorrProofsError>
     for (
-        &GetHashElectionEventContextContext<'_, '_>,
+        &GetHashElectionEventContextContext<'_>,
         &VerifyKeyGenerationSchnorrProofsInput<'_>,
     )
 {

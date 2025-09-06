@@ -51,12 +51,12 @@ pub struct VerificationCardSetContext<'a> {
 }
 
 /// Context for GetHashElectionEventContext. Fields according specification of Swiss Post.
-pub struct GetHashElectionEventContextContext<'a, 'b> {
+pub struct GetHashElectionEventContextContext<'a> {
     pub encryption_parameters: &'a EncryptionParameters,
     pub ee: &'a str,
     pub ee_alias: &'a str,
     pub ee_descr: &'a str,
-    pub vcs_contexts: Vec<VerificationCardSetContext<'b>>,
+    pub vcs_contexts: Vec<VerificationCardSetContext<'a>>,
     pub t_s_ee: &'a NaiveDateTime,
     pub t_f_ee: &'a NaiveDateTime,
     pub n_max: usize,
@@ -79,10 +79,7 @@ pub fn get_hash_election_event_context(
         .unwrap())
 }
 
-impl<'a, 'hash> From<&'hash VerificationCardSetContext<'a>> for HashableMessage<'hash>
-where
-    'hash: 'a,
-{
+impl<'a, 'hash> From<&'hash VerificationCardSetContext<'a>> for HashableMessage<'a> {
     fn from(value: &'hash VerificationCardSetContext<'a>) -> Self {
         let h_p_table_j = HashableMessage::from(vec![HashableMessage::from(
             value
@@ -107,12 +104,8 @@ where
     }
 }
 
-impl<'a, 'b, 'hash> From<&'hash GetHashElectionEventContextContext<'a, 'b>>
-    for HashableMessage<'hash>
-where
-    'hash: 'a + 'b,
-{
-    fn from(value: &'hash GetHashElectionEventContextContext<'a, 'b>) -> Self {
+impl<'a, 'hash> From<&'hash GetHashElectionEventContextContext<'a>> for HashableMessage<'a> {
+    fn from(value: &'hash GetHashElectionEventContextContext<'a>) -> Self {
         let h_vcs = HashableMessage::from(
             value
                 .vcs_contexts
@@ -148,6 +141,7 @@ mod test {
         },
     };
     use chrono::NaiveDateTime;
+    use rust_ev_crypto_primitives::Integer;
     use serde_json::Value;
 
     pub fn get_hash_contexts() -> Vec<Value> {
@@ -211,7 +205,9 @@ mod test {
                     .collect::<Vec<_>>(),
             ),
             v if v.is_boolean() => HashableMessage::from(value.as_bool().unwrap()),
-            v if v.is_number() => HashableMessage::from(value.as_u64().unwrap() as usize),
+            v if v.is_number() => {
+                HashableMessage::from(Integer::from_str_radix(&value.to_string(), 10).unwrap())
+            }
             v if v.is_string() => HashableMessage::from(value.as_str().unwrap()),
             _ => panic!("Not possible"),
         }
