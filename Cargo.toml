@@ -44,7 +44,7 @@ xot = "0.31"
 # Dev dpendencies
 [dev-dependencies]
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde_json = { version = "1", features = ["arbitrary_precision"] }
 
 [features]
 default = []
