@@ -38,7 +38,7 @@ pub fn factorize(
             )),
         ));
     }
-    if &res.iter().fold(Integer::one().clone(), |acc, p| (acc * p)) != x {
+    if &res.iter().fold(Integer::one().clone(), |acc, p| acc * p) != x {
         return Err(ElectoralModelError::from(
             ElectoralModelErrorRepr::FactorizeInput(
                 "The product of the factors is not equal to the given number".to_string(),

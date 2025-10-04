@@ -17,8 +17,8 @@ members = ["rust_ev_stream_crypter"]
 
 [workspace.package]
 authors = ["Denis Morel"]
-edition = "2021"
-rust-version = "1.83"
+edition = "2024"
+rust-version = "1.90"
 repository = "https://github.com/de-mo/rust_ev_verifier_lib"
 version = "0.2.3"
 license = "GPL-3.0+"
@@ -35,8 +35,8 @@ chrono.workspace = true
 thiserror = "2"
 rayon = "1"
 tracing = "0.1"
-roxmltree = "0.20"
-regex = "1.11"
+roxmltree = "0.21"
+regex = "1"
 xml-canonicalization = "0.1"
 xot = "0.31"
 
