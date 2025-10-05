@@ -1,7 +1,7 @@
 // Copyright © 2023 Denis Morel
 
 // This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License as published by the Free
+// the terms of the GNU General Public License as published by the Free
 // Software Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
@@ -10,11 +10,11 @@
 // FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 // details.
 //
-// You should have received a copy of the GNU Lesser General Public License and
+// You should have received a copy of the GNU General Public License and
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use super::ElectoralModelError;
+use super::{ElectoralModelError, ElectoralModelErrorRepr};
 use rust_ev_crypto_primitives::HashableMessage;
 use std::{collections::HashSet, fmt::Display};
 
@@ -63,20 +63,26 @@ pub trait PTableTrait {
     ) -> Result<Vec<usize>, ElectoralModelError> {
         let m_prime = v_prime.len();
         if m_prime > self.n() {
-            return Err(ElectoralModelError::GetEncodedVotingOptionsInput(format!(
-                "m' {m_prime} must be less or equal n"
-            )));
+            return Err(ElectoralModelError::from(
+                ElectoralModelErrorRepr::GetEncodedVotingOptionsInput(format!(
+                    "m' {m_prime} must be less or equal n"
+                )),
+            ));
         }
         for v_prime_i in v_prime.iter() {
             if !self.contains_actual_voting_option(v_prime_i) {
-                return Err(ElectoralModelError::GetEncodedVotingOptionsInput(format!(
-                    "Voting option {v_prime_i} not in pTable"
-                )));
+                return Err(ElectoralModelError::from(
+                    ElectoralModelErrorRepr::GetEncodedVotingOptionsInput(format!(
+                        "Voting option {v_prime_i} not in pTable"
+                    )),
+                ));
             }
         }
         if m_prime != v_prime.iter().collect::<HashSet<_>>().len() {
-            return Err(ElectoralModelError::GetEncodedVotingOptionsInput(
-                "Voting options are not distinct".to_string(),
+            return Err(ElectoralModelError::from(
+                ElectoralModelErrorRepr::GetEncodedVotingOptionsInput(
+                    "Voting options are not distinct".to_string(),
+                ),
             ));
         }
         Ok(self
@@ -94,20 +100,26 @@ pub trait PTableTrait {
     ) -> Result<Vec<&String>, ElectoralModelError> {
         let m_prime = p_prime.len();
         if m_prime > self.n() {
-            return Err(ElectoralModelError::GetActualVotingOptionsInput(format!(
-                "m' {m_prime} must be less or equal n"
-            )));
+            return Err(ElectoralModelError::from(
+                ElectoralModelErrorRepr::GetActualVotingOptionsInput(format!(
+                    "m' {m_prime} must be less or equal n"
+                )),
+            ));
         }
         for p_prime_i in p_prime.iter() {
             if !self.contains_encoded_voting_option(p_prime_i) {
-                return Err(ElectoralModelError::GetActualVotingOptionsInput(format!(
-                    "Voting option {p_prime_i} not in pTable"
-                )));
+                return Err(ElectoralModelError::from(
+                    ElectoralModelErrorRepr::GetActualVotingOptionsInput(format!(
+                        "Voting option {p_prime_i} not in pTable"
+                    )),
+                ));
             }
         }
         if m_prime != p_prime.iter().collect::<HashSet<_>>().len() {
-            return Err(ElectoralModelError::GetActualVotingOptionsInput(
-                "Voting options are not distinct".to_string(),
+            return Err(ElectoralModelError::from(
+                ElectoralModelErrorRepr::GetActualVotingOptionsInput(
+                    "Voting options are not distinct".to_string(),
+                ),
             ));
         }
         Ok(self
@@ -133,20 +145,26 @@ pub trait PTableTrait {
     ) -> Result<Vec<&'a String>, ElectoralModelError> {
         let m_prime = v_prime.len();
         if m_prime > self.n() {
-            return Err(ElectoralModelError::GetCorrectnessInformationInput(
-                format!("m' {m_prime} must be less or equal n"),
+            return Err(ElectoralModelError::from(
+                ElectoralModelErrorRepr::GetCorrectnessInformationInput(format!(
+                    "m' {m_prime} must be less or equal n"
+                )),
             ));
         }
         for v_prime_i in v_prime.iter() {
             if !self.contains_actual_voting_option(v_prime_i) {
-                return Err(ElectoralModelError::GetCorrectnessInformationInput(
-                    format!("Voting option {v_prime_i} not in pTable"),
+                return Err(ElectoralModelError::from(
+                    ElectoralModelErrorRepr::GetCorrectnessInformationInput(format!(
+                        "Voting option {v_prime_i} not in pTable"
+                    )),
                 ));
             }
         }
         if m_prime != v_prime.iter().collect::<HashSet<_>>().len() {
-            return Err(ElectoralModelError::GetCorrectnessInformationInput(
-                "Voting options are not distinct".to_string(),
+            return Err(ElectoralModelError::from(
+                ElectoralModelErrorRepr::GetCorrectnessInformationInput(
+                    "Voting options are not distinct".to_string(),
+                ),
             ));
         }
         Ok(self
@@ -166,8 +184,10 @@ pub trait PTableTrait {
             .map(|e| e.correctness_information.as_str())
             .collect::<Vec<_>>();
         if res.is_empty() {
-            return Err(ElectoralModelError::GetBlankCorrectnessInformationOutput(
-                "No blank found".to_string(),
+            return Err(ElectoralModelError::from(
+                ElectoralModelErrorRepr::GetBlankCorrectnessInformationOutput(
+                    "No blank found".to_string(),
+                ),
             ));
         }
         Ok(res)
@@ -224,9 +244,11 @@ impl<'a> From<&'a PTableElement> for HashableMessage<'a> {
 }
 
 #[cfg(test)]
-pub mod test_json_data {
-    use super::{PTable, PTableElement};
+pub(super) mod test {
     use serde_json::Value;
+
+    use super::*;
+    use crate::test_data::get_prime_tables_1;
 
     fn json_to_p_table_element(value: &Value) -> PTableElement {
         PTableElement {
@@ -248,19 +270,11 @@ pub mod test_json_data {
             .map(json_to_p_table_element)
             .collect()
     }
-}
-
-#[cfg(test)]
-mod test {
-    use super::test_json_data::json_to_p_table;
-    use super::*;
-    use crate::test_data::get_prime_tables_1;
-
     #[test]
     fn test_get_write_in_encoded_voting_options() {
         let json = get_prime_tables_1();
         let p_table = json_to_p_table(&json["pTable"]);
-        print!("{:?}", p_table);
+        print!("{p_table:?}");
         assert_eq!(p_table.get_write_in_encoded_voting_options(), vec![43])
     }
 }

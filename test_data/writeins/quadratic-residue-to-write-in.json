@@ -1,0 +1,72 @@
+[
+	{
+		"description": "3072-qr-to-write-in-A",
+		"context": {
+			"p": "ALfhUWKK7Spqv3FYgJz088di5xYPOLTaVqeE2QRRkM/vMk53OJJs++X0v42NjDHXY9oGyAq7EYXrT3x7V1f1lYSQz9R9fBm7QhWNlVT3tGvO1VxNef1fJNZhPDHDg5ot34qaJ2vPv6HId8VihNq3nNTCsyk9IOnl6vAqxgrMk+2HRCKlLssjj+7lq2rdg1/RoHU9Co945TfSuVu3nY3K7GQsHp8juCm1wngL84c334uzANATNKDQvYZFy/pzphYP/jk8SMu7ygYPD/jsbTG+tczu1/LwuwiAFxY7xg30Wg7LG80omwbLv+ohrQjhhH8/c3jVbO2UZA1u8NPTe+ZwCOGG0b8nW5skHetkdJpH39+5ZjLD6wYbZHK7+EwmFE5JwtBMMk7xDeUT0/URS4tdN02Ty4h5x9Uv/XK6Cq5yd9p7obSvFIjY6DavFIZebDeraHb+aQtXESE4KvNBr+lPd7zwbIO4/1Z18JeQdK2aeHvFub1LDFk30+3kw6eTlkGc1w==",
+			"q": "W/CosUV2lTVfuKxATnp547FziwecWm0rU8JsgijIZ/eZJzucSTZ98vpfxsbGGOux7QNkBV2IwvWnvj2rq/rKwkhn6j6+DN2hCsbKqnvaNedqria8/q+SazCeGOHBzRbvxU0Tteff0OQ74rFCbVvOamFZlJ6QdPL1eBVjBWZJ9sOiEVKXZZHH93LVtW7Br+jQOp6FR7xym+lcrdvOxuV2MhYPT5HcFNrhPAX5w5vvxdmAaAmaUGhewyLl/TnTCwf/HJ4kZd3lAweH/HY2mN9a5ndr+XhdhEALix3jBvotB2WN5pRNg2Xf9RDWhHDCP5+5vGq2dsoyBrd4aem98zgEcMNo35OtzZIO9bI6TSPv79yzGWH1gw2yOV38JhMKJyThaCYZJ3iG8onp+oilxa6bpsnlxDzj6pf+uV0FVzk77T3Q2leKRGx0G1eKQy82G9W0O380hauIkJwVeaDX9Ke73ng2Qdx/qzr4S8g6Vs08PeLc3qWGLJvp9vJh08nLIM5r",
+			"g": "Ag=="
+		},
+		"input": {
+			"y": "AWk="
+		},
+		"output": {
+			"output": "A"
+		}
+	},
+	{
+		"description": "3072-qr-to-write-in-094781",
+		"context": {
+			"p": "ALfhUWKK7Spqv3FYgJz088di5xYPOLTaVqeE2QRRkM/vMk53OJJs++X0v42NjDHXY9oGyAq7EYXrT3x7V1f1lYSQz9R9fBm7QhWNlVT3tGvO1VxNef1fJNZhPDHDg5ot34qaJ2vPv6HId8VihNq3nNTCsyk9IOnl6vAqxgrMk+2HRCKlLssjj+7lq2rdg1/RoHU9Co945TfSuVu3nY3K7GQsHp8juCm1wngL84c334uzANATNKDQvYZFy/pzphYP/jk8SMu7ygYPD/jsbTG+tczu1/LwuwiAFxY7xg30Wg7LG80omwbLv+ohrQjhhH8/c3jVbO2UZA1u8NPTe+ZwCOGG0b8nW5skHetkdJpH39+5ZjLD6wYbZHK7+EwmFE5JwtBMMk7xDeUT0/URS4tdN02Ty4h5x9Uv/XK6Cq5yd9p7obSvFIjY6DavFIZebDeraHb+aQtXESE4KvNBr+lPd7zwbIO4/1Z18JeQdK2aeHvFub1LDFk30+3kw6eTlkGc1w==",
+			"q": "W/CosUV2lTVfuKxATnp547FziwecWm0rU8JsgijIZ/eZJzucSTZ98vpfxsbGGOux7QNkBV2IwvWnvj2rq/rKwkhn6j6+DN2hCsbKqnvaNedqria8/q+SazCeGOHBzRbvxU0Tteff0OQ74rFCbVvOamFZlJ6QdPL1eBVjBWZJ9sOiEVKXZZHH93LVtW7Br+jQOp6FR7xym+lcrdvOxuV2MhYPT5HcFNrhPAX5w5vvxdmAaAmaUGhewyLl/TnTCwf/HJ4kZd3lAweH/HY2mN9a5ndr+XhdhEALix3jBvotB2WN5pRNg2Xf9RDWhHDCP5+5vGq2dsoyBrd4aem98zgEcMNo35OtzZIO9bI6TSPv79yzGWH1gw2yOV38JhMKJyThaCYZJ3iG8onp+oilxa6bpsnlxDzj6pf+uV0FVzk77T3Q2leKRGx0G1eKQy82G9W0O380hauIkJwVeaDX9Ke73ng2Qdx/qzr4S8g6Vs08PeLc3qWGLJvp9vJh08nLIM5r",
+			"g": "Ag=="
+		},
+		"input": {
+			"y": "Ns3Zt1XXUeQKAQ=="
+		},
+		"output": {
+			"output": "094781"
+		}
+	},
+	{
+		"description": "3072-qr-to-write-in-273#banana",
+		"context": {
+			"p": "ALfhUWKK7Spqv3FYgJz088di5xYPOLTaVqeE2QRRkM/vMk53OJJs++X0v42NjDHXY9oGyAq7EYXrT3x7V1f1lYSQz9R9fBm7QhWNlVT3tGvO1VxNef1fJNZhPDHDg5ot34qaJ2vPv6HId8VihNq3nNTCsyk9IOnl6vAqxgrMk+2HRCKlLssjj+7lq2rdg1/RoHU9Co945TfSuVu3nY3K7GQsHp8juCm1wngL84c334uzANATNKDQvYZFy/pzphYP/jk8SMu7ygYPD/jsbTG+tczu1/LwuwiAFxY7xg30Wg7LG80omwbLv+ohrQjhhH8/c3jVbO2UZA1u8NPTe+ZwCOGG0b8nW5skHetkdJpH39+5ZjLD6wYbZHK7+EwmFE5JwtBMMk7xDeUT0/URS4tdN02Ty4h5x9Uv/XK6Cq5yd9p7obSvFIjY6DavFIZebDeraHb+aQtXESE4KvNBr+lPd7zwbIO4/1Z18JeQdK2aeHvFub1LDFk30+3kw6eTlkGc1w==",
+			"q": "W/CosUV2lTVfuKxATnp547FziwecWm0rU8JsgijIZ/eZJzucSTZ98vpfxsbGGOux7QNkBV2IwvWnvj2rq/rKwkhn6j6+DN2hCsbKqnvaNedqria8/q+SazCeGOHBzRbvxU0Tteff0OQ74rFCbVvOamFZlJ6QdPL1eBVjBWZJ9sOiEVKXZZHH93LVtW7Br+jQOp6FR7xym+lcrdvOxuV2MhYPT5HcFNrhPAX5w5vvxdmAaAmaUGhewyLl/TnTCwf/HJ4kZd3lAweH/HY2mN9a5ndr+XhdhEALix3jBvotB2WN5pRNg2Xf9RDWhHDCP5+5vGq2dsoyBrd4aem98zgEcMNo35OtzZIO9bI6TSPv79yzGWH1gw2yOV38JhMKJyThaCYZJ3iG8onp+oilxa6bpsnlxDzj6pf+uV0FVzk77T3Q2leKRGx0G1eKQy82G9W0O380hauIkJwVeaDX9Ke73ng2Qdx/qzr4S8g6Vs08PeLc3qWGLJvp9vJh08nLIM5r",
+			"g": "Ag=="
+		},
+		"input": {
+			"y": "ALAjK1tXPSQgTW+egmBVRjQQ"
+		},
+		"output": {
+			"output": "273#banana"
+		}
+	},
+	{
+		"description": "3072-qr-to-write-in-965#Homer Simpson",
+		"context": {
+			"p": "ALfhUWKK7Spqv3FYgJz088di5xYPOLTaVqeE2QRRkM/vMk53OJJs++X0v42NjDHXY9oGyAq7EYXrT3x7V1f1lYSQz9R9fBm7QhWNlVT3tGvO1VxNef1fJNZhPDHDg5ot34qaJ2vPv6HId8VihNq3nNTCsyk9IOnl6vAqxgrMk+2HRCKlLssjj+7lq2rdg1/RoHU9Co945TfSuVu3nY3K7GQsHp8juCm1wngL84c334uzANATNKDQvYZFy/pzphYP/jk8SMu7ygYPD/jsbTG+tczu1/LwuwiAFxY7xg30Wg7LG80omwbLv+ohrQjhhH8/c3jVbO2UZA1u8NPTe+ZwCOGG0b8nW5skHetkdJpH39+5ZjLD6wYbZHK7+EwmFE5JwtBMMk7xDeUT0/URS4tdN02Ty4h5x9Uv/XK6Cq5yd9p7obSvFIjY6DavFIZebDeraHb+aQtXESE4KvNBr+lPd7zwbIO4/1Z18JeQdK2aeHvFub1LDFk30+3kw6eTlkGc1w==",
+			"q": "W/CosUV2lTVfuKxATnp547FziwecWm0rU8JsgijIZ/eZJzucSTZ98vpfxsbGGOux7QNkBV2IwvWnvj2rq/rKwkhn6j6+DN2hCsbKqnvaNedqria8/q+SazCeGOHBzRbvxU0Tteff0OQ74rFCbVvOamFZlJ6QdPL1eBVjBWZJ9sOiEVKXZZHH93LVtW7Br+jQOp6FR7xym+lcrdvOxuV2MhYPT5HcFNrhPAX5w5vvxdmAaAmaUGhewyLl/TnTCwf/HJ4kZd3lAweH/HY2mN9a5ndr+XhdhEALix3jBvotB2WN5pRNg2Xf9RDWhHDCP5+5vGq2dsoyBrd4aem98zgEcMNo35OtzZIO9bI6TSPv79yzGWH1gw2yOV38JhMKJyThaCYZJ3iG8onp+oilxa6bpsnlxDzj6pf+uV0FVzk77T3Q2leKRGx0G1eKQy82G9W0O380hauIkJwVeaDX9Ke73ng2Qdx/qzr4S8g6Vs08PeLc3qWGLJvp9vJh08nLIM5r",
+			"g": "Ag=="
+		},
+		"input": {
+			"y": "HEwwWR+LjLU1jshOWYKmp9Y7p2l1KwgbqFaiNAkA"
+		},
+		"output": {
+			"output": "965#Homer Simpson"
+		}
+	},
+	{
+		"description": "3072-qr-to-write-in-383#Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut ",
+		"context": {
+			"p": "ALfhUWKK7Spqv3FYgJz088di5xYPOLTaVqeE2QRRkM/vMk53OJJs++X0v42NjDHXY9oGyAq7EYXrT3x7V1f1lYSQz9R9fBm7QhWNlVT3tGvO1VxNef1fJNZhPDHDg5ot34qaJ2vPv6HId8VihNq3nNTCsyk9IOnl6vAqxgrMk+2HRCKlLssjj+7lq2rdg1/RoHU9Co945TfSuVu3nY3K7GQsHp8juCm1wngL84c334uzANATNKDQvYZFy/pzphYP/jk8SMu7ygYPD/jsbTG+tczu1/LwuwiAFxY7xg30Wg7LG80omwbLv+ohrQjhhH8/c3jVbO2UZA1u8NPTe+ZwCOGG0b8nW5skHetkdJpH39+5ZjLD6wYbZHK7+EwmFE5JwtBMMk7xDeUT0/URS4tdN02Ty4h5x9Uv/XK6Cq5yd9p7obSvFIjY6DavFIZebDeraHb+aQtXESE4KvNBr+lPd7zwbIO4/1Z18JeQdK2aeHvFub1LDFk30+3kw6eTlkGc1w==",
+			"q": "W/CosUV2lTVfuKxATnp547FziwecWm0rU8JsgijIZ/eZJzucSTZ98vpfxsbGGOux7QNkBV2IwvWnvj2rq/rKwkhn6j6+DN2hCsbKqnvaNedqria8/q+SazCeGOHBzRbvxU0Tteff0OQ74rFCbVvOamFZlJ6QdPL1eBVjBWZJ9sOiEVKXZZHH93LVtW7Br+jQOp6FR7xym+lcrdvOxuV2MhYPT5HcFNrhPAX5w5vvxdmAaAmaUGhewyLl/TnTCwf/HJ4kZd3lAweH/HY2mN9a5ndr+XhdhEALix3jBvotB2WN5pRNg2Xf9RDWhHDCP5+5vGq2dsoyBrd4aem98zgEcMNo35OtzZIO9bI6TSPv79yzGWH1gw2yOV38JhMKJyThaCYZJ3iG8onp+oilxa6bpsnlxDzj6pf+uV0FVzk77T3Q2leKRGx0G1eKQy82G9W0O380hauIkJwVeaDX9Ke73ng2Qdx/qzr4S8g6Vs08PeLc3qWGLJvp9vJh08nLIM5r",
+			"g": "Ag=="
+		},
+		"input": {
+			"y": "C/B9w/Xusa3EzkaXe5z2ownafIHU+owsozEt29HyvVBRvHG1OdgDG+RHTczvepy+RTIHr/loZcJZJ4QNLLS0dpXk63Is9NmtQdG6MRN7p70Pl3bIUfp4+ggkpgHmwPfkl5kiHH+kyE8A3hj2JaoAOxgNGEWU+lDTYKnfr0tHrJ8nTfKa2ccx8KeqboKvI+hNucjZecm3dO+7f4gEgsDXTtsZA8LjKh+aAWzMDckpKUFXtSBL9DFaXHyGGjJvUK8npt+Yp+m7/kWvzI+/VfgsHOSEuLAxpIYl3wFxdMAbD7XpwAXWqux4G1+iczf57HwCysp4lCi2/zq+0NtNP3Y7u7Z7brgi8eUin0SfK6wL7vJkk0d0bPfYV/BaTmWoyj2NlBJdtO0pY64Bj1ayaZ9bkz2C+xSlLHdknsooN04jKmITBhkoXjjIfyR1WbaRkUPKY68sItdDMlzsgyXnrzOcBiLfvRlNk/+fEAA="
+		},
+		"output": {
+			"output": "383#Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut "
+		}
+	}
+]

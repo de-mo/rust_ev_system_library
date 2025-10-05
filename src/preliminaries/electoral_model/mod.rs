@@ -1,7 +1,7 @@
 // Copyright © 2023 Denis Morel
 
 // This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License as published by the Free
+// the terms of the GNU General Public License as published by the Free
 // Software Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
@@ -10,26 +10,28 @@
 // FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 // details.
 //
-// You should have received a copy of the GNU Lesser General Public License and
+// You should have received a copy of the GNU General Public License and
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
 //! Algorithms defined in section Electoral Model
 
 mod factorize;
-mod hash_context;
 mod primes_mapping_table;
 
 pub use factorize::*;
-pub use hash_context::*;
 pub use primes_mapping_table::*;
 
-use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, HashError};
+use rust_ev_crypto_primitives::elgamal::EncryptionParameters;
 use thiserror::Error;
 
 /// Enum representing the errors during the algorithms in electoral model
 #[derive(Error, Debug)]
-pub enum ElectoralModelError {
+#[error(transparent)]
+pub struct ElectoralModelError(#[from] ElectoralModelErrorRepr);
+
+#[derive(Error, Debug)]
+enum ElectoralModelErrorRepr {
     #[error("Error output in get_blank_correctness_information: {0}")]
     GetBlankCorrectnessInformationOutput(String),
     #[error("Error output in get_encoded_voting_options: {0}")]
@@ -40,10 +42,6 @@ pub enum ElectoralModelError {
     GetCorrectnessInformationInput(String),
     #[error("Error output in factorize: {0}")]
     FactorizeInput(String),
-    #[error("Error validating context for get_hash_context: {0}")]
-    GetHashContextContextValidation(String),
-    #[error(transparent)]
-    HashError(#[from] HashError),
 }
 
 /// Context containing pTable and encryption parameters

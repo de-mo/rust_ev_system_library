@@ -1,7 +1,7 @@
 // Copyright © 2023 Denis Morel
 
 // This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License as published by the Free
+// the terms of the GNU General Public License as published by the Free
 // Software Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
@@ -10,10 +10,21 @@
 // FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 // details.
 //
-// You should have received a copy of the GNU Lesser General Public License and
+// You should have received a copy of the GNU General Public License and
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+//! This crate implements functionalities of the E-Voting System of Swiss Post that are necessary for the verifier.
+//! It is based on the specifications of Swiss Post, according to the following document version:
+//!
+//! - [System Specification](https://gitlab.com/swisspost-evoting/e-voting/e-voting-documentation/-/blob/master/System/System_Specification.pdf), version 1.5.0
+//!
+//! It implements only the functionalities that are necessary for the implementation of the Verifier.
+//!
+//! See the installation guide of the [Crypto Primitives](https://github.com/de-mo/rust_ev_crypto_primitives)
+//!
+
+pub mod chanel_security;
 pub mod preliminaries;
 pub mod tally_phase;
 
@@ -30,19 +41,58 @@ pub mod rust_ev_crypto_primitives {
 
 #[cfg(test)]
 mod test_data {
-    use std::{fs, path::PathBuf};
-
     use serde_json::Value;
+    use std::{fs, path::PathBuf};
 
     const TEST_DATA_DIR_NAME: &str = "test_data";
     const WRITEINS_DIR_NAME: &str = "writeins";
+    const AGREEMENT_DIR_NAME: &str = "agreement";
+    const STREAM_DIR_NAME: &str = "stream";
+    const XML_DIR_NAME: &str = "xml";
 
     pub fn get_test_data_path() -> PathBuf {
         PathBuf::from(".").join(TEST_DATA_DIR_NAME)
     }
 
-    pub fn get_test_data_writeins_path() -> PathBuf {
+    fn get_test_data_writeins_path() -> PathBuf {
         get_test_data_path().join(WRITEINS_DIR_NAME)
+    }
+
+    fn get_test_data_agreement_path() -> PathBuf {
+        get_test_data_path().join(AGREEMENT_DIR_NAME)
+    }
+
+    pub fn get_test_data_stream_path() -> PathBuf {
+        get_test_data_path().join(STREAM_DIR_NAME)
+    }
+
+    pub fn get_test_data_xml_path() -> PathBuf {
+        get_test_data_path().join(XML_DIR_NAME)
+    }
+
+    pub fn get_test_data_writeins(filname: &str) -> Value {
+        serde_json::from_str(
+            &fs::read_to_string(get_test_data_writeins_path().join(filname)).unwrap(),
+        )
+        .unwrap()
+    }
+
+    pub fn get_test_data_agreement(filname: &str) -> Value {
+        serde_json::from_str(
+            &fs::read_to_string(get_test_data_agreement_path().join(filname)).unwrap(),
+        )
+        .unwrap()
+    }
+
+    pub fn get_test_data_stream(filname: &str) -> Value {
+        serde_json::from_str(
+            &fs::read_to_string(get_test_data_stream_path().join(filname)).unwrap(),
+        )
+        .unwrap()
+    }
+
+    pub fn get_test_data_xml(filname: &str) -> String {
+        fs::read_to_string(get_test_data_xml_path().join(filname)).unwrap()
     }
 
     pub fn get_prime_tables_1() -> Value {
@@ -62,8 +112,11 @@ mod test_data {
 
 #[cfg(test)]
 mod test_json_data {
+    use crate::preliminaries::{PTable, PTableElement};
     use chrono::NaiveDateTime;
-    use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, DecodeTrait, Hexa, Integer};
+    use rust_ev_crypto_primitives::{
+        elgamal::EncryptionParameters, ByteArray, DecodeTrait, Integer,
+    };
     use serde_json::Value;
 
     pub fn json_array_value_to_array_string(array: &Value) -> Vec<String> {
@@ -75,16 +128,34 @@ mod test_json_data {
             .collect()
     }
 
-    pub fn json_array_value_to_array_integer(array: &Value) -> Vec<Integer> {
-        Integer::from_hexa_string_slice(&json_array_value_to_array_string(array)).unwrap()
+    pub fn json_array_value_to_array_integer_base64(array: &Value) -> Vec<Integer> {
+        Integer::base_64_decode_vector(
+            json_array_value_to_array_string(array)
+                .iter()
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>()
+                .as_slice(),
+        )
+        .unwrap()
     }
 
-    pub fn json_value_to_integer_base16(value: &Value) -> Integer {
-        Integer::from_hexa_string(value.as_str().unwrap()).unwrap()
+    pub fn json_array_value_to_array_usize_base64(array: &Value) -> Vec<usize> {
+        json_array_value_to_array_integer_base64(array)
+            .iter()
+            .map(|x| x.to_usize().unwrap())
+            .collect()
     }
 
     pub fn json_value_to_integer_base64(value: &Value) -> Integer {
         Integer::base64_decode(value.as_str().unwrap()).unwrap()
+    }
+
+    pub fn json_value_to_usize_base64(value: &Value) -> usize {
+        json_value_to_integer_base64(value).to_usize().unwrap()
+    }
+
+    pub fn json_value_to_bytearray_base64(value: &Value) -> ByteArray {
+        ByteArray::base64_decode(value.as_str().unwrap()).unwrap()
     }
 
     pub fn json_to_encryption_parameters_base64(value: &Value) -> EncryptionParameters {
@@ -95,15 +166,25 @@ mod test_json_data {
         ))
     }
 
-    pub fn json_to_encryption_parameters_base16(value: &Value) -> EncryptionParameters {
-        EncryptionParameters::from((
-            &json_value_to_integer_base16(&value["p"]),
-            &json_value_to_integer_base16(&value["q"]),
-            &json_value_to_integer_base16(&value["g"]),
-        ))
-    }
-
     pub fn json_value_to_naive_datetime(value: &Value) -> NaiveDateTime {
         NaiveDateTime::parse_from_str(value.as_str().unwrap(), "%Y-%m-%dT%H:%M:%S").unwrap()
+    }
+
+    fn json_to_p_table_element(value: &Value) -> PTableElement {
+        PTableElement {
+            actual_voting_option: value["v"].as_str().unwrap().to_string(),
+            encoded_voting_option: value["pTilde"].as_u64().unwrap() as usize,
+            semantic_information: value["sigma"].as_str().unwrap().to_string(),
+            correctness_information: value["tau"].as_str().unwrap().to_string(),
+        }
+    }
+
+    pub fn json_to_p_table(value: &Value) -> PTable {
+        value
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(json_to_p_table_element)
+            .collect()
     }
 }

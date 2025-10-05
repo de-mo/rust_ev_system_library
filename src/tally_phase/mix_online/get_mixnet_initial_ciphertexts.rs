@@ -1,7 +1,7 @@
 // Copyright © 2023 Denis Morel
 
 // This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License as published by the Free
+// the terms of the GNU General Public License as published by the Free
 // Software Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
@@ -10,7 +10,7 @@
 // FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 // details.
 //
-// You should have received a copy of the GNU Lesser General Public License and
+// You should have received a copy of the GNU General Public License and
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
@@ -20,6 +20,8 @@ use rust_ev_crypto_primitives::{
     elgamal::{Ciphertext, EncryptionParameters},
     ConstantsTrait, EncodeTrait, HashableMessage, Integer, RecursiveHashTrait, VerifyDomainTrait,
 };
+
+use crate::tally_phase::mix_online::MixOnlineErrorRepr;
 
 use super::MixOnlineError;
 
@@ -63,11 +65,13 @@ impl VerifyDomainTrait<MixOnlineError>
 {
     fn verifiy_domain(&self) -> Vec<MixOnlineError> {
         if self.0._upper_n_upper_e < self.1.vc_map_j.len() {
-            return vec![MixOnlineError::GetMixnetInitialCiphertextsInput(format!(
-                "N_E (={}) must be greater or equal than N_C (={})",
-                self.0._upper_n_upper_e,
-                self.1.vc_map_j.len()
-            ))];
+            return vec![MixOnlineError::from(
+                MixOnlineErrorRepr::GetMixnetInitialCiphertextsInput(format!(
+                    "N_E (={}) must be greater or equal than N_C (={})",
+                    self.0._upper_n_upper_e,
+                    self.1.vc_map_j.len()
+                )),
+            )];
         }
         vec![]
     }
@@ -91,24 +95,14 @@ impl GetMixnetInitialCiphertextsOuput {
             let vec_1 = vec![Integer::one().clone(); context.delta];
             let e_trivial =
                 Ciphertext::get_ciphertext(context.eg, &vec_1, Integer::one(), context.el_pk)
-                    .map_err(|e| {
-                        MixOnlineError::GetMixnetInitialCiphertextsProcess(format!(
-                            "Error getting trivial ciphertext: {}",
-                            e
-                        ))
-                    })?;
+                    .map_err(|e| MixOnlineErrorRepr::ETrivail { source: e })?;
             c_init_j.push(e_trivial.clone());
             c_init_j.push(e_trivial);
         };
         let hvc_j = input
             .vc_map_j_to_hashable_message()
             .recursive_hash()
-            .map_err(|e| {
-                MixOnlineError::GetMixnetInitialCiphertextsProcess(format!(
-                    "Error calculating hvc_j: {}",
-                    e
-                ))
-            })?
+            .map_err(|e| MixOnlineErrorRepr::Hvcj { source: e })?
             .base64_encode()
             .unwrap();
         Ok(Self { hvc_j, c_init_j })

@@ -1,29 +1,50 @@
 [package]
 name = "rust_ev_system_library"
 description = "Implementation of E-Voting system library functionalities for the Verifier"
-version = "0.2.3"
-authors = ["Denis Morel"]
-edition = "2021"
-rust-version = "1.83"
-repository = "https://github.com/de-mo/rust_ev_system_library"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 readme = "README.md"
-categories = ["cryptography", "mathematics"]
-keywords = ["math", "e-voting", "crypto"]
-license = "LGPL-3.0+"
+categories.workspace = true
+keywords.workspace = true
+license.workspace = true
 exclude = ["/specs"]
 
-[dependencies]
-rust_ev_crypto_primitives = "0.7"
-#rust_ev_crypto_primitives = { path = "../rust_ev_crypto_primitives" }
-thiserror = "2"
+[workspace]
+members = ["rust_ev_stream_crypter"]
+
+[workspace.package]
+authors = ["Denis Morel"]
+edition = "2024"
+rust-version = "1.90"
+repository = "https://github.com/de-mo/rust_ev_verifier_lib"
+version = "0.2.3"
+license = "GPL-3.0+"
+categories = ["cryptography", "mathematics"]
+keywords = ["math", "e-voting", "crypto"]
+
+[workspace.dependencies]
 chrono = "0.4"
+
+[dependencies]
+rust_ev_crypto_primitives = "0.8"
+#rust_ev_crypto_primitives = { path = "../rust_ev_crypto_primitives" }
+chrono.workspace = true
+thiserror = "2"
 rayon = "1"
 tracing = "0.1"
+roxmltree = "0.21"
+regex = "1"
+xml-canonicalization = "0.1"
+xot = "0.31"
+
 
 # Dev dpendencies
 [dev-dependencies]
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde_json = { version = "1", features = ["arbitrary_precision"] }
 
 [features]
 default = []

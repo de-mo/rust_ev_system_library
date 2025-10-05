@@ -1,7 +1,7 @@
 // Copyright © 2023 Denis Morel
 
 // This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License as published by the Free
+// the terms of the GNU General Public License as published by the Free
 // Software Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
@@ -10,12 +10,15 @@
 // FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 // details.
 //
-// You should have received a copy of the GNU Lesser General Public License and
+// You should have received a copy of the GNU General Public License and
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
 use super::MixOfflineError;
-use crate::preliminaries::{decode_write_ins, factorize, EPPTableAsContext, PTableTrait};
+use crate::{
+    preliminaries::{decode_write_ins, factorize, EPPTableAsContext, PTableTrait},
+    tally_phase::mix_offline::MixOfflineErrorRepr,
+};
 use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
 
 /// Output structure of ProcessPlaintexts according to the specifications
@@ -34,15 +37,22 @@ impl ProcessPlaintextsOutput {
         context: &EPPTableAsContext,
         plaintext_votes: &[&[Integer]],
     ) -> Result<Self, MixOfflineError> {
+        Self::process_plaintexts_impl(context, plaintext_votes).map_err(MixOfflineError)
+    }
+
+    fn process_plaintexts_impl(
+        context: &EPPTableAsContext,
+        plaintext_votes: &[&[Integer]],
+    ) -> Result<Self, MixOfflineErrorRepr> {
         let upper_n_hat_upper_c = plaintext_votes.len();
         if upper_n_hat_upper_c < 2 {
-            return Err(MixOfflineError::ProcessPlaintextsInput(format!(
+            return Err(MixOfflineErrorRepr::ProcessPlaintextsInput(format!(
                 "N_C={upper_n_hat_upper_c} must be geater than 2"
             )));
         }
         let delta = plaintext_votes[0].len();
         if plaintext_votes.iter().any(|m_i| m_i.len() != delta) {
-            return Err(MixOfflineError::ProcessPlaintextsInput(
+            return Err(MixOfflineErrorRepr::ProcessPlaintextsInput(
                 "Not all vectors of plaintext_votes have the size of delta".to_string(),
             ));
         }
@@ -51,9 +61,8 @@ impl ProcessPlaintextsOutput {
             .p_table()
             .get_blank_correctness_information()
             .map_err(|e| {
-                MixOfflineError::ProcessPlaintextsProcess(format!(
-                    "Electoral model error processing tau_hat: {:?}",
-                    e
+                MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
+                    "Electoral model error processing tau_hat: {e:?}",
                 ))
             })?;
         let mut l_votes = vec![];
@@ -62,18 +71,16 @@ impl ProcessPlaintextsOutput {
         for m_i in plaintext_votes.iter() {
             if m_i != &ones {
                 let p_hat_k = factorize(context, &m_i[0]).map_err(|e| {
-                    MixOfflineError::ProcessPlaintextsProcess(format!(
-                        "Electoral model error facorizing: {:?}",
-                        e
+                    MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
+                        "Electoral model error facorizing: {e:?}",
                     ))
                 })?;
                 let v_hat_k = context
                     .p_table()
                     .get_actual_voting_options(&p_hat_k)
                     .map_err(|e| {
-                        MixOfflineError::ProcessPlaintextsProcess(format!(
-                            "Electoral model error getting actual voting options: {:?}",
-                            e
+                        MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
+                            "Electoral model error getting actual voting options: {e:?}",
                         ))
                     })?
                     .iter()
@@ -89,21 +96,33 @@ impl ProcessPlaintextsOutput {
                             .as_slice(),
                     )
                     .map_err(|e| {
-                        MixOfflineError::ProcessPlaintextsProcess(format!(
-                            "Electoral model error getting correctnes information: {:?}",
-                            e
+                        MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
+                            "Electoral model error getting correctnes information: {e:?}",
                         ))
                     })?;
                 if tau_prime != tau_hat {
-                    return Err(MixOfflineError::ProcessPlaintextsProcess(
+                    return Err(MixOfflineErrorRepr::ProcessPlaintextsProcess(
                         "tau_prime is differant that tau_hat".to_string(),
                     ));
                 }
                 let w_k = m_i.iter().skip(1).cloned().collect::<Vec<_>>();
-                let s_hat_k = decode_write_ins(context, &p_hat_k, &w_k).map_err(|e| {
-                    MixOfflineError::ProcessPlaintextsProcess(format!(
-                        "Write-in error decoding the write-ins: {:?}",
-                        e
+                let s_hat_k = decode_write_ins(
+                    context.encryption_parameters(),
+                    context
+                        .p_table()
+                        .get_write_in_encoded_voting_options()
+                        .as_slice(),
+                    context
+                        .p_table()
+                        .get_psi()
+                        .map_err(|e| MixOfflineErrorRepr::GetPsi { source: e })?,
+                    context.p_table().get_delta(),
+                    &p_hat_k,
+                    &w_k,
+                )
+                .map_err(|e| {
+                    MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
+                        "Write-in error decoding the write-ins: {e:?}",
                     ))
                 })?;
                 l_votes.push(p_hat_k);

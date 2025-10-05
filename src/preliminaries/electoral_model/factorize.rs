@@ -1,7 +1,7 @@
 // Copyright © 2023 Denis Morel
 
 // This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License as published by the Free
+// the terms of the GNU General Public License as published by the Free
 // Software Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
@@ -10,11 +10,11 @@
 // FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 // details.
 //
-// You should have received a copy of the GNU Lesser General Public License and
+// You should have received a copy of the GNU General Public License and
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use super::{EPPTableAsContext, ElectoralModelError, PTableTrait};
+use super::{EPPTableAsContext, ElectoralModelError, ElectoralModelErrorRepr, PTableTrait};
 use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
 
 /// Algorithm 3.12
@@ -31,14 +31,18 @@ pub fn factorize(
         .filter(|p_tilde_k| x.is_divisible(&Integer::from(*p_tilde_k)))
         .collect::<Vec<_>>();
     if res.len() != psi {
-        return Err(ElectoralModelError::FactorizeInput(format!(
-            "The nummer of factors {} is not equal psi {psi}",
-            res.len()
-        )));
+        return Err(ElectoralModelError::from(
+            ElectoralModelErrorRepr::FactorizeInput(format!(
+                "The nummer of factors {} is not equal psi {psi}",
+                res.len()
+            )),
+        ));
     }
-    if &res.iter().fold(Integer::one().clone(), |acc, p| (acc * p)) != x {
-        return Err(ElectoralModelError::FactorizeInput(
-            "The product of the factors is not equal to the given number".to_string(),
+    if &res.iter().fold(Integer::one().clone(), |acc, p| acc * p) != x {
+        return Err(ElectoralModelError::from(
+            ElectoralModelErrorRepr::FactorizeInput(
+                "The product of the factors is not equal to the given number".to_string(),
+            ),
         ));
     }
     Ok(res)
@@ -46,7 +50,7 @@ pub fn factorize(
 
 #[cfg(test)]
 mod test {
-    use super::super::primes_mapping_table::test_json_data::json_to_p_table;
+    use super::super::primes_mapping_table::test::json_to_p_table;
     use super::*;
     use crate::test_data::{get_prime_tables_1, get_prime_tables_2};
     use crate::test_json_data::json_to_encryption_parameters_base64;

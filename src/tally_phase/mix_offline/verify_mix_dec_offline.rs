@@ -1,7 +1,7 @@
 // Copyright © 2023 Denis Morel
 
 // This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Lesser General Public License as published by the Free
+// the terms of the GNU General Public License as published by the Free
 // Software Foundation, either version 3 of the License, or (at your option) any
 // later version.
 //
@@ -10,7 +10,7 @@
 // FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 // details.
 //
-// You should have received a copy of the GNU Lesser General Public License and
+// You should have received a copy of the GNU General Public License and
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
@@ -19,6 +19,8 @@ use rust_ev_crypto_primitives::{
     mix_net::{verify_shuffle, MixNetResultTrait, ShuffleArgument},
     Integer, VerifyDomainTrait,
 };
+
+use crate::tally_phase::mix_offline::MixOfflineErrorRepr;
 
 use super::MixOfflineError;
 
@@ -73,8 +75,10 @@ impl VerifyDomainTrait<MixOfflineError>
         let input = self.1;
         let hat_upper_n_c = input.c_init_1.len();
         if hat_upper_n_c < 2 {
-            res.push(MixOfflineError::VerifyMixDecOfflineInput(
-                "N_c must be greater or equal 2".to_string(),
+            res.push(MixOfflineError(
+                MixOfflineErrorRepr::VerifyMixDecOfflineInput(
+                    "N_c must be greater or equal 2".to_string(),
+                ),
             ));
         }
         res.extend(
@@ -84,87 +88,106 @@ impl VerifyDomainTrait<MixOfflineError>
                 .enumerate()
                 .filter_map(|(j, c_init_j)| match c_init_j.l() == context.delta {
                     true => None,
-                    false => Some(MixOfflineError::VerifyMixDecOfflineInput(format!(
-                        "c_init_{} has not size of delta (={})",
-                        j, context.delta
-                    ))),
+                    false => Some(MixOfflineError(
+                        MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
+                            "c_init_{} has not size of delta (={})",
+                            j, context.delta
+                        )),
+                    )),
                 }),
         );
         if input.c_mix.len() != 4 {
-            res.push(MixOfflineError::VerifyMixDecOfflineInput(
-                "c_mix must have a size of 4".to_string(),
+            res.push(MixOfflineError(
+                MixOfflineErrorRepr::VerifyMixDecOfflineInput(
+                    "c_mix must have a size of 4".to_string(),
+                ),
             ));
         }
         res.extend(input.c_mix.iter().enumerate().flat_map(|(j, c_mix_j)| {
             let mut inner_res = vec![];
             if c_mix_j.len() != hat_upper_n_c {
-                inner_res.push(MixOfflineError::VerifyMixDecOfflineInput(format!(
-                    "c_mix_{} must have a size of N_c",
-                    j
-                )));
+                inner_res.push(MixOfflineError(
+                    MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
+                        "c_mix_{j} must have a size of N_c",
+                    )),
+                ));
             };
             inner_res.extend(c_mix_j.iter().enumerate().filter_map(|(i, c_mix_j_i)| {
                 match c_mix_j_i.l() == context.delta {
                     true => None,
-                    false => Some(MixOfflineError::VerifyMixDecOfflineInput(format!(
-                        "c_mix_{}_{} has not size of delta (={})",
-                        j, i, context.delta
-                    ))),
+                    false => Some(MixOfflineError(
+                        MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
+                            "c_mix_{j}_{i} has not size of delta (={})",
+                            context.delta
+                        )),
+                    )),
                 }
             }));
             inner_res
         }));
         if input.pi_mix.len() != 4 {
-            res.push(MixOfflineError::VerifyMixDecOfflineInput(
-                "pi_mix must have a size of 4".to_string(),
+            res.push(MixOfflineError(
+                MixOfflineErrorRepr::VerifyMixDecOfflineInput(
+                    "pi_mix must have a size of 4".to_string(),
+                ),
             ));
         }
         if input.c_dec.len() != 4 {
-            res.push(MixOfflineError::VerifyMixDecOfflineInput(
-                "c_dec must have a size of 4".to_string(),
+            res.push(MixOfflineError(
+                MixOfflineErrorRepr::VerifyMixDecOfflineInput(
+                    "c_dec must have a size of 4".to_string(),
+                ),
             ));
         }
         res.extend(input.c_dec.iter().enumerate().flat_map(|(j, c_dec_j)| {
             let mut inner_res = vec![];
             if c_dec_j.len() != hat_upper_n_c {
-                inner_res.push(MixOfflineError::VerifyMixDecOfflineInput(format!(
-                    "c_dec_{} must have a size of N_c",
-                    j
-                )));
+                inner_res.push(MixOfflineError(
+                    MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
+                        "c_dec_{j} must have a size of N_c",
+                    )),
+                ));
             };
             inner_res.extend(c_dec_j.iter().enumerate().filter_map(|(i, c_dec_j_i)| {
                 match c_dec_j_i.l() == context.delta {
                     true => None,
-                    false => Some(MixOfflineError::VerifyMixDecOfflineInput(format!(
-                        "c_dec_{}_{} has not size of delta (={})",
-                        j, i, context.delta
-                    ))),
+                    false => Some(MixOfflineError(
+                        MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
+                            "c_dec_{j}_{i} has not size of delta (={})",
+                            context.delta
+                        )),
+                    )),
                 }
             }));
             inner_res
         }));
         if input.pi_dec.len() != 4 {
-            res.push(MixOfflineError::VerifyMixDecOfflineInput(
-                "pi_dec must have a size of 4".to_string(),
+            res.push(MixOfflineError(
+                MixOfflineErrorRepr::VerifyMixDecOfflineInput(
+                    "pi_dec must have a size of 4".to_string(),
+                ),
             ));
         }
         res.extend(input.pi_dec.iter().enumerate().flat_map(|(j, pi_dec_j)| {
             let mut inner_res = vec![];
             if pi_dec_j.len() != hat_upper_n_c {
-                inner_res.push(MixOfflineError::VerifyMixDecOfflineInput(format!(
-                    "pi_dec_{} must have a size of N_c",
-                    j
-                )));
+                inner_res.push(MixOfflineError(
+                    MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
+                        "pi_dec_{j} must have a size of N_c",
+                    )),
+                ));
             };
             inner_res.extend(pi_dec_j.iter().enumerate().filter_map(|(i, pi_dec_j_i)| {
                 match pi_dec_j_i.1.len() == context.delta {
                     true => None,
-                    false => Some(MixOfflineError::VerifyMixDecOfflineInput(format!(
-                        "pi_dec_{}_{} has not size of delta + 1  (={})",
-                        j,
-                        i,
-                        context.delta + 1
-                    ))),
+                    false => Some(MixOfflineError(
+                        MixOfflineErrorRepr::VerifyMixDecOfflineInput(format!(
+                            "pi_dec_{}_{} has not size of delta + 1  (={})",
+                            j,
+                            i,
+                            context.delta + 1
+                        )),
+                    )),
                 }
             }));
             inner_res
@@ -199,13 +222,12 @@ impl VerifyMixDecOfflineOutput {
         ) {
             Ok(res) => {
                 if !res.is_ok() {
-                    shuffle_verif.push(format!("VerifiyShuffle 1 not successful: {}", res))
+                    shuffle_verif.push(format!("VerifiyShuffle 1 not successful: {res}",))
                 }
             }
-            Err(e) => errors.push(MixOfflineError::VerifyMixDecOfflineProcess(format!(
-                "VerifiyShuffle 1: {}",
-                e
-            ))),
+            Err(e) => errors.push(MixOfflineError(
+                MixOfflineErrorRepr::VerifyMixDecOfflineProcess(format!("VerifiyShuffle 1: {e}")),
+            )),
         }
 
         let i_aux = [
@@ -224,13 +246,14 @@ impl VerifyMixDecOfflineOutput {
         ) {
             Ok(res) => {
                 if !res.is_ok() {
-                    decrypt_verif.push(format!("VerifyDecryptions 1 not successful: {}", res))
+                    decrypt_verif.push(format!("VerifyDecryptions 1 not successful: {res}"))
                 }
             }
-            Err(e) => errors.push(MixOfflineError::VerifyMixDecOfflineProcess(format!(
-                "VerifyDecryptions 1: {}",
-                e
-            ))),
+            Err(e) => errors.push(MixOfflineError(
+                MixOfflineErrorRepr::VerifyMixDecOfflineProcess(format!(
+                    "VerifyDecryptions 1: {e}"
+                )),
+            )),
         }
 
         (1..4).for_each(|j| {
@@ -260,16 +283,22 @@ impl VerifyMixDecOfflineOutput {
                                 ))
                             }
                         }
-                        Err(e) => errors.push(MixOfflineError::VerifyMixDecOfflineProcess(
-                            format!("VerifiyShuffle {}: {}", j + 1, e),
+                        Err(e) => errors.push(MixOfflineError(
+                            MixOfflineErrorRepr::VerifyMixDecOfflineProcess(format!(
+                                "VerifiyShuffle {}: {}",
+                                j + 1,
+                                e
+                            )),
                         )),
                     }
                 }
-                Err(e) => errors.push(MixOfflineError::VerifyMixDecOfflineProcess(format!(
-                    "VerifiyShuffle {}: Error calculating combined el_pk {}",
-                    j + 1,
-                    e
-                ))),
+                Err(e) => errors.push(MixOfflineError(
+                    MixOfflineErrorRepr::VerifyMixDecOfflineProcess(format!(
+                        "VerifiyShuffle {}: Error calculating combined el_pk {}",
+                        j + 1,
+                        e
+                    )),
+                )),
             }
 
             let i_aux = [
@@ -295,11 +324,13 @@ impl VerifyMixDecOfflineOutput {
                         ))
                     }
                 }
-                Err(e) => errors.push(MixOfflineError::VerifyMixDecOfflineProcess(format!(
-                    "VerifyDecryptions {}: {}",
-                    j + 1,
-                    e
-                ))),
+                Err(e) => errors.push(MixOfflineError(
+                    MixOfflineErrorRepr::VerifyMixDecOfflineProcess(format!(
+                        "VerifyDecryptions {}: {}",
+                        j + 1,
+                        e
+                    )),
+                )),
             }
         });
         Self {
