@@ -954,7 +954,7 @@ dependencies = [
 
 [[package]]
 name = "rust_ev_stream_crypter"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -967,7 +967,7 @@ dependencies = [
 
 [[package]]
 name = "rust_ev_system_library"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "chrono",
  "rayon",
