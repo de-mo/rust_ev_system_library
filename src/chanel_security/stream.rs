@@ -17,11 +17,11 @@
 use std::io::{BufRead, BufWriter, Write};
 
 use rust_ev_crypto_primitives::{
-    argon2::{Argon2Error, Argon2id, Argon2idParameters, ARGON2_SALT_SIZE},
-    basic_crypto_functions::{BasisCryptoError, Decrypter, Encrypter, CRYPTER_TAG_SIZE},
-    random::{random_bytes, RandomError},
-    symmetric_authenticated_encryption::AUTH_ENCRPYTION_NONCE_SIZE,
     ByteArray,
+    argon2::{ARGON2_SALT_SIZE, Argon2Error, Argon2id, Argon2idParameters},
+    basic_crypto_functions::{BasisCryptoError, CRYPTER_TAG_SIZE, Decrypter, Encrypter},
+    random::{RandomError, random_bytes},
+    symmetric_authenticated_encryption::AUTH_ENCRPYTION_NONCE_SIZE,
 };
 use thiserror::Error;
 
@@ -309,7 +309,7 @@ mod test {
     use super::*;
     use crate::{
         test_data::{get_test_data_stream, get_test_data_stream_path},
-        test_json_data::{json_array_value_to_array_string, json_value_to_bytearray_base64},
+        test_json_data::json_value_to_bytearray_base64,
     };
 
     fn generate_random_string(len: usize) -> String {
@@ -327,14 +327,9 @@ mod test {
             let salt = json_value_to_bytearray_base64(&tc["input"]["salt"]);
             let nonce = json_value_to_bytearray_base64(&tc["input"]["nonce"]);
             let password = tc["input"]["password"].as_str().unwrap();
-            let associated_data_input =
-                json_array_value_to_array_string(&tc["input"]["associated"]);
+            let associated_data = json_value_to_bytearray_base64(&tc["input"]["associated"]);
             let ciphertext_input = json_value_to_bytearray_base64(&tc["input"]["C"]);
             let ciphertext = salt.new_append(&nonce).new_append(&ciphertext_input);
-            let associated_data = associated_data_input
-                .iter()
-                .map(|d| ByteArray::from(d.as_str()))
-                .fold(ByteArray::default(), |acc, d| acc.new_append(&d));
             let mut buf_writer = BufWriter::new(vec![]);
             get_stream_plaintext(
                 &mut ciphertext.to_bytes(),

@@ -4,7 +4,7 @@
 
 This crate implements functionalities of the E-Voting System of Swiss Post that are necessary for the verifier. It is based on the specifications of Swiss Post, according to the following document version:
 
-- [System Specification](https://gitlab.com/swisspost-evoting/e-voting/e-voting-documentation/-/blob/master/System/System_Specification.pdf), version 1.5.0
+- [System Specification](https://gitlab.com/swisspost-evoting/e-voting/e-voting-documentation/-/blob/master/System/System_Specification.pdf), version 1.5.2
 
 It implements only the functionalities that are necessary for the implementation of the Verifier.
 
