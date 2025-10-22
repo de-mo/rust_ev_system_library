@@ -1,13 +1,14 @@
 use super::{
-    get_hash_election_event_context, ElectionEventContextError, GetHashElectionEventContextContext,
+    ElectionEventContextError, GetHashElectionEventContextContext, get_hash_election_event_context,
 };
 use rust_ev_crypto_primitives::{
-    elgamal::EncryptionParameters, zero_knowledge_proofs::verify_schnorr, HashError, Integer,
-    VerifyDomainTrait,
+    HashError, Integer, VerifyDomainTrait, elgamal::EncryptionParameters,
+    zero_knowledge_proofs::verify_schnorr,
 };
 use thiserror::Error;
 use tracing::instrument;
 
+#[derive(Debug)]
 /// Output structure of VerifyKeyGenerationSchnorrProofs containing all errors and failures
 pub struct VerifyKeyGenerationSchnorrProofsOuput {
     pub verif_schnorr_ccr: Vec<String>,
