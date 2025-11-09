@@ -937,8 +937,6 @@ dependencies = [
 [[package]]
 name = "rust_ev_crypto_primitives"
 version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b17fa76cdeb4a928cf310c51abca0a270f156e353c52e7d475e1a4e4e8c7042"
 dependencies = [
  "argon2",
  "data-encoding",

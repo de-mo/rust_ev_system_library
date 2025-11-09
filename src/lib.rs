@@ -115,7 +115,7 @@ mod test_json_data {
     use crate::preliminaries::{PTable, PTableElement};
     use chrono::NaiveDateTime;
     use rust_ev_crypto_primitives::{
-        elgamal::EncryptionParameters, ByteArray, DecodeTrait, Integer,
+        ByteArray, DecodeTrait, Integer, elgamal::EncryptionParameters,
     };
     use serde_json::Value;
 

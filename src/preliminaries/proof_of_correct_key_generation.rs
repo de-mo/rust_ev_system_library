@@ -60,78 +60,79 @@ impl VerifyKeyGenerationSchnorrProofsOuput {
     }
 }
 
-impl VerifyDomainTrait<VerifyKeyGenerationSchnorrProofsError>
-    for (
-        &GetHashElectionEventContextContext<'_>,
-        &VerifyKeyGenerationSchnorrProofsInput<'_>,
-    )
+impl
+    VerifyDomainTrait<GetHashElectionEventContextContext<'_>, VerifyKeyGenerationSchnorrProofsError>
+    for VerifyKeyGenerationSchnorrProofsInput<'_>
 {
-    fn verifiy_domain(&self) -> Vec<VerifyKeyGenerationSchnorrProofsError> {
+    fn verifiy_domain(
+        &self,
+        context: &GetHashElectionEventContextContext<'_>,
+    ) -> Vec<VerifyKeyGenerationSchnorrProofsError> {
         let mut res = vec![];
-        if self.1.pk_ccr.len() != 4 {
+        if self.pk_ccr.len() != 4 {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of pk_ccr must be 4. actual: {}",
-                self.1.pk_ccr.len()
+                self.pk_ccr.len()
             )));
         }
-        if self.1.pi_pkccr.len() != 4 {
+        if self.pi_pkccr.len() != 4 {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of pi_pkccr must be 4. actual: {}",
-                self.1.pi_pkccr.len()
+                self.pi_pkccr.len()
             )));
         }
-        if self.1.el_pk.len() != 4 {
+        if self.el_pk.len() != 4 {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of el_pk must be 4. actual: {}",
-                self.1.el_pk.len()
+                self.el_pk.len()
             )));
         }
-        if self.1.pi_elpk.len() != 4 {
+        if self.pi_elpk.len() != 4 {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of pi_elpk must be 4. actual: {}",
-                self.1.pi_elpk.len()
+                self.pi_elpk.len()
             )));
         }
-        if self.1.pk_ccr[0].len() != self.0.psi_max {
+        if self.pk_ccr[0].len() != context.psi_max {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of pk_ccr_0 must be phi_max={}. actual: {}",
-                self.0.psi_max,
-                self.1.pk_ccr[0].len()
+                context.psi_max,
+                self.pk_ccr[0].len()
             )));
         }
-        if self.1.pi_pkccr[0].len() != self.0.psi_max {
+        if self.pi_pkccr[0].len() != context.psi_max {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of pi_pkccr_0 must be phi_max={}. actual: {}",
-                self.0.psi_max,
-                self.1.pi_pkccr[0].len()
+                context.psi_max,
+                self.pi_pkccr[0].len()
             )));
         }
-        if self.1.el_pk[0].len() != self.0.delta_max {
+        if self.el_pk[0].len() != context.delta_max {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of el_pk_0 must be delta_max={}. actual: {}",
-                self.0.delta_max,
-                self.1.el_pk[0].len()
+                context.delta_max,
+                self.el_pk[0].len()
             )));
         }
-        if self.1.pi_elpk[0].len() != self.0.delta_max {
+        if self.pi_elpk[0].len() != context.delta_max {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of pi_elpk_0 must be delta_max={}. actual: {}",
-                self.0.delta_max,
-                self.1.pi_elpk[0].len()
+                context.delta_max,
+                self.pi_elpk[0].len()
             )));
         }
-        if self.1.eb_pk.len() != self.0.delta_max {
+        if self.eb_pk.len() != context.delta_max {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of eb_pk must be delta_max={}. actual: {}",
-                self.0.delta_max,
-                self.1.eb_pk.len()
+                context.delta_max,
+                self.eb_pk.len()
             )));
         }
-        if self.1.pi_eb.len() != self.0.delta_max {
+        if self.pi_eb.len() != context.delta_max {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of pi_eb must be delta_max={}. actual: {}",
-                self.0.delta_max,
-                self.1.pi_eb.len()
+                context.delta_max,
+                self.pi_eb.len()
             )));
         }
         res
@@ -145,7 +146,7 @@ impl VerifyKeyGenerationSchnorrProofsOuput {
         input: &VerifyKeyGenerationSchnorrProofsInput,
     ) -> Self {
         // Verifiy domain
-        let verif_domain = (context, input).verifiy_domain();
+        let verif_domain = input.verifiy_domain(context);
         if !verif_domain.is_empty() {
             return Self::new_with_errors(verif_domain);
         }
@@ -236,40 +237,39 @@ pub struct VerifyCCSchnorrProofsInput<'a> {
     i_aux: &'a [String],
 }
 
-impl VerifyDomainTrait<VerifyKeyGenerationSchnorrProofsError>
-    for (
-        &VerifyCCSchnorrProofsContext<'_>,
-        &VerifyCCSchnorrProofsInput<'_>,
-    )
+impl VerifyDomainTrait<VerifyCCSchnorrProofsContext<'_>, VerifyKeyGenerationSchnorrProofsError>
+    for VerifyCCSchnorrProofsInput<'_>
 {
-    fn verifiy_domain(&self) -> Vec<VerifyKeyGenerationSchnorrProofsError> {
+    fn verifiy_domain(
+        &self,
+        context: &VerifyCCSchnorrProofsContext,
+    ) -> Vec<VerifyKeyGenerationSchnorrProofsError> {
         let mut res = vec![];
-        if self.1.pk_cc.len() != self.0.upper_n_upper_v {
+        if self.pk_cc.len() != context.upper_n_upper_v {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of pk_cc must be {}. actual: {}",
-                self.0.upper_n_upper_v,
-                self.1.pk_cc.len()
+                context.upper_n_upper_v,
+                self.pk_cc.len()
             )));
         }
-        if self.1.pi_pkcc.len() != self.0.upper_n_upper_v {
+        if self.pi_pkcc.len() != context.upper_n_upper_v {
             res.push(VerifyKeyGenerationSchnorrProofsError::Domain(format!(
                 "Size of pi_pkcc must be {}. actual: {}",
-                self.0.upper_n_upper_v,
-                self.1.pi_pkcc.len()
+                context.upper_n_upper_v,
+                self.pi_pkcc.len()
             )));
         }
         res.append(
             &mut self
-                .1
                 .pk_cc
                 .iter()
                 .enumerate()
                 .map(|(j, pk_cc_j)| {
-                    if pk_cc_j.len() != self.0.upper_n_pk {
+                    if pk_cc_j.len() != context.upper_n_pk {
                         return format!(
                             "Size of pk_cc_j for j={} must be {}. Acutal {}",
                             j,
-                            self.0.upper_n_pk,
+                            context.upper_n_pk,
                             pk_cc_j.len()
                         );
                     }
@@ -281,16 +281,15 @@ impl VerifyDomainTrait<VerifyKeyGenerationSchnorrProofsError>
         );
         res.append(
             &mut self
-                .1
                 .pi_pkcc
                 .iter()
                 .enumerate()
                 .map(|(j, pi_pkcc_j)| {
-                    if pi_pkcc_j.len() != self.0.upper_n_pk {
+                    if pi_pkcc_j.len() != context.upper_n_pk {
                         return format!(
                             "Size of pi_pkcc_j for j={} must be {}. Acutal {}",
                             j,
-                            self.0.upper_n_pk,
+                            context.upper_n_pk,
                             pi_pkcc_j.len()
                         );
                     }
@@ -310,7 +309,7 @@ fn verify_cc_schnorr_proofs(
     input: &VerifyCCSchnorrProofsInput,
 ) -> (Vec<String>, Vec<VerifyKeyGenerationSchnorrProofsError>) {
     let mut result = vec![];
-    let mut errors = (context, input).verifiy_domain();
+    let mut errors = input.verifiy_domain(context);
     if !errors.is_empty() {
         return (result, errors);
     }
