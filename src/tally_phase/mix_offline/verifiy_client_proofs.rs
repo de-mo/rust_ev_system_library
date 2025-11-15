@@ -51,6 +51,7 @@ pub struct VerifyVotingClientProofsInput<'a> {
 }
 
 /// Output structure of VerifyVotingClientProof according to the specifications
+#[derive(Debug)]
 pub struct VerifyVotingClientProofsOutput {
     pub verif_exp: Vec<String>,
     pub verif_eq_enc: Vec<String>,
