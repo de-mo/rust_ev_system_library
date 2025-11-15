@@ -17,8 +17,8 @@
 //! Module implementing the algorithms for the tally phase
 
 use rust_ev_crypto_primitives::{
-    elgamal::{Ciphertext, EncryptionParameters},
     ConstantsTrait, EncodeTrait, HashableMessage, Integer, RecursiveHashTrait, VerifyDomainTrait,
+    elgamal::{Ciphertext, EncryptionParameters},
 };
 
 use crate::tally_phase::mix_online::MixOnlineErrorRepr;
@@ -57,19 +57,19 @@ impl<'a> GetMixnetInitialCiphertextsInput<'a> {
     }
 }
 
-impl VerifyDomainTrait<MixOnlineError>
-    for (
-        &GetMixnetInitialCiphertextsContext<'_>,
-        &GetMixnetInitialCiphertextsInput<'_>,
-    )
+impl VerifyDomainTrait<GetMixnetInitialCiphertextsContext<'_>, MixOnlineError>
+    for GetMixnetInitialCiphertextsInput<'_>
 {
-    fn verifiy_domain(&self) -> Vec<MixOnlineError> {
-        if self.0._upper_n_upper_e < self.1.vc_map_j.len() {
+    fn verifiy_domain(
+        &self,
+        context: &GetMixnetInitialCiphertextsContext<'_>,
+    ) -> Vec<MixOnlineError> {
+        if context._upper_n_upper_e < self.vc_map_j.len() {
             return vec![MixOnlineError::from(
                 MixOnlineErrorRepr::GetMixnetInitialCiphertextsInput(format!(
                     "N_E (={}) must be greater or equal than N_C (={})",
-                    self.0._upper_n_upper_e,
-                    self.1.vc_map_j.len()
+                    context._upper_n_upper_e,
+                    self.vc_map_j.len()
                 )),
             )];
         }
@@ -87,9 +87,7 @@ impl GetMixnetInitialCiphertextsOuput {
         vc_map_j_ordered.sort_by(|x, y| x.0.cmp(y.0));
         let mut c_init_j = vc_map_j_ordered
             .iter()
-            .map(|(_, e_1_i)| e_1_i)
-            .cloned()
-            .cloned()
+            .map(|(_, e_1_i)| (*e_1_i).clone())
             .collect::<Vec<_>>();
         if input.vc_map_j.len() < 2 {
             let vec_1 = vec![Integer::one().clone(); context.delta];

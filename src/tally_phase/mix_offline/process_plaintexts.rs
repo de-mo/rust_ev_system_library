@@ -16,7 +16,7 @@
 
 use super::MixOfflineError;
 use crate::{
-    preliminaries::{decode_write_ins, factorize, EPPTableAsContext, PTableTrait},
+    preliminaries::{EPPTableAsContext, PTableTrait, decode_write_ins, factorize},
     tally_phase::mix_offline::MixOfflineErrorRepr,
 };
 use rust_ev_crypto_primitives::{ConstantsTrait, Integer};
@@ -84,17 +84,11 @@ impl ProcessPlaintextsOutput {
                         ))
                     })?
                     .iter()
-                    .map(|&s| s.clone())
+                    .map(|&s| s.as_str())
                     .collect::<Vec<_>>();
                 let tau_prime = context
                     .p_table()
-                    .get_correctness_information(
-                        v_hat_k
-                            .iter()
-                            .map(|s| s.as_str())
-                            .collect::<Vec<_>>()
-                            .as_slice(),
-                    )
+                    .get_correctness_information(v_hat_k.as_slice())
                     .map_err(|e| {
                         MixOfflineErrorRepr::ProcessPlaintextsProcess(format!(
                             "Electoral model error getting correctnes information: {e:?}",
@@ -105,7 +99,7 @@ impl ProcessPlaintextsOutput {
                         "tau_prime is differant that tau_hat".to_string(),
                     ));
                 }
-                let w_k = m_i.iter().skip(1).cloned().collect::<Vec<_>>();
+                let w_k = m_i.iter().skip(1).collect::<Vec<_>>();
                 let s_hat_k = decode_write_ins(
                     context.encryption_parameters(),
                     context
@@ -126,7 +120,7 @@ impl ProcessPlaintextsOutput {
                     ))
                 })?;
                 l_votes.push(p_hat_k);
-                l_decoded_votes.push(v_hat_k);
+                l_decoded_votes.push(v_hat_k.iter().map(|s| s.to_string()).collect());
                 l_write_ins.push(s_hat_k);
             }
         }

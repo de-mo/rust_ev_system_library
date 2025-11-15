@@ -15,9 +15,9 @@
 // <https://www.gnu.org/licenses/>.
 
 use rust_ev_crypto_primitives::{
-    elgamal::{combine_public_keys, verify_decryptions, Ciphertext, EncryptionParameters},
-    mix_net::{verify_shuffle, MixNetResultTrait, ShuffleArgument},
     Integer, VerifyDomainTrait,
+    elgamal::{Ciphertext, EncryptionParameters, combine_public_keys, verify_decryptions},
+    mix_net::{MixNetResultTrait, ShuffleArgument, verify_shuffle},
 };
 
 use crate::tally_phase::mix_offline::MixOfflineErrorRepr;
@@ -63,16 +63,13 @@ impl VerifyMixDecOfflineOutput {
     }
 }
 
-impl VerifyDomainTrait<MixOfflineError>
-    for (
-        &VerifyMixDecOfflineContext<'_>,
-        &VerifyMixDecOfflineInput<'_>,
-    )
+impl VerifyDomainTrait<VerifyMixDecOfflineContext<'_>, MixOfflineError>
+    for VerifyMixDecOfflineInput<'_>
 {
-    fn verifiy_domain(&self) -> Vec<MixOfflineError> {
+    fn verifiy_domain(&self, context: &VerifyMixDecOfflineContext<'_>) -> Vec<MixOfflineError> {
         let mut res = vec![];
-        let context = self.0;
-        let input = self.1;
+        let context = context;
+        let input = self;
         let hat_upper_n_c = input.c_init_1.len();
         if hat_upper_n_c < 2 {
             res.push(MixOfflineError(
@@ -202,7 +199,7 @@ impl VerifyMixDecOfflineOutput {
         context: &VerifyMixDecOfflineContext,
         input: &VerifyMixDecOfflineInput,
     ) -> Self {
-        let mut errors = (context, input).verifiy_domain();
+        let mut errors = input.verifiy_domain(context);
         if !errors.is_empty() {
             return Self {
                 shuffle_verif: vec![],

@@ -14,11 +14,11 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use rust_ev_crypto_primitives::{elgamal::EncryptionParameters, string::truncate, Integer};
+use rust_ev_crypto_primitives::{Integer, elgamal::EncryptionParameters, string::truncate};
 
 use crate::MAX_LENGTH_WRITE_IN_FIELD;
 
-use super::{decoding_write_ins::quadratic_residue_to_write_in, WriteInsError, WriteInsErrorRepr};
+use super::{WriteInsError, WriteInsErrorRepr, decoding_write_ins::quadratic_residue_to_write_in};
 
 /// Algorithm 3.20
 fn is_writein_option(p_w_tilde: &[usize], p_tilde_i: &usize) -> bool {
@@ -34,7 +34,7 @@ pub fn decode_write_ins(
     psi: usize,
     delta: usize,
     p_hat: &[usize],
-    w: &[Integer],
+    w: &[&Integer],
 ) -> Result<Vec<String>, WriteInsError> {
     decode_write_ins_impl(ep, p_w_tilde, psi, delta, p_hat, w).map_err(WriteInsError::from)
 }
@@ -45,7 +45,7 @@ pub fn decode_write_ins_impl(
     psi: usize,
     delta: usize,
     p_hat: &[usize],
-    w: &[Integer],
+    w: &[&Integer],
 ) -> Result<Vec<String>, WriteInsErrorRepr> {
     if p_hat.len() != psi {
         return Err(WriteInsErrorRepr::DecodeWriteInsInput(format!(
@@ -71,7 +71,7 @@ pub fn decode_write_ins_impl(
             let w_k = w_iter.next().unwrap();
             let s = quadratic_residue_to_write_in(ep, w_k).map_err(|e| {
                 WriteInsErrorRepr::QuadraticToWriteInsForVal {
-                    val: w_k.clone(),
+                    val: (*w_k).clone(),
                     source: Box::new(e),
                 }
             })?;
@@ -125,7 +125,14 @@ mod test {
             let p_hat = json_array_value_to_array_usize_base64(&tc["input"]["p_hat"]);
             let w = json_array_value_to_array_integer_base64(&tc["input"]["w"]);
             let expected = json_array_value_to_array_string(&tc["output"]["s_hat"]);
-            let res = decode_write_ins(&ep, &p_w_tilde, psi, delta, &p_hat, &w);
+            let res = decode_write_ins(
+                &ep,
+                &p_w_tilde,
+                psi,
+                delta,
+                &p_hat,
+                w.iter().collect::<Vec<_>>().as_slice(),
+            );
             assert!(
                 res.is_ok(),
                 "Error with res {}: {}",
