@@ -87,9 +87,7 @@ impl GetMixnetInitialCiphertextsOuput {
         vc_map_j_ordered.sort_by(|x, y| x.0.cmp(y.0));
         let mut c_init_j = vc_map_j_ordered
             .iter()
-            .map(|(_, e_1_i)| e_1_i)
-            .cloned()
-            .cloned()
+            .map(|(_, e_1_i)| (*e_1_i).clone())
             .collect::<Vec<_>>();
         if input.vc_map_j.len() < 2 {
             let vec_1 = vec![Integer::one().clone(); context.delta];

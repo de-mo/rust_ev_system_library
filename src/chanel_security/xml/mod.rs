@@ -17,8 +17,8 @@
 mod xml_signature;
 
 use rust_ev_crypto_primitives::{
-    basic_crypto_functions::{sha256, sign, verify, BasisCryptoError, PublicKey, Secretkey},
     ByteArray, EncodeTrait,
+    basic_crypto_functions::{BasisCryptoError, PublicKey, Secretkey, sha256, sign, verify},
 };
 use std::io::Cursor;
 use thiserror::Error;
@@ -161,9 +161,10 @@ fn gen_xml_signature_impl(d: &str, sk: &Secretkey) -> Result<String, XMLSignatur
         .map_err(|e| XMLSignatureErrorRepr::Parse { source: e })?
         .remove_signature_from_orig();
     let d_can = canonicalize(&d_transformed)?;
-    let digest = sha256(&ByteArray::from(d_can.as_str()))
-        .map_err(|e| XMLSignatureErrorRepr::SHA256 { source: e })?;
-    si.set_digest_value(&digest);
+    si.set_digest_value(
+        sha256(&ByteArray::from(d_can.as_str()))
+            .map_err(|e| XMLSignatureErrorRepr::SHA256 { source: e })?,
+    );
     let namespace_prefix = "ds";
     let namespace_uri = "http://www.w3.org/2000/09/xmldsig#";
     let xml_sig = integrate_signature_xml(&d_transformed, &si, namespace_prefix, namespace_uri);

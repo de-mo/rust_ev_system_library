@@ -173,7 +173,7 @@ impl VerifyKeyGenerationSchnorrProofsOuput {
                     &VerifyCCSchnorrProofsInput {
                         pk_cc: input.pk_ccr,
                         pi_pkcc: input.pi_pkccr,
-                        i_aux: &[context.ee.to_string(), "GenKeysCCR".to_string()],
+                        i_aux: &[context.ee, "GenKeysCCR"],
                     },
                 )
             },
@@ -189,7 +189,7 @@ impl VerifyKeyGenerationSchnorrProofsOuput {
                             &VerifyCCSchnorrProofsInput {
                                 pk_cc: input.el_pk,
                                 pi_pkcc: input.pi_elpk,
-                                i_aux: &[h_context.clone(), "SetupTallyCCM".to_string()],
+                                i_aux: &[h_context.as_str(), "SetupTallyCCM"],
                             },
                         )
                     },
@@ -203,7 +203,7 @@ impl VerifyKeyGenerationSchnorrProofsOuput {
                             &VerifyCCSchnorrProofsInput {
                                 pk_cc: &[input.eb_pk.to_vec()],
                                 pi_pkcc: &[input.pi_eb.to_vec()],
-                                i_aux: &[h_context.clone(), "SetupTallyEB".to_string()],
+                                i_aux: &[h_context.as_str(), "SetupTallyEB"],
                             },
                         )
                     },
@@ -234,7 +234,7 @@ pub struct VerifyCCSchnorrProofsContext<'a> {
 pub struct VerifyCCSchnorrProofsInput<'a> {
     pk_cc: &'a [Vec<&'a Integer>],
     pi_pkcc: &'a [Vec<(&'a Integer, &'a Integer)>],
-    i_aux: &'a [String],
+    i_aux: &'a [&'a str],
 }
 
 impl VerifyDomainTrait<VerifyCCSchnorrProofsContext<'_>, VerifyKeyGenerationSchnorrProofsError>
@@ -315,7 +315,8 @@ fn verify_cc_schnorr_proofs(
     }
     for j in 1..(context.upper_n_upper_v + 1) {
         let mut i_aux_j = input.i_aux.to_vec();
-        i_aux_j.push(j.to_string());
+        let j_str = j.to_string();
+        i_aux_j.push(&j_str);
         let res_proofs = input.pk_cc[j - 1]
             .iter()
             .zip(input.pi_pkcc[j - 1].iter())

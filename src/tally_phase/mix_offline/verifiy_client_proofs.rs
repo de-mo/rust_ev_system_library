@@ -219,8 +219,8 @@ impl VerifyVotingClientProofsOutput {
             };
             let gamma_1 = &input.e1_1[i].gamma;
             let phi_1_0 = &input.e1_1[i].phis[0];
-            let gamma_1_k_id = input.e1_tilde_1[i].0.clone();
-            let phi_1_0_k_id = input.e1_tilde_1[i].1.clone();
+            let gamma_1_k_id = input.e1_tilde_1[i].0;
+            let phi_1_0_k_id = input.e1_tilde_1[i].1;
             let e2_tilde_i = (
                 &input.e2_1[i].gamma,
                 input.e2_1[i]

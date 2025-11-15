@@ -190,7 +190,7 @@ impl SignedInfo {
         })
     }
 
-    pub fn set_digest_value(&mut self, digest_value: &ByteArray) {
+    pub fn set_digest_value(&mut self, digest_value: ByteArray) {
         self.reference.set_digest_value(digest_value);
     }
 }
@@ -233,8 +233,8 @@ impl Reference {
         })
     }
 
-    fn set_digest_value(&mut self, digest_value: &ByteArray) {
-        self.digest_value = digest_value.clone()
+    fn set_digest_value(&mut self, digest_value: ByteArray) {
+        self.digest_value = digest_value
     }
 }
 
