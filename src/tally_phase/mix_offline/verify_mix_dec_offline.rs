@@ -68,7 +68,6 @@ impl VerifyDomainTrait<VerifyMixDecOfflineContext<'_>, MixOfflineError>
 {
     fn verifiy_domain(&self, context: &VerifyMixDecOfflineContext<'_>) -> Vec<MixOfflineError> {
         let mut res = vec![];
-        let context = context;
         let input = self;
         let hat_upper_n_c = input.c_init_1.len();
         if hat_upper_n_c < 2 {

@@ -262,7 +262,7 @@ impl VerifyVotingClientProofsOutput {
             match verify_exponentiation(
                 context.encryption_parameters,
                 &[context.encryption_parameters.g(), gamma_1, phi_1_0],
-                &[upper_k_id, &gamma_1_k_id, &phi_1_0_k_id],
+                &[upper_k_id, gamma_1_k_id, phi_1_0_k_id],
                 (input.pi_exp_1[i].0, input.pi_exp_1[i].1),
                 &i_aux,
             ) {
