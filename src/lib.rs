@@ -27,6 +27,7 @@
 pub mod chanel_security;
 pub mod preliminaries;
 pub mod tally_phase;
+pub mod voting_phase;
 
 /// Maximum number of characters in a write-in field (l_w)
 pub const MAX_LENGTH_WRITE_IN_FIELD: usize = 400;
@@ -150,6 +151,11 @@ mod test_json_data {
         Integer::base64_decode(value.as_str().unwrap()).unwrap()
     }
 
+    pub fn json_value_to_integer_base16(value: &Value) -> Integer {
+        let s = value.as_str().unwrap()[2..].to_string();
+        Integer::from_str_radix(s.as_str(), 16).unwrap()
+    }
+
     pub fn json_value_to_usize_base64(value: &Value) -> usize {
         json_value_to_integer_base64(value).to_usize().unwrap()
     }
@@ -163,6 +169,14 @@ mod test_json_data {
             &json_value_to_integer_base64(&value["p"]),
             &json_value_to_integer_base64(&value["q"]),
             &json_value_to_integer_base64(&value["g"]),
+        ))
+    }
+
+    pub fn json_to_encryption_parameters_base16(value: &Value) -> EncryptionParameters {
+        EncryptionParameters::from((
+            &json_value_to_integer_base16(&value["p"]),
+            &json_value_to_integer_base16(&value["q"]),
+            &json_value_to_integer_base16(&value["g"]),
         ))
     }
 

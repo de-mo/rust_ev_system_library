@@ -16,11 +16,14 @@
 
 //! Algorithms defined in section Write-ins
 
+mod creating_vote_with_write_ins;
 mod decoding_write_ins;
+mod encoding_write_ins;
 mod write_ins_tally_phase;
 
 use super::ElectoralModelError;
-use rust_ev_crypto_primitives::{Integer, ModExponentiateError};
+pub use creating_vote_with_write_ins::encode_write_ins;
+use rust_ev_crypto_primitives::{Integer, IntegerOperationError, ModExponentiateError};
 use thiserror::Error;
 pub use write_ins_tally_phase::decode_write_ins;
 
@@ -33,6 +36,8 @@ pub struct WriteInsError(#[from] WriteInsErrorRepr);
 enum WriteInsErrorRepr {
     #[error("Error input in decode_write_ins: {0}")]
     DecodeWriteInsInput(String),
+    #[error("Error input in encode_write_ins: {0}")]
+    EncodeWriteInsInput(String),
     #[error("Error getting psi")]
     ElectoralModelError(#[from] ElectoralModelError),
     #[error("Error calculating quadratic to write-in")]
@@ -44,4 +49,6 @@ enum WriteInsErrorRepr {
     },
     #[error("x cannot be less or equal 0")]
     XPositive,
+    #[error("Modular square error")]
+    ModSquare { source: IntegerOperationError },
 }

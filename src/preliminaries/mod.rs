@@ -19,9 +19,11 @@
 mod agreement;
 mod electoral_model;
 mod proof_of_correct_key_generation;
+mod voter_authentification;
 mod write_ins;
 
 pub use agreement::*;
 pub use electoral_model::*;
 pub use proof_of_correct_key_generation::*;
+pub use voter_authentification::*;
 pub use write_ins::*;
