@@ -24,10 +24,11 @@ pub fn write_in_to_quadratic_residue(
 /// Error [WriteInsError] if something is going wrong
 pub fn write_in_to_integer(ep: &EncryptionParameters, s: &str) -> Result<Integer, WriteInsError> {
     let a = Integer::from(ALPHABET_LATIN.size());
-    if Integer::from(a.clone().pow(s.len() as u32)) > *ep.q() {
-        return Err(WriteInsErrorRepr::EncodeWriteInsInput(format!(
+    if a.clone().pow(s.len() as u32) > *ep.q() {
+        return Err(WriteInsErrorRepr::EncodeWriteInsInput(
             "The write-in string is too long to be encoded in the given encryption parameters"
-        ))
+                .to_string(),
+        )
         .into());
     }
     let mut x = Integer::from(0);

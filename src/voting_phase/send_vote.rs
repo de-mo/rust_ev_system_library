@@ -32,7 +32,7 @@ enum SendVoteErrorRepr {
         source: ModExponentiateError,
     },
     #[error("Domain verification failed")]
-    DomainVerificationFailed { errors: Box<Vec<SendVoteError>> },
+    DomainVerificationFailed { errors: Vec<SendVoteError> },
     #[error("Electoral model error: {msg}")]
     ElectoralModelError {
         msg: String,
@@ -104,9 +104,7 @@ impl<'a> CreateVoteInput<'a> {
     ) -> Result<CreateVoteOutput, SendVoteErrorRepr> {
         let domain_res = self.verifiy_domain(context);
         if !domain_res.is_empty() {
-            return Err(SendVoteErrorRepr::DomainVerificationFailed {
-                errors: Box::new(domain_res),
-            });
+            return Err(SendVoteErrorRepr::DomainVerificationFailed { errors: domain_res });
         }
 
         let p_hat = context
@@ -137,7 +135,7 @@ impl<'a> CreateVoteInput<'a> {
             }
         })?;
 
-        let vec_for_e_upper_1 = iter::once(rho).chain(w_id.into_iter()).collect::<Vec<_>>();
+        let vec_for_e_upper_1 = iter::once(rho).chain(w_id).collect::<Vec<_>>();
         let e_upper_1 = Ciphertext::get_ciphertext(
             context.encryption_parameters,
             &vec_for_e_upper_1,
