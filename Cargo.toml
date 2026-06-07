@@ -20,7 +20,7 @@ authors = ["Denis Morel"]
 edition = "2024"
 rust-version = "1.90"
 repository = "https://github.com/de-mo/rust_ev_verifier_lib"
-version = "0.3.3"
+version = "0.4.0"
 license = "GPL-3.0+"
 categories = ["cryptography", "mathematics"]
 keywords = ["math", "e-voting", "crypto"]
@@ -29,8 +29,8 @@ keywords = ["math", "e-voting", "crypto"]
 chrono = "0.4"
 
 [dependencies]
-#rust_ev_crypto_primitives = "0.8.4"
-rust_ev_crypto_primitives = { path = "../rust_ev_crypto_primitives" }
+rust_ev_crypto_primitives = "0.8.5"
+#rust_ev_crypto_primitives = { path = "../rust_ev_crypto_primitives" }
 chrono.workspace = true
 thiserror = "2"
 rayon = "1"
