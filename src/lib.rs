@@ -32,6 +32,15 @@ pub mod voting_phase;
 /// Maximum number of characters in a write-in field (l_w)
 pub const MAX_LENGTH_WRITE_IN_FIELD: usize = 400;
 
+/// Maximum number of voting options (n_sup)
+pub const MAXIMUM_NUMBER_OF_SUPPORTED_VOTING_OPTIONS_N_SUP: usize = 5000;
+
+/// Maximum number of selections (psi_sup)
+pub const MAXIMUM_SUPPORTED_NUMBER_OF_SELECTIONS_PSI_SUP: usize = 120;
+
+/// Maximum number of write-in options (delta_sup-1)
+pub const MAXIMUM_SUPPORTED_NUMBER_OF_WRITE_IN_OPTIONS: usize = 30;
+
 /// Expose rust_ev_crypto_primitives und rust_ev_crypto_primitives::prelude to avoid problems
 /// of consistencies
 pub mod rust_ev_crypto_primitives {
