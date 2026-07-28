@@ -1225,14 +1225,13 @@ dependencies = [
 [[package]]
 name = "rust_ev_crypto_primitives"
 version = "0.8.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c07875449443510954a6d5ab2fbfa5ad4bd438a398fe951c0767133e894ea8d7"
 dependencies = [
  "argon2",
  "data-encoding",
  "lazy_static",
  "num-traits",
  "openssl",
+ "rayon",
  "rug",
  "rug-gmpmee",
  "rug-miller-rabin",

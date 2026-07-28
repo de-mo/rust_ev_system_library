@@ -33,7 +33,7 @@ pub fn write_in_to_integer(ep: &EncryptionParameters, s: &str) -> Result<Integer
     }
     let mut x = Integer::from(0);
     for (i, c) in s.chars().enumerate() {
-        let b = ALPHABET_LATIN.rank_of_character(c).ok_or_else(|| {
+        let b = ALPHABET_LATIN.rank(c).ok_or_else(|| {
             WriteInsErrorRepr::EncodeWriteInsInput(format!(
                 "Character '{}' at position {} not in alphabet",
                 c, i
