@@ -34,6 +34,8 @@ pub struct ElectoralModelError(#[from] ElectoralModelErrorRepr);
 enum ElectoralModelErrorRepr {
     #[error("Error output in get_blank_correctness_information: {0}")]
     GetBlankCorrectnessInformationOutput(String),
+    #[error("Error output in get_blank_actual_voting_options: {0}")]
+    GetBlankActualVotingOptionsOutput(String),
     #[error("Error output in get_encoded_voting_options: {0}")]
     GetEncodedVotingOptionsInput(String),
     #[error("Error output in get_actual_voting_options: {0}")]
@@ -42,6 +44,10 @@ enum ElectoralModelErrorRepr {
     GetCorrectnessInformationInput(String),
     #[error("Error output in factorize: {0}")]
     FactorizeInput(String),
+    #[error("Actual voting options not found: {0}")]
+    ActualVotingOptionsNotFound(String),
+    #[error("Abstention malformed: {0}")]
+    AbstentionMalformed(String),
 }
 
 /// Context containing pTable and encryption parameters
