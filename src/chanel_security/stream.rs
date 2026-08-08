@@ -133,31 +133,31 @@ fn gen_stream_ciphertext_impl<W: ?Sized + Write>(
 
     // Stream encrypt
     loop {
-        let mut temp_buffer = vec![0; ENCRYPTED_BLOCK_SIZE];
-        let count = input_reader.read(&mut temp_buffer).map_err(|e| {
+        let mut plaintext_chunk = vec![0; ENCRYPTED_BLOCK_SIZE];
+        let count = input_reader.read(&mut plaintext_chunk).map_err(|e| {
             StreamSymEncryptionErrorRepr::IORead {
                 msg: "Reading data in the buffer",
                 source: e,
             }
         })?;
-        temp_buffer.truncate(count);
+        plaintext_chunk.truncate(count);
         if count < ENCRYPTED_BLOCK_SIZE {
-            let ciphertext = encrypter
-                .encrypt_and_finalize_with_tag(&ByteArray::from_bytes(&temp_buffer))
+            let ciphertext_chunk = encrypter
+                .encrypt_and_finalize_with_tag(&ByteArray::from_bytes(&plaintext_chunk))
                 .map_err(|e| StreamSymEncryptionErrorRepr::Encrypt { source: e })?;
             target_writer
-                .write_all(ciphertext.to_bytes())
+                .write_all(ciphertext_chunk.to_bytes())
                 .map_err(|e| StreamSymEncryptionErrorRepr::IOWrite {
                     msg: "Writing the plaintext",
                     source: e,
                 })?;
             break;
         }
-        let ciphertext = encrypter
-            .encrypt(&ByteArray::from_bytes(&temp_buffer))
+        let ciphertext_chunk = encrypter
+            .encrypt(&ByteArray::from_bytes(&plaintext_chunk))
             .map_err(|e| StreamSymEncryptionErrorRepr::Encrypt { source: e })?;
         target_writer
-            .write_all(ciphertext.to_bytes())
+            .write_all(ciphertext_chunk.to_bytes())
             .map_err(|e| StreamSymEncryptionErrorRepr::IOWrite {
                 msg: "Writing the plaintext",
                 source: e,
@@ -261,16 +261,10 @@ fn get_stream_plaintext_impl<W: ?Sized + Write>(
                 source: e,
             }
         })?;
-        //println!("count: {count}");
-        //println!("count_next: {count_next}");
         next_buffer.truncate(count_next);
-        // End of stream. The last 16 bytes are the tag and must be delivered completly
         if count + count_next < ENCRYPTED_BLOCK_SIZE + CRYPTER_TAG_SIZE {
+            // End of stream. The last 16 bytes are the tag and must be delivered completly
             let input = ByteArray::from(&temp_buffer).new_append(&ByteArray::from(&next_buffer));
-            /*println!(
-                "Enter end case. count={count}. count_next={count_next}. Len new input={}",
-                input.len()
-            );*/
             let plaintext = decrypter
                 .decrypt_and_finalize_with_tag(&input)
                 .map_err(|e| StreamSymEncryptionErrorRepr::Decrypt { source: e })?;
@@ -343,8 +337,6 @@ mod test {
             let expected = json_value_to_bytearray_base64(&tc["output"]["P"])
                 .to_bytes()
                 .to_vec();
-            println!("len res: {}", res.len());
-            println!("len expected: {}", expected.len());
         }
     }
 
