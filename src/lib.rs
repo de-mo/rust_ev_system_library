@@ -59,6 +59,7 @@ mod test_data {
     const AGREEMENT_DIR_NAME: &str = "agreement";
     const STREAM_DIR_NAME: &str = "stream";
     const XML_DIR_NAME: &str = "xml";
+    const MIX_OFFLINE_DIR_NAME: &str = "mix_offline";
 
     pub fn get_test_data_path() -> PathBuf {
         PathBuf::from(".").join(TEST_DATA_DIR_NAME)
@@ -70,6 +71,10 @@ mod test_data {
 
     fn get_test_data_agreement_path() -> PathBuf {
         get_test_data_path().join(AGREEMENT_DIR_NAME)
+    }
+
+    fn get_test_data_mix_offline_path() -> PathBuf {
+        get_test_data_path().join(MIX_OFFLINE_DIR_NAME)
     }
 
     pub fn get_test_data_stream_path() -> PathBuf {
@@ -90,6 +95,13 @@ mod test_data {
     pub fn get_test_data_agreement(filname: &str) -> Value {
         serde_json::from_str(
             &fs::read_to_string(get_test_data_agreement_path().join(filname)).unwrap(),
+        )
+        .unwrap()
+    }
+
+    pub fn get_test_data_mix_offline(filname: &str) -> Value {
+        serde_json::from_str(
+            &fs::read_to_string(get_test_data_mix_offline_path().join(filname)).unwrap(),
         )
         .unwrap()
     }

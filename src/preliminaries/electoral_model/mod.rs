@@ -122,3 +122,48 @@ impl<'a> From<&'a ElectoralModelContext> for HashableMessage<'a> {
         ])
     }
 }
+
+fn get_upper_psi(i: usize, pgs: &[usize], psis: &[usize]) -> usize {
+    (0..i)
+        .map(|h| {
+            psis.iter()
+                .zip(pgs.iter())
+                .filter(|(_, pg_j)| **pg_j == h)
+                .map(|(psi_j, _)| psi_j)
+                .sum::<usize>()
+        })
+        .sum()
+}
+
+pub fn indices(i: usize, pgs: &[usize], psis: &[usize]) -> (usize, usize) {
+    (get_upper_psi(i, pgs, psis), get_upper_psi(i + 1, pgs, psis))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_indices() {
+        let pgs: Vec<usize> = vec![0, 0, 1, 2, 2];
+        let psis: Vec<usize> = vec![2, 1, 4, 1, 1];
+        assert_eq!(indices(0, &pgs, &psis), (0, 3));
+        assert_eq!(indices(1, &pgs, &psis), (3, 7));
+        assert_eq!(indices(2, &pgs, &psis), (7, 9));
+        assert_eq!(indices(3, &pgs, &psis), (9, 9));
+        assert_eq!(indices(4, &pgs, &psis), (9, 9));
+        assert_eq!(indices(5, &pgs, &psis), (9, 9));
+    }
+
+    #[test]
+    fn test_get_upper_psi() {
+        let pgs: Vec<usize> = vec![0, 0, 1, 2, 2];
+        let psis: Vec<usize> = vec![2, 1, 4, 1, 1];
+        assert_eq!(get_upper_psi(0, &pgs, &psis), 0);
+        assert_eq!(get_upper_psi(1, &pgs, &psis), 3);
+        assert_eq!(get_upper_psi(2, &pgs, &psis), 7);
+        assert_eq!(get_upper_psi(3, &pgs, &psis), 9);
+        assert_eq!(get_upper_psi(4, &pgs, &psis), 9);
+        assert_eq!(get_upper_psi(5, &pgs, &psis), 9);
+    }
+}

@@ -38,6 +38,8 @@ pub enum MixOfflineErrorRepr {
     ProcessPlaintextsInput(String),
     #[error("Error processing in ProcessPlaintexts: {0}")]
     ProcessPlaintextsProcess(String),
+    #[error("Error processing in ProcessInvalidEncoding: {0}")]
+    ProcessInvalidEncodingProcess(String),
     #[error("Domain Error in inputs of VerifyVotingClientProofs: {0}")]
     VerifyVotingClientProofsInput(String),
     #[error("Error in processing VerifyVotingClientProofs: {0}")]
