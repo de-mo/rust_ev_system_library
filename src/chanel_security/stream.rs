@@ -337,6 +337,7 @@ mod test {
             let expected = json_value_to_bytearray_base64(&tc["output"]["P"])
                 .to_bytes()
                 .to_vec();
+            assert_eq!(res, expected, "{}", tc["description"].as_str().unwrap());
         }
     }
 
