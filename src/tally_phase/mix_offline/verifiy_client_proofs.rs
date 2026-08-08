@@ -17,7 +17,9 @@
 use std::collections::HashSet;
 
 use crate::{
-    preliminaries::{GetHashContextContext, PTable, PTableTrait, get_hash_context},
+    preliminaries::{
+        ElectoralModelContext, GetHashContextContext, PTable, PTableTrait, get_hash_context,
+    },
     tally_phase::mix_offline::MixOfflineErrorRepr,
 };
 use rust_ev_crypto_primitives::{
@@ -34,6 +36,7 @@ pub struct VerifyVotingClientProofsContext<'a> {
     pub ee: &'a str,
     pub vcs: &'a str,
     pub p_table: &'a PTable,
+    pub upper_lambda: &'a ElectoralModelContext,
     pub upper_n_upper_e: usize,
     pub el_pk: &'a [&'a Integer],
     pub pk_ccr: &'a [&'a Integer],
@@ -316,6 +319,7 @@ impl<'a> From<&VerifyVotingClientProofsContext<'a>> for GetHashContextContext<'a
             ee: value.ee,
             vcs: value.vcs,
             p_table: value.p_table,
+            upper_lambda: value.upper_lambda,
             el_pk: value.el_pk,
             pk_ccr: value.pk_ccr,
         }

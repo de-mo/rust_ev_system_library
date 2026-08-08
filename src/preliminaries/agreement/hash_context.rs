@@ -15,9 +15,9 @@
 // <https://www.gnu.org/licenses/>.
 
 use super::{AgreementError, AgreementErrorRepr};
-use crate::preliminaries::{PTable, PTableTrait};
+use crate::preliminaries::{ElectoralModelContext, PTable, PTableTrait};
 use rust_ev_crypto_primitives::{
-    elgamal::EncryptionParameters, EncodeTrait, HashableMessage, Integer, RecursiveHashTrait,
+    EncodeTrait, HashableMessage, Integer, RecursiveHashTrait, elgamal::EncryptionParameters,
 };
 
 /// Input structure of  GetHashContext according to the specifications
@@ -26,6 +26,7 @@ pub struct GetHashContextContext<'a> {
     pub ee: &'a str,
     pub vcs: &'a str,
     pub p_table: &'a PTable,
+    pub upper_lambda: &'a ElectoralModelContext,
     pub el_pk: &'a [&'a Integer],
     pub pk_ccr: &'a [&'a Integer],
 }
@@ -87,12 +88,44 @@ impl<'a> From<&'a GetHashContextContext<'a>> for HashableMessage<'a> {
             .collect::<Vec<_>>();
         h.push(HashableMessage::from("CorrectnessInformation"));
         h.append(&mut extension);
+        h.push(HashableMessage::from("NumberOfSelections"));
+        let mut extension = context
+            .upper_lambda
+            .number_of_selections()
+            .iter()
+            .map(|e| HashableMessage::from(e))
+            .collect::<Vec<_>>();
+        h.append(&mut extension);
+        h.push(HashableMessage::from("DomainsOfInfluence"));
+        let mut extension = context
+            .upper_lambda
+            .domains_of_influence()
+            .iter()
+            .map(|e| HashableMessage::from(e))
+            .collect::<Vec<_>>();
+        h.append(&mut extension);
+        h.push(HashableMessage::from("PresentationGroups"));
+        let mut extension = context
+            .upper_lambda
+            .presentation_groups()
+            .iter()
+            .map(|e| HashableMessage::from(e))
+            .collect::<Vec<_>>();
+        h.append(&mut extension);
+        h.push(HashableMessage::from("AbstentionGroups"));
+        let mut extension = context
+            .upper_lambda
+            .abstention_groups()
+            .iter()
+            .map(|e| HashableMessage::from(e))
+            .collect::<Vec<_>>();
+        h.append(&mut extension);
+        h.push(HashableMessage::from("ELpk"));
         let mut extension = context
             .el_pk
             .iter()
             .map(|&e| HashableMessage::from(e))
             .collect::<Vec<_>>();
-        h.push(HashableMessage::from("ELpk"));
         h.append(&mut extension);
         let mut extension = context
             .pk_ccr
@@ -107,14 +140,25 @@ impl<'a> From<&'a GetHashContextContext<'a>> for HashableMessage<'a> {
 
 #[cfg(test)]
 mod test {
+    use serde_json::Value;
+
     use super::*;
     use crate::{
         test_data::get_test_data_agreement,
-        test_json_data::json_to_p_table,
         test_json_data::{
-            json_array_value_to_array_integer_base64, json_to_encryption_parameters_base64,
+            json_array_value_to_array_integer_base64, json_array_value_to_array_string,
+            json_array_value_to_array_usize, json_to_encryption_parameters_base64, json_to_p_table,
         },
     };
+
+    pub fn json_to_electoral_model_context(value: &Value) -> ElectoralModelContext {
+        ElectoralModelContext::new(
+            json_array_value_to_array_usize(&value["psi"]),
+            json_array_value_to_array_string(&value["DoI"]),
+            json_array_value_to_array_usize(&value["pg"]),
+            json_array_value_to_array_integer_base64(&value["ag"]),
+        )
+    }
 
     #[test]
     fn test_hash_context() {
@@ -132,11 +176,13 @@ mod test {
             let el_pk = json_array_value_to_array_integer_base64(&context["ELpk"]);
             let pk_ccr = json_array_value_to_array_integer_base64(&context["pkCCR"]);
             let p_table = json_to_p_table(&context["pTable"]);
+            let upper_lambda = json_to_electoral_model_context(&context["Lambda"]);
             let hash_context_context = GetHashContextContext {
                 encryption_parameters: &ep,
                 ee,
                 vcs,
                 p_table: &p_table,
+                upper_lambda: &upper_lambda,
                 el_pk: &el_pk.iter().collect::<Vec<_>>(),
                 pk_ccr: &pk_ccr.iter().collect::<Vec<_>>(),
             };

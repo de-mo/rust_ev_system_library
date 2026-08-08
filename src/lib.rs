@@ -138,6 +138,15 @@ mod test_json_data {
             .collect()
     }
 
+    pub fn json_array_value_to_array_usize(array: &Value) -> Vec<usize> {
+        array
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_u64().unwrap() as usize)
+            .collect()
+    }
+
     pub fn json_array_value_to_array_integer_base64(array: &Value) -> Vec<Integer> {
         Integer::base_64_decode_vector(
             json_array_value_to_array_string(array)

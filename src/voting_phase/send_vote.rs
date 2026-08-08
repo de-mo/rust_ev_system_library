@@ -1,8 +1,8 @@
 use crate::{
     MAX_LENGTH_WRITE_IN_FIELD,
     preliminaries::{
-        AgreementError, ElectoralModelError, GetHashContextContext, PTable, PTableTrait,
-        WriteInsError, encode_write_ins, get_hash_context,
+        AgreementError, ElectoralModelContext, ElectoralModelError, GetHashContextContext, PTable,
+        PTableTrait, WriteInsError, encode_write_ins, get_hash_context,
     },
 };
 use rust_ev_crypto_primitives::{
@@ -65,6 +65,8 @@ pub struct CreateVoteContext<'a> {
     pub vc_id: &'a str,
     /// The pTable
     pub p_table: &'a PTable,
+    // The Electoral model context
+    pub upper_lambda: &'a ElectoralModelContext,
     /// The Election public key
     pub el_pk: &'a [Integer],
     /// The Choice Return Codes encryption public key
@@ -209,6 +211,7 @@ impl<'a> CreateVoteInput<'a> {
                 ee: context.ee_id,
                 vcs: context.vcs_id,
                 p_table: context.p_table,
+                upper_lambda: context.upper_lambda,
                 el_pk: context.el_pk.iter().collect::<Vec<_>>().as_slice(),
                 pk_ccr: context.pk_ccr.iter().collect::<Vec<_>>().as_slice(),
             })

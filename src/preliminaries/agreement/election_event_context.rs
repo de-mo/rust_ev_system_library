@@ -16,11 +16,11 @@
 
 use chrono::NaiveDateTime;
 use rust_ev_crypto_primitives::{
-    elgamal::EncryptionParameters, EncodeTrait, HashError, HashableMessage, RecursiveHashTrait,
+    EncodeTrait, HashError, HashableMessage, RecursiveHashTrait, elgamal::EncryptionParameters,
 };
 use thiserror::Error;
 
-use crate::preliminaries::PTableElement;
+use crate::preliminaries::{ElectoralModelContext, PTableElement};
 
 /// Enum representing the errors during the algorithms regardinf election event context
 #[derive(Error, Debug)]
@@ -47,7 +47,7 @@ pub struct VerificationCardSetContext<'a> {
     pub upper_n_upper_e: usize,
     pub grace_period: usize,
     pub p_table: &'a Vec<PTableElement>,
-    pub dois: &'a [String],
+    pub upper_lambda: &'a ElectoralModelContext,
 }
 
 /// Context for GetHashElectionEventContext. Fields according specification of Swiss Post.
@@ -99,7 +99,7 @@ impl<'a, 'hash> From<&'hash VerificationCardSetContext<'a>> for HashableMessage<
             HashableMessage::from(value.upper_n_upper_e),
             HashableMessage::from(value.grace_period),
             h_p_table_j,
-            HashableMessage::from(value.dois),
+            HashableMessage::from(value.upper_lambda),
         ])
     }
 }
@@ -136,7 +136,8 @@ mod test {
         preliminaries::{PTable, PTableElement},
         test_data::get_test_data_agreement,
         test_json_data::{
-            json_array_value_to_array_string, json_to_encryption_parameters_base64,
+            json_array_value_to_array_integer_base64, json_array_value_to_array_string,
+            json_array_value_to_array_usize, json_to_encryption_parameters_base64,
             json_value_to_naive_datetime,
         },
     };
@@ -156,7 +157,7 @@ mod test {
         start_time: &'a NaiveDateTime,
         stop_time: &'a NaiveDateTime,
         value: &'a Value,
-        dois: &'a [String],
+        upper_lambda: &'a ElectoralModelContext,
     ) -> VerificationCardSetContext<'a> {
         VerificationCardSetContext {
             vcs: value["verificationCardSetId"].as_str().unwrap(),
@@ -169,7 +170,7 @@ mod test {
             upper_n_upper_e: value["numberOfEligibleVoters"].as_u64().unwrap() as usize,
             grace_period: value["gracePeriod"].as_u64().unwrap() as usize,
             p_table,
-            dois,
+            upper_lambda,
         }
     }
 
@@ -192,6 +193,15 @@ mod test {
             .iter()
             .map(json_to_p_table_element)
             .collect()
+    }
+
+    pub fn json_to_electoral_model_context(value: &Value) -> ElectoralModelContext {
+        ElectoralModelContext::new(
+            json_array_value_to_array_usize(&value["numberOfSelectionsVector"]),
+            json_array_value_to_array_string(&value["domainsOfInfluence"]),
+            json_array_value_to_array_usize(&value["presentationGroupsVector"]),
+            json_array_value_to_array_integer_base64(&value["abstentionGroupsVector"]),
+        )
     }
 
     fn json_to_hashable_message<'a>(value: &'a Value) -> HashableMessage<'a> {
@@ -246,17 +256,17 @@ mod test {
                 .iter()
                 .map(|v| json_to_p_table(&v["primesMappingTable"]["pTable"]))
                 .collect::<Vec<_>>();
-            let doiss = json_vcs_contexts
+            let upper_lambdas = json_vcs_contexts
                 .iter()
-                .map(|v| json_array_value_to_array_string(&v["domainsOfInfluence"]))
+                .map(|v| json_to_electoral_model_context(&v["electoralModelContext"]))
                 .collect::<Vec<_>>();
             let vcs_contexts = json_vcs_contexts
                 .iter()
                 .zip(p_tables.iter())
-                .zip(doiss.iter())
+                .zip(upper_lambdas.iter())
                 .zip(start_times.iter().zip(finish_times.iter()))
-                .map(|(((v, p_table), dois), (st, ft))| {
-                    json_to_vcs_context(p_table, st, ft, v, dois.as_slice())
+                .map(|(((v, p_table), upper_lambda), (st, ft))| {
+                    json_to_vcs_context(p_table, st, ft, v, upper_lambda)
                 })
                 .collect::<Vec<_>>();
             let hash_context = GetHashElectionEventContextContext {

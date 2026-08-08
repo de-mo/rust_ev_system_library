@@ -1,6 +1,6 @@
 use crate::preliminaries::{
     AgreementError, DeriveBaseAuthenticationChallengeContext,
-    DeriveBaseAuthenticationChallengeInput, GetHashContextContext, PTable,
+    DeriveBaseAuthenticationChallengeInput, ElectoralModelContext, GetHashContextContext, PTable,
     VoterAuthenticationError, derive_credential_id, get_hash_context,
 };
 use rust_ev_crypto_primitives::argon2::{Argon2Error, Argon2id, Argon2idParameters};
@@ -205,6 +205,7 @@ pub struct GetKeyContext<'a> {
     pub vcs: &'a str,
     pub vc_id: &'a str,
     pub p_table: &'a PTable,
+    pub upper_lambda: &'a ElectoralModelContext,
     pub el_pk: &'a [&'a Integer],
     pub pk_ccr: &'a [&'a Integer],
 }
@@ -291,6 +292,7 @@ impl<'a> From<&'a GetKeyContext<'a>> for GetHashContextContext<'a> {
             ee: context.ee,
             vcs: context.vcs,
             p_table: context.p_table,
+            upper_lambda: context.upper_lambda,
             el_pk: context.el_pk,
             pk_ccr: context.pk_ccr,
         }

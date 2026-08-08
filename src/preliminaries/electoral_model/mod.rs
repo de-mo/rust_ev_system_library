@@ -22,7 +22,7 @@ mod primes_mapping_table;
 pub use factorize::*;
 pub use primes_mapping_table::*;
 
-use rust_ev_crypto_primitives::elgamal::EncryptionParameters;
+use rust_ev_crypto_primitives::{HashableMessage, Integer, elgamal::EncryptionParameters};
 use thiserror::Error;
 
 /// Enum representing the errors during the algorithms in electoral model
@@ -32,8 +32,6 @@ pub struct ElectoralModelError(#[from] ElectoralModelErrorRepr);
 
 #[derive(Error, Debug)]
 enum ElectoralModelErrorRepr {
-    #[error("Error output in get_blank_correctness_information: {0}")]
-    GetBlankCorrectnessInformationOutput(String),
     #[error("Error output in get_blank_actual_voting_options: {0}")]
     GetBlankActualVotingOptionsOutput(String),
     #[error("Error output in get_encoded_voting_options: {0}")]
@@ -70,5 +68,57 @@ impl<'a, 'b> EPPTableAsContext<'a, 'b> {
 
     pub fn encryption_parameters(&self) -> &'b EncryptionParameters {
         self.encryption_parameters
+    }
+}
+
+/// Context containing the electoral model parameters
+#[derive(Debug, Clone)]
+pub struct ElectoralModelContext {
+    number_of_selections: Vec<usize>,
+    domains_of_influence: Vec<String>,
+    presentation_groups: Vec<usize>,
+    abstention_groups: Vec<Integer>,
+}
+
+impl ElectoralModelContext {
+    pub fn new(
+        number_of_selections: Vec<usize>,
+        domains_of_influence: Vec<String>,
+        presentation_groups: Vec<usize>,
+        abstention_groups: Vec<Integer>,
+    ) -> Self {
+        Self {
+            number_of_selections,
+            domains_of_influence,
+            presentation_groups,
+            abstention_groups,
+        }
+    }
+
+    pub fn number_of_selections(&self) -> &[usize] {
+        &self.number_of_selections
+    }
+
+    pub fn domains_of_influence(&self) -> &[String] {
+        &self.domains_of_influence
+    }
+
+    pub fn presentation_groups(&self) -> &[usize] {
+        &self.presentation_groups
+    }
+
+    pub fn abstention_groups(&self) -> &[Integer] {
+        &self.abstention_groups
+    }
+}
+
+impl<'a> From<&'a ElectoralModelContext> for HashableMessage<'a> {
+    fn from(value: &'a ElectoralModelContext) -> Self {
+        HashableMessage::from(vec![
+            HashableMessage::from(value.number_of_selections.as_slice()),
+            HashableMessage::from(value.domains_of_influence.as_slice()),
+            HashableMessage::from(value.presentation_groups.as_slice()),
+            HashableMessage::from(value.abstention_groups.as_slice()),
+        ])
     }
 }
