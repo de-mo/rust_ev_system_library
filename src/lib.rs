@@ -27,7 +27,7 @@
 pub mod chanel_security;
 pub mod preliminaries;
 pub mod tally_phase;
-pub mod voting_phase;
+mod voting_phase;
 
 /// Maximum number of characters in a write-in field (l_w)
 pub const MAX_LENGTH_WRITE_IN_FIELD: usize = 400;

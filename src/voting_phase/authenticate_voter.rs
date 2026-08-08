@@ -1,3 +1,19 @@
+// Copyright © 2026 Denis Morel
+
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License and
+// a copy of the GNU General Public License along with this program. If not, see
+// <https://www.gnu.org/licenses/>.
+
 use crate::preliminaries::{
     AgreementError, DeriveBaseAuthenticationChallengeContext,
     DeriveBaseAuthenticationChallengeInput, ElectoralModelContext, GetHashContextContext, PTable,
@@ -7,7 +23,7 @@ use rust_ev_crypto_primitives::argon2::{Argon2Error, Argon2id, Argon2idParameter
 use rust_ev_crypto_primitives::elgamal::EncryptionParameters;
 use rust_ev_crypto_primitives::random::RandomError;
 use rust_ev_crypto_primitives::symmetric_authenticated_encryption::{
-    AuthenticatedEncryptionDecrypt, SymAuthenticatedEncryptionError,
+    AuthenticatedEncryptionDecrypt, SymAuthenticatedEncryptionError, get_symmetric_ciphertext_parts,
 };
 use rust_ev_crypto_primitives::{
     ByteArray, ByteArrayError, DecodeTrait, EncodeTrait, HashError, HashableMessage,
@@ -233,19 +249,13 @@ impl<'a> GetKeyInput<'a> {
                 }
             })?,
         ];
-        let vcks_id_combined = ByteArray::base64_decode(self.vcks_id).map_err(|e| {
-            AuthenticateVoterErrorRepr::ErrorByteArray {
-                reason: "Error decoding vcks_id".to_string(),
-                source: e,
-            }
-        })?;
-        let length = vcks_id_combined.len();
-        let split_ciphertext = length - (NONCE_LENGTH + SALT_LENGTH);
-        let split_nonce = split_ciphertext + NONCE_LENGTH;
-        let vcks_id_ciphertext = ByteArray::from(&vcks_id_combined.to_bytes()[..split_ciphertext]);
-        let vcks_id_nonce =
-            ByteArray::from(&vcks_id_combined.to_bytes()[split_ciphertext..split_nonce]);
-        let vcks_id_salt = ByteArray::from(&vcks_id_combined.to_bytes()[split_nonce..]);
+        let (vcks_id_ciphertext, vcks_id_nonce, vcks_id_salt) =
+            get_symmetric_ciphertext_parts(self.vcks_id).map_err(|e| {
+                AuthenticateVoterErrorRepr::SymAuthenticatedEncryptionError {
+                    reason: "Error getting symmetric ciphertext parts".to_string(),
+                    source: e,
+                }
+            })?;
         let dsvk_id = Argon2id::new(Argon2idParameters::Less)
             .get_argon2id(&ByteArray::from(self.svk_id), &vcks_id_salt)
             .map_err(|e| AuthenticateVoterErrorRepr::ErrorArgon2id {
