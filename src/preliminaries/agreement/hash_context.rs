@@ -140,8 +140,6 @@ impl<'a> From<&'a GetHashContextContext<'a>> for HashableMessage<'a> {
 
 #[cfg(test)]
 mod test {
-    use serde_json::Value;
-
     use super::*;
     use crate::{
         test_data::get_test_data_agreement,
