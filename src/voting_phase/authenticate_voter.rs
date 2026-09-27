@@ -221,7 +221,7 @@ pub struct GetKeyContext<'a> {
     pub vcs: &'a str,
     pub vc_id: &'a str,
     pub p_table: &'a PTable,
-    pub upper_lambda: &'a ElectoralModelContext,
+    pub upper_lambda: &'a ElectoralModelContext<'a>,
     pub el_pk: &'a [&'a Integer],
     pub pk_ccr: &'a [&'a Integer],
 }

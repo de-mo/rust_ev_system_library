@@ -36,7 +36,7 @@ pub struct VerifyVotingClientProofsContext<'a> {
     pub ee: &'a str,
     pub vcs: &'a str,
     pub p_table: &'a PTable,
-    pub upper_lambda: &'a ElectoralModelContext,
+    pub upper_lambda: &'a ElectoralModelContext<'a>,
     pub upper_n_upper_e: usize,
     pub el_pk: &'a [&'a Integer],
     pub pk_ccr: &'a [&'a Integer],

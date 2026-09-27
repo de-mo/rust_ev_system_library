@@ -85,7 +85,7 @@ pub struct CreateVoteContext<'a> {
     /// The pTable
     pub p_table: &'a PTable,
     // The Electoral model context
-    pub upper_lambda: &'a ElectoralModelContext,
+    pub upper_lambda: &'a ElectoralModelContext<'a>,
     /// The Election public key
     pub el_pk: &'a [Integer],
     /// The Choice Return Codes encryption public key

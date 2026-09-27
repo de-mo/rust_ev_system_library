@@ -21,7 +21,7 @@ mod verifiy_client_proofs;
 mod verify_mix_dec_offline;
 
 use crate::preliminaries::ElectoralModelError;
-pub use process_plaintexts::ProcessPlaintextsOutput;
+pub use process_plaintexts::{ProcessPlaintextsContext, ProcessPlaintextsOutput};
 use thiserror::Error;
 pub use verifiy_client_proofs::*;
 pub use verify_mix_dec_offline::*;

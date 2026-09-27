@@ -26,7 +26,7 @@ pub struct GetHashContextContext<'a> {
     pub ee: &'a str,
     pub vcs: &'a str,
     pub p_table: &'a PTable,
-    pub upper_lambda: &'a ElectoralModelContext,
+    pub upper_lambda: &'a ElectoralModelContext<'a>,
     pub el_pk: &'a [&'a Integer],
     pub pk_ccr: &'a [&'a Integer],
 }
@@ -34,7 +34,7 @@ pub struct GetHashContextContext<'a> {
 /// Algorithm 3.11
 ///
 /// Error [ElectoralModelError] if something is going wrong
-pub fn get_hash_context(context: &GetHashContextContext) -> Result<String, AgreementError> {
+pub fn get_hash_context(context: &GetHashContextContext<'_>) -> Result<String, AgreementError> {
     Ok(HashableMessage::from(context)
         .recursive_hash()
         .map_err(|e| AgreementErrorRepr::HashContext { source: e })?
@@ -43,7 +43,7 @@ pub fn get_hash_context(context: &GetHashContextContext) -> Result<String, Agree
 }
 
 impl<'a> From<&'a GetHashContextContext<'a>> for HashableMessage<'a> {
-    fn from(context: &'a GetHashContextContext) -> Self {
+    fn from(context: &'a GetHashContextContext<'a>) -> Self {
         let mut h = vec![
             HashableMessage::from("EncryptionParameters"),
             HashableMessage::from(context.encryption_parameters.p()),
@@ -151,15 +151,6 @@ mod test {
         },
     };
 
-    pub fn json_to_electoral_model_context(value: &Value) -> ElectoralModelContext {
-        ElectoralModelContext::new(
-            json_array_value_to_array_usize(&value["psi"]),
-            json_array_value_to_array_string(&value["DoI"]),
-            json_array_value_to_array_usize(&value["pg"]),
-            json_array_value_to_array_integer_base64(&value["ag"]),
-        )
-    }
-
     #[test]
     fn test_hash_context() {
         for tc in get_test_data_agreement("get-hash-context.json")
@@ -176,7 +167,11 @@ mod test {
             let el_pk = json_array_value_to_array_integer_base64(&context["ELpk"]);
             let pk_ccr = json_array_value_to_array_integer_base64(&context["pkCCR"]);
             let p_table = json_to_p_table(&context["pTable"]);
-            let upper_lambda = json_to_electoral_model_context(&context["Lambda"]);
+            let psi = json_array_value_to_array_usize(&context["Lambda"]["psi"]);
+            let doi = json_array_value_to_array_string(&context["Lambda"]["DoI"]);
+            let pg = json_array_value_to_array_usize(&context["Lambda"]["pg"]);
+            let ag = json_array_value_to_array_integer_base64(&context["Lambda"]["ag"]);
+            let upper_lambda = ElectoralModelContext::new(&psi, &doi, &pg, &ag);
             let hash_context_context = GetHashContextContext {
                 encryption_parameters: &ep,
                 ee,

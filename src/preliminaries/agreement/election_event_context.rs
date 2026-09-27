@@ -36,6 +36,7 @@ pub fn naive_datetime_to_string(datetime: &NaiveDateTime) -> String {
 }
 
 /// Context for Verification card sets. Fields according specification of Swiss Post.
+#[derive(Clone)]
 pub struct VerificationCardSetContext<'a> {
     pub vcs: &'a str,
     pub vcs_alias: &'a str,
@@ -47,10 +48,11 @@ pub struct VerificationCardSetContext<'a> {
     pub upper_n_upper_e: usize,
     pub grace_period: usize,
     pub p_table: &'a Vec<PTableElement>,
-    pub upper_lambda: &'a ElectoralModelContext,
+    pub upper_lambda: ElectoralModelContext<'a>,
 }
 
 /// Context for GetHashElectionEventContext. Fields according specification of Swiss Post.
+#[derive(Clone)]
 pub struct GetHashElectionEventContextContext<'a> {
     pub encryption_parameters: &'a EncryptionParameters,
     pub ee: &'a str,
@@ -72,15 +74,18 @@ pub struct GetHashElectionEventContextContext<'a> {
 pub fn get_hash_election_event_context(
     context: &GetHashElectionEventContextContext,
 ) -> Result<String, ElectionEventContextError> {
-    let h = HashableMessage::from(context);
+    let h = HashableMessage::from(context.clone());
     Ok(h.recursive_hash()
         .map_err(ElectionEventContextError)?
         .base64_encode()
         .unwrap())
 }
 
-impl<'a, 'hash> From<&'hash VerificationCardSetContext<'a>> for HashableMessage<'a> {
-    fn from(value: &'hash VerificationCardSetContext<'a>) -> Self {
+impl<'a, 'hash> From<VerificationCardSetContext<'a>> for HashableMessage<'hash>
+where
+    'a: 'hash,
+{
+    fn from(value: VerificationCardSetContext<'a>) -> Self {
         let h_p_table_j = HashableMessage::from(vec![HashableMessage::from(
             value
                 .p_table
@@ -99,17 +104,21 @@ impl<'a, 'hash> From<&'hash VerificationCardSetContext<'a>> for HashableMessage<
             HashableMessage::from(value.upper_n_upper_e),
             HashableMessage::from(value.grace_period),
             h_p_table_j,
-            HashableMessage::from(value.upper_lambda),
+            HashableMessage::from(value.upper_lambda.clone()),
         ])
     }
 }
 
-impl<'a, 'hash> From<&'hash GetHashElectionEventContextContext<'a>> for HashableMessage<'a> {
-    fn from(value: &'hash GetHashElectionEventContextContext<'a>) -> Self {
+impl<'a, 'hash> From<GetHashElectionEventContextContext<'a>> for HashableMessage<'hash>
+where
+    'a: 'hash,
+{
+    fn from(value: GetHashElectionEventContextContext<'a>) -> Self {
         let h_vcs = HashableMessage::from(
             value
                 .vcs_contexts
                 .iter()
+                .cloned()
                 .map(HashableMessage::from)
                 .collect::<Vec<_>>(),
         );
@@ -157,7 +166,7 @@ mod test {
         start_time: &'a NaiveDateTime,
         stop_time: &'a NaiveDateTime,
         value: &'a Value,
-        upper_lambda: &'a ElectoralModelContext,
+        upper_lambda: ElectoralModelContext<'a>,
     ) -> VerificationCardSetContext<'a> {
         VerificationCardSetContext {
             vcs: value["verificationCardSetId"].as_str().unwrap(),
@@ -193,15 +202,6 @@ mod test {
             .iter()
             .map(json_to_p_table_element)
             .collect()
-    }
-
-    pub fn json_to_electoral_model_context(value: &Value) -> ElectoralModelContext {
-        ElectoralModelContext::new(
-            json_array_value_to_array_usize(&value["numberOfSelectionsVector"]),
-            json_array_value_to_array_string(&value["domainsOfInfluence"]),
-            json_array_value_to_array_usize(&value["presentationGroupsVector"]),
-            json_array_value_to_array_integer_base64(&value["abstentionGroupsVector"]),
-        )
     }
 
     fn json_to_hashable_message<'a>(value: &'a Value) -> HashableMessage<'a> {
@@ -256,9 +256,27 @@ mod test {
                 .iter()
                 .map(|v| json_to_p_table(&v["primesMappingTable"]["pTable"]))
                 .collect::<Vec<_>>();
-            let upper_lambdas = json_vcs_contexts
+            let upper_lambda_values = json_vcs_contexts
                 .iter()
-                .map(|v| json_to_electoral_model_context(&v["electoralModelContext"]))
+                .map(|v| {
+                    let psi = json_array_value_to_array_usize(
+                        &v["electoralModelContext"]["numberOfSelectionsVector"],
+                    );
+                    let doi = json_array_value_to_array_string(
+                        &v["electoralModelContext"]["domainsOfInfluence"],
+                    );
+                    let pg = json_array_value_to_array_usize(
+                        &v["electoralModelContext"]["presentationGroupsVector"],
+                    );
+                    let ag = json_array_value_to_array_integer_base64(
+                        &v["electoralModelContext"]["abstentionGroupsVector"],
+                    );
+                    (psi, doi, pg, ag)
+                })
+                .collect::<Vec<_>>();
+            let upper_lambdas = upper_lambda_values
+                .iter()
+                .map(|(psi, doi, pg, ag)| ElectoralModelContext::new(psi, doi, pg, ag))
                 .collect::<Vec<_>>();
             let vcs_contexts = json_vcs_contexts
                 .iter()
@@ -266,7 +284,7 @@ mod test {
                 .zip(upper_lambdas.iter())
                 .zip(start_times.iter().zip(finish_times.iter()))
                 .map(|(((v, p_table), upper_lambda), (st, ft))| {
-                    json_to_vcs_context(p_table, st, ft, v, upper_lambda)
+                    json_to_vcs_context(p_table, st, ft, v, upper_lambda.clone())
                 })
                 .collect::<Vec<_>>();
             let hash_context = GetHashElectionEventContextContext {
@@ -282,7 +300,7 @@ mod test {
                 delta_max,
             };
             let h = json_to_hashable_message(&test_case["output"]["h"]);
-            let comp = HashableMessage::from(&hash_context).compare_to(&h, None);
+            let comp = HashableMessage::from(hash_context.clone()).compare_to(&h, None);
             assert!(comp.is_ok(), "{}", comp.unwrap_err());
             assert_eq!(
                 get_hash_election_event_context(&hash_context).unwrap(),

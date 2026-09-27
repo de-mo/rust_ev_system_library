@@ -73,19 +73,19 @@ impl<'a, 'b> EPPTableAsContext<'a, 'b> {
 
 /// Context containing the electoral model parameters
 #[derive(Debug, Clone)]
-pub struct ElectoralModelContext {
-    number_of_selections: Vec<usize>,
-    domains_of_influence: Vec<String>,
-    presentation_groups: Vec<usize>,
-    abstention_groups: Vec<Integer>,
+pub struct ElectoralModelContext<'a> {
+    number_of_selections: &'a Vec<usize>,
+    domains_of_influence: &'a Vec<String>,
+    presentation_groups: &'a Vec<usize>,
+    abstention_groups: &'a Vec<Integer>,
 }
 
-impl ElectoralModelContext {
+impl<'a> ElectoralModelContext<'a> {
     pub fn new(
-        number_of_selections: Vec<usize>,
-        domains_of_influence: Vec<String>,
-        presentation_groups: Vec<usize>,
-        abstention_groups: Vec<Integer>,
+        number_of_selections: &'a Vec<usize>,
+        domains_of_influence: &'a Vec<String>,
+        presentation_groups: &'a Vec<usize>,
+        abstention_groups: &'a Vec<Integer>,
     ) -> Self {
         Self {
             number_of_selections,
@@ -95,25 +95,28 @@ impl ElectoralModelContext {
         }
     }
 
-    pub fn number_of_selections(&self) -> &[usize] {
-        &self.number_of_selections
+    pub fn number_of_selections(&self) -> &'a Vec<usize> {
+        self.number_of_selections
     }
 
-    pub fn domains_of_influence(&self) -> &[String] {
-        &self.domains_of_influence
+    pub fn domains_of_influence(&self) -> &'a Vec<String> {
+        self.domains_of_influence
     }
 
-    pub fn presentation_groups(&self) -> &[usize] {
-        &self.presentation_groups
+    pub fn presentation_groups(&self) -> &'a Vec<usize> {
+        self.presentation_groups
     }
 
-    pub fn abstention_groups(&self) -> &[Integer] {
-        &self.abstention_groups
+    pub fn abstention_groups(&self) -> &'a Vec<Integer> {
+        self.abstention_groups
     }
 }
 
-impl<'a> From<&'a ElectoralModelContext> for HashableMessage<'a> {
-    fn from(value: &'a ElectoralModelContext) -> Self {
+impl<'a, 'hash> From<ElectoralModelContext<'a>> for HashableMessage<'hash>
+where
+    'a: 'hash,
+{
+    fn from(value: ElectoralModelContext<'a>) -> Self {
         HashableMessage::from(vec![
             HashableMessage::from(value.number_of_selections.as_slice()),
             HashableMessage::from(value.domains_of_influence.as_slice()),
